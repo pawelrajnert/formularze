@@ -150,6 +150,80 @@ def _resolve_show_if(node: dict, what: str, labels: dict[str, list[list[str] | N
     node["show_if"] = {"field": field, "equals": equals}
 
 
+# --- F-16: pola atomowe (mentorzy: każda dana w osobnym polu) ---------------------------------------------------
+_SPLITS: list[tuple[re.Pattern, list[tuple[str, list[str]]]]] = [
+    # (wzorzec etykiety zbiorczej, [(nowa etykieta, walidatory)])
+    (re.compile(r"^(imi[eę] i nazwisko|nazwisko i imi[eę])(?P<rest>\s+.*)?$", re.I), [("Imię", []), ("Nazwisko", [])]),
+    (re.compile(r"^(numer )?telefonu?\s*(/|i|,)\s*(adres )?e-?mail(?P<rest>\s+.*)?$", re.I),
+     [("Numer telefonu", []), ("Adres e-mail", ["EMAIL"])]),
+    (re.compile(r"^(adres )?e-?mail\s*(/|i|,)\s*(numer )?telefon\w*(?P<rest>\s+.*)?$", re.I),
+     [("Adres e-mail", ["EMAIL"]), ("Numer telefonu", [])]),
+    (re.compile(r"^(numer )?nip\s*(/|i|,|lub)\s*(numer )?regon(?P<rest>\s+.*)?$", re.I), [("NIP", ["NIP"]), ("REGON", ["REGON"])]),
+    (re.compile(r"^(numer )?regon\s*(/|i|,|lub)\s*(numer )?nip(?P<rest>\s+.*)?$", re.I), [("REGON", ["REGON"]), ("NIP", ["NIP"])]),
+    (re.compile(r"^(numer )?telefonu?\s*/\s*fax\w*(?P<rest>\s+.*)?$", re.I), [("Numer telefonu", [])]),
+]
+
+# formy zależne od płci -> neutralne (standard COI); kolejność: najpierw dłuższe frazy
+_NEUTRAL: list[tuple[re.Pattern, str]] = [
+    # zamienniki zachowują przypadek dopełnienia: „z regulaminem” / „odpowiedzialności karnej”
+    (re.compile(r"(?:że\s+)?zapozna[lł]em\s*/\s*a?m\s+si[eę]\s+z", re.I), "potwierdzam zapoznanie się z"),
+    (re.compile(r"jestem\s+[śs]wiadom(y|a)?\s*/\s*a?", re.I), "mam świadomość"),
+    (re.compile(r"\b(\w+)[lł]em\s*/\s*(a?[lł]?am)\b", re.I), r"\1łem lub \1łam"),  # fallback: obie formy wprost
+]
+
+
+def neutralize(text: str) -> str:
+    out = text
+    for rx, repl in _NEUTRAL:
+        out = rx.sub(repl, out)
+    if out != text and out[:1].islower() and text[:1].isupper():
+        out = out[:1].upper() + out[1:]
+    return out
+
+
+def _caps_options(opts: list[str]) -> list[str]:
+    """„TAK”/„NIE”/„WYNAJEM” -> „Tak”/„Nie”/„Wynajem” (wersaliki z papieru)."""
+    return [o[:1].upper() + o[1:].lower() if len(o) > 1 and o.isupper() else o for o in opts]
+_COMBINED = re.compile(r"\w\s*/\s*\w")  # „Nazwa firmy/Imię”, „adres/siedziba” — zostawiamy, ale ostrzegamy
+
+
+def atomize(pages: list[dict], changes: list[str], warnings: list[str]) -> int:
+    """Rozbija typowe pola zbiorcze na atomowe (zachowuje typ, wymagalność, show_if). Zwraca liczbę rozbitych."""
+    n = 0
+    for page in pages:
+        for sec in page["sections"]:
+            out = []
+            for f in sec["fields"]:
+                if (neutral := neutralize(f["label"])) != f["label"]:
+                    changes.append(f"„{f['label'][:60]}” → „{neutral[:60]}” (forma neutralna płciowo, standard COI).")
+                    f["label"] = neutral
+                f["hint"] = neutralize(f.get("hint") or "")
+                if f["type"] in CHOICE and (caps := _caps_options(f["options"])) != f["options"]:
+                    old = dict(zip(f["options"], caps))
+                    f["options"] = caps
+                    for p2 in pages:  # warunki wskazujące stare opcje
+                        for s2 in p2["sections"]:
+                            for node in [s2, *s2["fields"]]:
+                                si = node.get("show_if")
+                                if si and si.get("field") == f["label"] and si.get("equals") in old:
+                                    si["equals"] = old[si["equals"]]
+                rule = next(((rx, parts) for rx, parts in _SPLITS if f["type"] == "TEXT_FIELD" and rx.match(f["label"])), None)
+                if rule is None:
+                    if f["type"] in ("TEXT_FIELD", "TEXTAREA") and _COMBINED.search(f["label"]):
+                        warnings.append(f"Pole „{f['label'][:60]}” wygląda na zbiorcze (ukośnik) — rozważ rozbicie lub pole wyboru.")
+                    out.append(f)
+                    continue
+                rest = (rule[0].match(f["label"]).group("rest") or "").rstrip()
+                for label, validators in rule[1]:
+                    out.append({**f, "label": label + rest, "validators": list(dict.fromkeys(f["validators"] + validators)),
+                                "prefill": "", "default": ""})
+                changes.append(f"Pole zbiorcze „{f['label']}” rozbite na: {', '.join(l + rest for l, _ in rule[1])} "
+                               "(jedna dana = jedno pole, łatwiej wypełnić i sprawdzić).")
+                n += 1
+            sec["fields"] = out
+    return n
+
+
 # --- F-09: typowe zależności dopisywane deterministycznie (gdy LLM ich nie dał) -----------------------------------
 _IF_YES = re.compile(r"^\s*(je[sś]li|je[zż]eli|w przypadku)\b[^,:]{0,40}\b(tak|twierdz)", re.IGNORECASE)
 _IF_NO = re.compile(r"^\s*(je[sś]li|je[zż]eli|w przypadku)\b[^,:]{0,40}\b(nie|przecz)\b", re.IGNORECASE)
@@ -226,6 +300,7 @@ def postprocess(draft: Draft, removed: list[str], warnings: list[str]) -> Draft 
     if not pages:
         return None
     d["pages"] = pages
+    atomize(pages, removed, warnings)
     infer_dependencies(pages, warnings)
 
     # show_if: tylko do istniejących pól (builder adresuje po labelu; TEXT_BLOCK nie ma odpowiedzi)
