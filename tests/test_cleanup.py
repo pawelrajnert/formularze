@@ -176,3 +176,14 @@ def test_r03_unsupported_statement_loses_required():
     assert req == {"Oświadczam, że zapoznałem się z regulaminem świetlicy": True,
                    "Oświadczam, że podane dane są prawdziwe i aktualne": False, "Liczba osób": True}
     assert len(notes) == 1 and "nie występuje w dokumencie" in notes[0]
+
+
+def test_r03_runs_after_tidy():
+    """D-01: zgoda RODO od LLM jest usuwana przez tidy (jest w szablonie) — nie może lądować w „do sprawdzenia”."""
+    d = Draft.model_validate({"title": "T", "pages": [{"title": "S", "sections": [{"title": "Oświadczenia", "fields": [
+        fld("Zgadzam się na przetwarzanie moich danych osobowych", "CHECKBOX", required=True),
+        fld("Oświadczam, że dane są prawdziwe", "CHECKBOX", required=True), fld("Cel", required=True)]}]}]})
+    notes = []
+    build(d, notes, "Wniosek. Cel wniosku: ...")
+    flagged = [n for n in notes if "nie występuje w dokumencie" in n]
+    assert len(flagged) == 1 and "dane są prawdziwe" in flagged[0]

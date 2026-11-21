@@ -8,7 +8,6 @@ from hackcore import (IngestError, LLMClient, MissingAPIKey, MissingDependency, 
 
 from app import approval, config
 from app.form_builder.builder import build
-from app.form_builder.cleanup import unsupported_statements
 from app.form_builder.draft_llm import draft_summary, make_draft
 from app.form_builder.draft_postprocess import paper_reason
 from app.rules_check import check
@@ -140,8 +139,7 @@ def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "", m
     if title_hint and not doc.text.strip():  # pusty dokument: tytuł z nazwy pliku zamiast „Wniosek”
         result.draft.title = title_hint[:255]
     notes: list[str] = []
-    unsupported_statements(result.draft, doc.text, notes)
-    form = build(result.draft, notes)
+    form = build(result.draft, notes, doc.text)
     if errs := check(form):  # make_draft już to sprawdza — tu tylko bezpiecznik
         raise ConversionError(f"Formularz nie przeszedł walidacji: {'; '.join(errs[:5])}")
     # S-02: oznaczenie AI (art. 50) OBOK formularza — `form` zostaje czystym JSON-em zgodnym ze schematem

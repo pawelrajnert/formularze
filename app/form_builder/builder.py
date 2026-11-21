@@ -13,7 +13,7 @@ from html import escape
 from pathlib import Path
 
 from app.form_builder import templates
-from app.form_builder.cleanup import tidy
+from app.form_builder.cleanup import tidy, unsupported_statements
 from app.form_builder.draft import Draft
 from app.form_builder.enrich import dictionary, enrich, norm
 
@@ -153,8 +153,10 @@ class _Builder:
                     self.by_option.setdefault(o, path)
         return out
 
-    def build(self, draft: Draft) -> dict:
+    def build(self, draft: Draft, source_text: str | None = None) -> dict:
         draft = tidy(draft, self.notes)
+        if source_text is not None:  # po tidy: nie flagujemy oświadczeń, które sprzątanie i tak usunęło (RODO z szablonu)
+            unsupported_statements(draft, source_text, self.notes)
         # same szablony to nie formularz: szkic bez pól merytorycznych (np. tylko „Podpis”) -> błąd, fallback w F-06
         if not any(s.fields for p in draft.pages for s in p.sections or []):
             raise ValueError("szkic nie zawiera żadnego pola - nie da się zbudować formularza")
@@ -223,10 +225,11 @@ class _Builder:
         return {"title": draft.title, "tabs": tabs, "flow": {"links": links}}
 
 
-def build(draft: Draft, notes: list | None = None) -> dict:
-    """`notes` (opcjonalnie) dostaje listę poprawek sprzątania i pominiętych warunków."""
+def build(draft: Draft, notes: list | None = None, source_text: str | None = None) -> dict:
+    """`notes` (opcjonalnie) dostaje listę poprawek sprzątania i pominiętych warunków.
+    `source_text` (tekst dokumentu) włącza R-03: oświadczenia bez pokrycia w dokumencie tracą REQUIRED."""
     b = _Builder()
-    form = b.build(draft)
+    form = b.build(draft, source_text)
     if notes is not None:
         notes += b.notes
     return form
