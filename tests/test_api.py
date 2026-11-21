@@ -15,7 +15,8 @@ client = TestClient(app)
 
 @pytest.fixture(autouse=True)
 def env(monkeypatch):
-    s = dataclasses.replace(config.settings, auth_enabled=True, auth_user="admin", auth_password="pw", jwt_secret="s" * 32)
+    s = dataclasses.replace(config.settings, auth_enabled=True, auth_user="admin", auth_password="pw", jwt_secret="s" * 32,
+                            llm_api_key="")  # nigdy prawdziwe LLM w testach
     monkeypatch.setattr(config, "settings", s)
 
 
@@ -46,14 +47,6 @@ def test_convert_requires_token():
 def test_auth_disabled(monkeypatch):
     monkeypatch.setattr(config, "settings", dataclasses.replace(config.settings, auth_enabled=False))
     assert upload("a.pdf", FILES["pdf"].read_bytes(), headers={}).status_code == 200
-
-
-@pytest.mark.parametrize("ext", FILES)
-def test_convert_real_files(ext):
-    data = FILES[ext].read_bytes()
-    r = upload(FILES[ext].name, data)
-    assert r.status_code == 200, r.text
-    assert r.json() == {"filename": FILES[ext].name, "ext": ext, "size": len(data)}
 
 
 @pytest.mark.parametrize("name", ["a;b.pdf", "x" * 247 + ".pdf", "a$.pdf", " "])

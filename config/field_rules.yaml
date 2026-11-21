@@ -1,0 +1,52 @@
+# F-08: słowniki, dane inicjalne (prefill) i walidatory rozpoznawane po labelu pola.
+# Źródła: "Hacknation - Słowniki (1).docx", "Dane inicjalne - materialy dodatkowe ... (2).pdf",
+# przykłady data/1 i data/5 (konfiguracja_form_*.json). Label jest normalizowany: małe litery,
+# bez polskich znaków, wszystko poza [a-z0-9] -> spacja ("Adres e-mail *" -> "adres e mail").
+# Pierwsza pasująca reguła wygrywa (kolejność ma znaczenie).
+
+# nazwa słownika -> konfiguracja pola SELECT (wartości jak w przykładach data/1, data/5)
+dictionaries:
+  Kraje: {multiLevelTree: false, searchEnabled: true, default: [Polska]}
+  TERYT_4G_DOWODOWY: {multiLevelTree: true, searchEnabled: true}
+  TERYT_DOWODOWY: {multiLevelTree: true, searchEnabled: true}
+  # nazwa techniczna nieznana z przykładów; wzięta wprost z dokumentu Słowniki ("Słownik Numery kierunkowe"),
+  # analogicznie do "Słownik Kraje" -> dictionaryName "Kraje"
+  Numery kierunkowe: {multiLevelTree: false, searchEnabled: true}
+
+# źródła danych inicjalnych (PDF, tabela "Dostępne źródła danych"); rejestry wymuszają readOnly
+sources: [PESEL, PESEL_ADDRESS, MLPZ]
+registry_sources: [PESEL, PESEL_ADDRESS]
+
+# prefill z reguł tylko dla danych wnioskodawcy: pomijamy sekcje o innych osobach i sekcje powtarzalne,
+# a każdy klucz dostaje tylko pierwsze pasujące pole w formularzu
+prefill_skip_sections: "pelnomocni|innej osoby|inna osoba|wspol|malzon|dziec|zmarl|spadko|reprezent|podmiot|siedzib"
+
+rules:
+  # --- słowniki (convert: TEXT_FIELD -> SELECT dozwolone; false = tylko gdy szkic już dał SELECT)
+  - {match: "^(kraj|panstwo)\\b|obywatelstw", dictionary: Kraje}
+  - {match: "^(wojewodztwo|powiat|gmina)$", dictionary: TERYT_4G_DOWODOWY}
+  # miejscowość bywa zagraniczna (Kraj = Inny kraj) -> słownik tylko, gdy szkic sam dał listę wyboru
+  - {match: "^miejscowosc$", dictionary: TERYT_4G_DOWODOWY, convert: false}
+  - {match: "kierunkow|prefiks", dictionary: Numery kierunkowe}
+  # --- walidatory (+ dane inicjalne)
+  - {match: "\\bpesel\\b", validators: [PESEL], prefill: PESEL.pesel}
+  - {match: "\\bnip\\b", validators: [NIP]}
+  - {match: "\\bregon\\b", validators: [REGON]}
+  - {match: "e doreczen|doreczen elektronicznych", validators: [ADE]}
+  - {match: "\\bepuap\\b", validators: [EPUAP]}
+  - {match: "\\be ?mail\\b|poczty elektronicznej", validators: [EMAIL], prefill: MLPZ.email}
+  - {match: "^kod pocztowy$", validators: [ZIP_CODE], prefill: MLPZ.postCode}
+  - {match: "dowodu osobistego|seria i numer dowodu", validators: [SERIAL_NUMBER_ID_CARD]}
+  # --- dane inicjalne (readOnly jak w przykładach: imię/nazwisko tak, adres/kontakt edytowalne)
+  - {match: "^imie$", prefill: MLPZ.name, read_only: true}
+  - {match: "^drugie imie$", prefill: MLPZ.secondName, read_only: true}
+  - {match: "^nazwisko$", prefill: MLPZ.surname, read_only: true}
+  - {match: "^nazwisko rodowe$", prefill: PESEL.familyName}
+  - {match: "^data urodzenia$", prefill: PESEL.birthDate}
+  - {match: "^miejsce urodzenia$", prefill: PESEL.birthPlace}
+  - {match: "^imie ojca$", prefill: PESEL.fatherName}
+  - {match: "^imie matki$", prefill: PESEL.motherName}
+  - {match: "^(numer |nr )?telefonu?\\b", prefill: MLPZ.phoneNumber}
+  - {match: "^ulica$", prefill: MLPZ.street}
+  - {match: "^(numer|nr) (budynku|domu)$", prefill: MLPZ.building}
+  - {match: "^(numer|nr) (lokalu|mieszkania)$", prefill: MLPZ.apartment}

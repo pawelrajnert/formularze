@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'">
+<title>COI — cyfryzacja formularzy</title>
+<style>
+:root { --fg:#1a1a1a; --muted:#4a4f57; --bg:#f4f6f9; --card:#fff; --line:#c9ced6; --pri:#0052a5; --pri-d:#003d7a; --ok:#1b6b2f; --ok-bg:#e6f4ea; --err:#a4001d; --err-bg:#fdecee; --warn-bg:#fff6d6; }
+* { box-sizing:border-box; }
+body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--fg); background:var(--bg); }
+header { background:var(--pri); color:#fff; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+header h1 { font-size:1.15rem; margin:0; }
+main { max-width:1400px; margin:0 auto; padding:16px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; margin-bottom:16px; }
+h2 { font-size:1.1rem; margin:0 0 12px; }
+label { font-weight:600; display:block; margin-bottom:4px; }
+input, select, textarea, button { font:inherit; }
+input:not([type=checkbox]):not([type=radio]), select, textarea { width:100%; padding:8px 10px; border:1px solid #6b7280; border-radius:4px; background:#fff; color:var(--fg); min-height:44px; }
+input:disabled, select:disabled, textarea:disabled { background:#eceef1; color:#3b3f45; }
+:focus-visible { outline:3px solid #ffbf47; outline-offset:2px; }
+button { cursor:pointer; border:2px solid var(--pri); background:var(--pri); color:#fff; padding:8px 16px; border-radius:4px; min-height:44px; font-weight:600; }
+button:hover { background:var(--pri-d); }
+button.sec { background:#fff; color:var(--pri); }
+button.sec:hover { background:#e8f0fa; }
+button:disabled { opacity:.6; cursor:not-allowed; }
+header button { border-color:#fff; }
+.row { margin-bottom:12px; }
+.login { max-width:420px; }
+#drop { display:block; border:2px dashed #6b7280; border-radius:8px; padding:28px 16px; text-align:center; cursor:pointer; font-weight:400; }
+#drop.over { border-color:var(--pri); background:#e8f0fa; }
+#drop strong { color:var(--pri); }
+.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }
+.msg { padding:10px 12px; border-radius:4px; margin-top:12px; }
+.msg.err { background:var(--err-bg); color:var(--err); border:1px solid var(--err); }
+.msg.ok { background:var(--ok-bg); color:var(--ok); border:1px solid var(--ok); }
+.msg.warn { background:var(--warn-bg); border:1px solid #8a6d00; }
+.spin { display:inline-block; width:18px; height:18px; border:3px solid #c9ced6; border-top-color:var(--pri); border-radius:50%; animation:r 1s linear infinite; vertical-align:-3px; margin-right:8px; }
+@keyframes r { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) { .spin { animation:none; } }
+.trace { display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; }
+.trace ul { margin:4px 0 0; padding-left:20px; }
+.grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:16px; align-items:start; }
+@media (max-width:900px) { .grid { grid-template-columns:minmax(0,1fr); } }
+pre { margin:0; max-height:75vh; overflow:auto; background:#0f1720; color:#e6edf3; padding:12px; border-radius:4px; font-size:13px; }
+[role=tablist] { display:flex; gap:4px; flex-wrap:wrap; border-bottom:2px solid var(--line); margin-bottom:16px; }
+[role=tab] { background:#fff; color:var(--pri); border:1px solid var(--line); border-bottom:0; border-radius:4px 4px 0 0; }
+[role=tab][aria-selected=true] { background:var(--pri); color:#fff; border-color:var(--pri); }
+fieldset.sec { border:1px solid var(--line); border-radius:6px; padding:12px 16px; margin:0 0 16px; }
+fieldset.sec > legend { font-weight:700; font-size:1.05rem; padding:0 6px; }
+fieldset.grp { border:0; padding:0; margin:0; }
+fieldset.grp > legend { font-weight:600; padding:0; margin-bottom:4px; }
+.fld { margin-bottom:14px; }
+.opt { display:flex; gap:8px; align-items:flex-start; margin:4px 0; font-weight:400; }
+.opt input { width:20px; height:20px; margin-top:2px; flex:none; }
+.req { color:var(--err); }
+.hint { color:var(--muted); font-size:.9rem; margin:2px 0 4px; }
+.hint p, .txt p { margin:0 0 6px; }
+.info { background:#e8f0fa; border-left:4px solid var(--pri); padding:8px 12px; }
+details.tip { display:inline; font-weight:400; }
+details.tip summary { display:inline-block; cursor:pointer; color:var(--pri); border:1px solid var(--pri); border-radius:50%; width:22px; height:22px; text-align:center; line-height:20px; font-size:.8rem; margin-left:6px; list-style:none; }
+details.tip summary::-webkit-details-marker { display:none; }
+details.tip[open] > div { background:var(--warn-bg); border:1px solid #8a6d00; padding:6px 8px; border-radius:4px; margin:4px 0; font-size:.9rem; }
+.navbtns { display:flex; justify-content:space-between; gap:8px; margin-top:8px; }
+a { color:var(--pri); }
+</style>
+</head>
+<body>
+<header>
+  <h1>COI — cyfryzacja formularzy</h1>
+  <button id="logout" class="sec" type="button" hidden>Wyloguj</button>
+</header>
+<main>
+  <section id="login" class="card login" hidden aria-labelledby="login-h">
+    <h2 id="login-h">Logowanie</h2>
+    <form id="login-form">
+      <div class="row"><label for="username">Login</label><input id="username" name="username" autocomplete="username" required></div>
+      <div class="row"><label for="password">Hasło</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+      <button type="submit">Zaloguj</button>
+      <div id="login-msg" role="alert"></div>
+    </form>
+  </section>
+
+  <section id="upload" class="card" hidden aria-labelledby="up-h">
+    <h2 id="up-h">Dokument do konwersji</h2>
+    <form id="up-form">
+      <label id="drop" for="file">
+        <strong>Przeciągnij plik tutaj</strong> albo kliknij, aby wybrać<br>
+        <span class="hint">PDF, DOC, DOCX, ODS, XLSX, JPG, JPEG, PNG</span><br>
+        <span id="fname"></span>
+      </label>
+      <input id="file" class="sr" tabindex="-1" type="file" accept=".pdf,.doc,.docx,.ods,.xlsx,.jpg,.jpeg,.png">
+      <div class="actions">
+        <button id="go" type="submit" disabled>Konwertuj</button>
+        <span id="status" role="status" aria-live="polite"></span>
+      </div>
+      <div id="up-msg" role="alert"></div>
+    </form>
+  </section>
+
+  <section id="result" hidden aria-label="Wynik konwersji">
+    <div id="trace" class="card trace" aria-label="Przebieg konwersji"></div>
+    <div class="grid">
+      <section class="card" aria-labelledby="json-h">
+        <h2 id="json-h">JSON formularza</h2>
+        <div class="actions" style="margin:0 0 12px">
+          <button id="dl" type="button">Pobierz JSON</button>
+          <button id="copy" type="button" class="sec">Kopiuj</button>
+          <span id="copy-st" role="status" aria-live="polite"></span>
+        </div>
+        <pre id="json" tabindex="0" aria-label="Kod JSON formularza"></pre>
+      </section>
+      <section class="card" aria-labelledby="pv-h">
+        <h2 id="pv-h">Podgląd formularza</h2>
+        <div id="preview"></div>
+      </section>
+    </div>
+  </section>
+</main>
+<script src="/web/vendor/jsonata.min.js"></script>
+<script>
+"use strict";
+const API = "/api/v1";
+const EXTS = ["pdf", "doc", "docx", "ods", "xlsx", "jpg", "jpeg", "png"];
+const $ = (id) => document.getElementById(id);
+let token = sessionStorage.getItem("coi_token") || "";
+let file = null, result = null;
+
+function show(id) { ["login", "upload"].forEach((s) => ($(s).hidden = s !== id)); }
+function authHeaders() { return token ? { Authorization: "Bearer " + token } : {}; }
+function setMsg(el, text, cls = "err") { el.className = text ? "msg " + cls : ""; el.textContent = text; }
+
+async function errorText(r) {
+  let d = "";
+  try { d = (await r.json()).detail; } catch { /* brak JSON */ }
+  if (Array.isArray(d)) d = d.map((x) => x.msg).join("; ");
+  const base = { 400: "Nieprawidłowe żądanie", 401: "Brak autoryzacji", 413: "Plik jest za duży", 415: "Nieobsługiwany format pliku", 422: "Nie udało się przetworzyć dokumentu", 503: "Usługa nie jest skonfigurowana" }[r.status] || "Błąd serwera (" + r.status + ")";
+  return d ? base + ": " + d : base;
+}
+
+// start: jeśli /convert nie zwraca 401 bez pliku, logowanie jest zbędne
+(async () => {
+  try {
+    const r = await fetch(API + "/forms/convert", { method: "POST", headers: authHeaders() });
+    if (r.status === 401) { token = ""; sessionStorage.removeItem("coi_token"); show("login"); $("username").focus(); }
+    else { show("upload"); $("logout").hidden = !token; }
+  } catch { show("upload"); setMsg($("up-msg"), "Brak połączenia z serwerem."); }
+})();
+
+$("login-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  setMsg($("login-msg"), "");
+  try {
+    const r = await fetch(API + "/auth/token", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: $("username").value, password: $("password").value }) });
+    if (!r.ok) return setMsg($("login-msg"), await errorText(r));
+    token = (await r.json()).access_token;
+    sessionStorage.setItem("coi_token", token);
+    $("password").value = "";
+    show("upload"); $("logout").hidden = false; $("drop").focus();
+  } catch { setMsg($("login-msg"), "Brak połączenia z serwerem."); }
+});
+$("logout").addEventListener("click", () => { token = ""; sessionStorage.removeItem("coi_token"); $("logout").hidden = true; $("result").hidden = true; show("login"); });
+
+// --- upload ---
+function pick(f) {
+  setMsg($("up-msg"), "");
+  const ext = (f.name.split(".").pop() || "").toLowerCase();
+  if (!f.name.includes(".") || !EXTS.includes(ext)) {
+    file = null; $("go").disabled = true; $("fname").textContent = "";
+    return setMsg($("up-msg"), "Nieobsługiwany format „." + ext + "”. Dozwolone: " + EXTS.join(", ") + ".");
+  }
+  file = f; $("go").disabled = false;
+  $("fname").textContent = "Wybrano: " + f.name + " (" + Math.ceil(f.size / 1024) + " KB)";
+}
+$("drop").tabIndex = 0;
+$("drop").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
+$("file").addEventListener("change", () => $("file").files[0] && pick($("file").files[0]));
+["dragenter", "dragover"].forEach((t) => $("drop").addEventListener(t, (e) => { e.preventDefault(); $("drop").classList.add("over"); }));
+["dragleave", "drop"].forEach((t) => $("drop").addEventListener(t, (e) => { e.preventDefault(); $("drop").classList.remove("over"); }));
+$("drop").addEventListener("drop", (e) => e.dataTransfer.files[0] && pick(e.dataTransfer.files[0]));
+
+$("up-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!file) return;
+  setMsg($("up-msg"), "");
+  $("go").disabled = true;
+  const t0 = Date.now();
+  const tick = () => { $("status").innerHTML = '<span class="spin" aria-hidden="true"></span>Trwa konwersja… ' + Math.round((Date.now() - t0) / 1000) + " s (z LLM zwykle 10–60 s)"; };
+  tick();
+  const timer = setInterval(tick, 1000);
+  try {
+    const fd = new FormData(); fd.append("file", file);
+    const r = await fetch(API + "/forms/convert?debug=true", { method: "POST", headers: authHeaders(), body: fd });
+    if (r.status === 401 && token) { token = ""; sessionStorage.removeItem("coi_token"); show("login"); setMsg($("login-msg"), "Sesja wygasła — zaloguj się ponownie."); return; }
+    if (!r.ok) return setMsg($("up-msg"), await errorText(r));
+    result = await r.json();
+    result.stem = file.name.replace(/\.[^.]+$/, "");
+    showResult();
+  } catch (err) {
+    setMsg($("up-msg"), "Błąd połączenia lub odpowiedzi: " + err.message);
+  } finally {
+    clearInterval(timer); $("status").textContent = result ? "Gotowe w " + Math.round((Date.now() - t0) / 1000) + " s." : ""; $("go").disabled = !file;
+  }
+});
+
+// --- wynik ---
+function showResult() {
+  const tr = result.trace || {}, errs = tr.rules_errors || [];
+  const box = $("trace"); box.innerHTML = "";
+  const item = (label, val) => { const d = document.createElement("div"); d.innerHTML = "<strong></strong> "; d.firstChild.textContent = label; d.append(val); box.append(d); };
+  item("Źródło szkicu:", tr.source === "llm" ? "LLM" : tr.source === "heuristic" ? "heurystyka" : "—");
+  if (tr.reason) item("Powód:", tr.reason);
+  item("Znaków tekstu:", String(tr.text_chars ?? "—"));
+  const v = document.createElement("div"); v.style.flexBasis = "100%";
+  if (!errs.length) { v.className = "msg ok"; v.textContent = "✓ Zgodny z regułami COI"; }
+  else {
+    v.className = "msg err";
+    v.textContent = "Błędy walidatora (" + errs.length + ")" + (tr.source === "heuristic" ? " — szkic LLM odrzucony, użyto heurystyki:" : ":");
+    const ul = document.createElement("ul"); errs.forEach((x) => { const li = document.createElement("li"); li.textContent = x; ul.append(li); }); v.append(ul);
+  }
+  box.append(v);
+  $("json").textContent = JSON.stringify(result.form, null, 2);
+  $("result").hidden = false;
+  renderForm(result.form);
+  $("trace").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+$("dl").addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(result.form, null, 2)], { type: "application/json" }));
+  a.download = result.stem + ".json"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$("copy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("json").textContent); $("copy-st").textContent = "Skopiowano."; }
+  catch { getSelection().selectAllChildren($("json")); $("copy-st").textContent = "Zaznaczono — naciśnij Ctrl+C."; }
+});
+
+// --- podgląd formularza ---
+// HTML z opisów pochodzi z dokumentu/LLM: parsujemy bezpiecznie i wycinamy skrypty, on*, javascript:
+function safeHtml(html) {
+  const doc = new DOMParser().parseFromString(html || "", "text/html");
+  doc.body.querySelectorAll("script,style,iframe,object,embed,link,meta,form,base,svg").forEach((e) => e.remove());
+  doc.body.querySelectorAll("*").forEach((el) => {
+    for (const a of [...el.attributes]) {
+      const n = a.name.toLowerCase(), val = a.value.trim().toLowerCase();
+      if (n.startsWith("on")) el.removeAttribute(a.name);
+      else if (["href", "src", "xlink:href", "action", "formaction"].includes(n) && !(/^(https?:|mailto:|#)/.test(val) || (n === "src" && val.startsWith("data:image/")))) el.removeAttribute(a.name);
+    }
+    if (el.tagName === "A") { el.target = "_blank"; el.rel = "noopener noreferrer"; }
+  });
+  return (doc.body.textContent.trim() || doc.body.querySelector("img")) ? doc.body.innerHTML : "";
+}
+const byPos = (a, b) => (a.y ?? 0) - (b.y ?? 0) || (a.x ?? 0) - (b.x ?? 0);
+const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
+let uid = 0, model = null, stated = [], gen = 0;
+const compiled = new Map();
+
+function tabOrder(tabs, links) {
+  const byId = new Map(tabs.map((t) => [t.id, t])), next = new Map((links || []).map((l) => [l.source, l.target]));
+  const targets = new Set((links || []).map((l) => l.target));
+  const out = [];
+  let cur = tabs.find((t) => !targets.has(t.id) && t.type !== "FINISH") || tabs[0];
+  while (cur && !out.includes(cur)) { out.push(cur); cur = byId.get(next.get(cur.id)); }
+  tabs.forEach((t) => !out.includes(t) && out.push(t)); // taby spoza flow na koniec
+  return [...out.filter((t) => t.type !== "FINISH"), ...out.filter((t) => t.type === "FINISH")];
+}
+
+function renderForm(form) {
+  model = structuredClone(form); uid = 0; stated = []; compiled.clear();
+  const pv = $("preview"); pv.innerHTML = "";
+  if (model.title) pv.append(el("h3", { textContent: model.title }));
+  const tabs = tabOrder(model.tabs || [], model.flow && model.flow.links);
+  const list = el("div", { role: "tablist", ariaLabel: "Kroki formularza" });
+  const panels = tabs.map((t, i) => {
+    const panel = el("div", { role: "tabpanel", id: "tp" + i, tabIndex: -1, hidden: i > 0 });
+    panel.setAttribute("aria-labelledby", "tb" + i);
+    [...(t.questions || [])].sort(byPos).forEach((q) => q.field && panel.append(renderField(q.field)));
+    const nav = el("div", { className: "navbtns" });
+    nav.append(i > 0 ? el("button", { type: "button", className: "sec", textContent: "← Wstecz", onclick: () => select(i - 1) }) : el("span"));
+    if (i < tabs.length - 1) nav.append(el("button", { type: "button", textContent: "Dalej →", onclick: () => select(i + 1) }));
+    panel.append(nav);
+    return panel;
+  });
+  const btns = tabs.map((t, i) => {
+    const b = el("button", { type: "button", role: "tab", id: "tb" + i, textContent: (i + 1) + ". " + (t.title || "Krok"), tabIndex: i ? -1 : 0, onclick: () => select(i) });
+    b.setAttribute("aria-selected", String(!i)); b.setAttribute("aria-controls", "tp" + i);
+    b.addEventListener("keydown", (e) => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d) { select((i + d + tabs.length) % tabs.length); btns[(i + d + tabs.length) % tabs.length].focus(); } });
+    return b;
+  });
+  function select(i) {
+    btns.forEach((b, j) => { b.setAttribute("aria-selected", String(i === j)); b.tabIndex = i === j ? 0 : -1; });
+    panels.forEach((p, j) => (p.hidden = i !== j));
+    panels[i].focus();
+  }
+  list.append(...btns); pv.append(list, ...panels);
+  evalStates();
+}
+
+function isRequired(f) { return [].concat(f.validation || []).some((v) => (v && v.type ? v.type : v) === "REQUIRED"); }
+function labelFor(f, id) {
+  const lab = el("label", { htmlFor: id, textContent: f.title || f.techName || "" });
+  if (isRequired(f)) lab.append(" ", el("span", { className: "req", textContent: "*", title: "pole wymagane" }), el("span", { className: "sr", textContent: "(wymagane)" }));
+  return lab;
+}
+function tooltip(f) {
+  if (!f.tooltipMessage) return "";
+  return el("details", { className: "tip" }, el("summary", { textContent: "?", ariaLabel: "Podpowiedź" }), el("div", { textContent: f.tooltipMessage }));
+}
+function hint(f, id) {
+  const h = f.type === "TEXT_BLOCK" || f.type === "INFO_SECTION" ? "" : safeHtml(f.description);
+  return h ? el("div", { className: "hint", id: id + "h", innerHTML: h }) : "";
+}
+function answer(f, v) { f.__userAnswer = v; evalStates(); }
+function asArr(v) { return v == null ? [] : Array.isArray(v) ? v : [v]; }
+
+function renderField(f) {
+  const id = "c" + uid++, wrap = el("div", { className: "fld" }), ro = f.readOnly ? "1" : "";
+  const ext = f.defaultValueType === "EXTERNAL_SYSTEM";  // defaultValue to klucz rejestru (np. PESEL.name), nie wartość
+  if (!ext && f.defaultValue != null && !(Array.isArray(f.defaultValue) && !f.defaultValue.length)) f.__userAnswer = f.defaultValue;
+  if ((f.states || []).length) stated.push({ f, wrap });
+  const input = (tag, props) => {
+    const c = el(tag, { id, ...props });
+    c.dataset.ro = ro;
+    if (isRequired(f)) c.required = true;
+    if (f.description && hint(f, id)) c.setAttribute("aria-describedby", id + "h");
+    return c;
+  };
+  const opts = (f.options || []).map((o) => ({ v: o.id ?? o.name, t: o.name ?? o.id }));
+  switch (f.type) {
+    case "SECTION": case "REPEATING_SECTION": {
+      const fs = el("fieldset", { className: "sec" }, el("legend", { textContent: f.title || "" }));
+      if (f.title && isRequired(f)) fs.firstChild.append(" ", el("span", { className: "req", textContent: "*" }));
+      fs.firstChild.append(tooltip(f));
+      const h = safeHtml(f.description); if (h) fs.append(el("div", { className: "hint", innerHTML: h }));
+      // shortcut: sekcja powtarzalna pokazuje jeden wiersz, bez dodawania kolejnych
+      if (f.type === "REPEATING_SECTION") fs.append(el("p", { className: "hint", textContent: "Sekcja powtarzalna — w podglądzie jeden wiersz." }));
+      [...(f.repeatingSectionGrid || [])].sort(byPos).forEach((g) => g.field && fs.append(renderField(g.field)));
+      wrap.append(fs); return wrap;
+    }
+    case "TEXT_BLOCK": case "INFO_SECTION":
+      wrap.append(el("div", { className: f.type === "INFO_SECTION" ? "txt info" : "txt", innerHTML: safeHtml(f.description) || (f.title || "") }));
+      return wrap;
+    case "RADIO": case "CHECKBOX": {
+      const multi = f.type === "CHECKBOX";
+      if (multi && !opts.length) { // pojedynczy checkbox
+        const c = input("input", { type: "checkbox", checked: !!f.__userAnswer, onchange: () => answer(f, c.checked) });
+        const lab = labelFor(f, id); lab.className = "opt"; lab.prepend(c);
+        wrap.append(lab, tooltip(f), hint(f, id)); return wrap;
+      }
+      const fs = el("fieldset", { className: "grp" }), lg = el("legend");
+      lg.append(f.title || f.techName || "");
+      if (isRequired(f)) lg.append(" ", el("span", { className: "req", textContent: "*" }), el("span", { className: "sr", textContent: "(wymagane)" }));
+      lg.append(tooltip(f)); fs.append(lg, hint(f, id));
+      const cur = asArr(f.__userAnswer);
+      opts.forEach((o, i) => {
+        const c = el("input", { type: multi ? "checkbox" : "radio", name: id, id: id + "_" + i, value: o.v, checked: cur.includes(o.v) });
+        c.dataset.ro = ro;
+        c.onchange = () => answer(f, multi ? [...fs.querySelectorAll("input:checked")].map((x) => x.value) : o.v);
+        fs.append(el("label", { className: "opt", htmlFor: c.id }, c, o.t));
+      });
+      wrap.append(fs); return wrap;
+    }
+    case "SELECT": {
+      const cur = asArr(f.__userAnswer).map(String), list = [...opts];
+      cur.forEach((v) => !list.some((o) => o.v === v) && list.push({ v, t: v }));
+      // shortcut: słowniki COI (np. Kraje, TERYT) nie są ładowane — sztuczna opcja pozwala przełączyć stany
+      if (f.dictionaryName && !opts.length) list.push({ v: "(inna wartość ze słownika)", t: "(inna wartość ze słownika " + f.dictionaryName + ")" });
+      const c = input("select", { onchange: () => answer(f, c.value || null) });
+      c.append(el("option", { value: "", textContent: "— wybierz —" }), ...list.map((o) => el("option", { value: o.v, textContent: o.t, selected: cur.includes(o.v) })));
+      wrap.append(labelFor(f, id), tooltip(f), hint(f, id), c);
+      if (f.dictionaryName) wrap.append(el("div", { className: "hint", textContent: "Słownik: " + f.dictionaryName }));
+      return wrap;
+    }
+    case "CONSENT_SECTION": {
+      const consents = (f.consentSectionConfig && f.consentSectionConfig.consents) || [];
+      if (f.title) wrap.append(el("p", { textContent: f.title, style: "font-weight:600" }));
+      consents.forEach((k, i) => {
+        const c = el("input", { type: "checkbox", id: id + "_" + i, required: !!k.required });
+        c.dataset.ro = ro;
+        const lab = el("label", { className: "opt", htmlFor: c.id }, c, el("span", { innerHTML: safeHtml(k.description) || "Zgoda" }));
+        if (k.required) lab.append(el("span", { className: "req", textContent: " *" }), el("span", { className: "sr", textContent: "(wymagane)" }));
+        wrap.append(lab);
+      });
+      return wrap;
+    }
+    case "FILE_UPLOADER": {
+      const c = input("input", { type: "file" });
+      wrap.append(labelFor(f, id), tooltip(f), hint(f, id), c, el("div", { className: "hint", textContent: "Podgląd — plik nie jest wysyłany." }));
+      return wrap;
+    }
+    case "TEXTAREA": case "TEXT_FIELD": case "NUMBER": case "DATEPICKER": {
+      const c = f.type === "TEXTAREA" ? input("textarea", { rows: 4 }) : input("input", { type: { NUMBER: "number", DATEPICKER: "date" }[f.type] || "text" });
+      if (f.__userAnswer != null) c.value = String(f.__userAnswer);
+      if (ext) c.placeholder = "🔒 uzupełni się z rejestru: " + f.defaultValue;
+      c.oninput = () => answer(f, c.value);
+      wrap.append(labelFor(f, id), tooltip(f), hint(f, id), c);
+      return wrap;
+    }
+    default:
+      wrap.append(el("div", { className: "msg warn", textContent: "Nieobsługiwany w podglądzie typ pola: " + f.type + (f.title ? " (" + f.title + ")" : "") }));
+      return wrap;
+  }
+}
+
+async function evalStates() {
+  const my = ++gen;
+  const res = await Promise.all(stated.map(async ({ f, wrap }) => {
+    let show = true, ro = false;
+    for (const s of f.states) {
+      try {
+        if (!compiled.has(s.query)) compiled.set(s.query, jsonata(s.query));
+        const v = !!(await compiled.get(s.query).evaluate(model));
+        if (s.type === "SHOW") show = show && v; else if (s.type === "READ_ONLY") ro = ro || v;
+      } catch (e) { console.warn("Błąd JSONata w polu", f.techName, s.query, e.message); }
+    }
+    return { wrap, show, ro };
+  }));
+  if (my !== gen) return; // nowsza zmiana już w toku
+  res.forEach(({ wrap, show, ro }) => { wrap.hidden = !show; wrap.classList.toggle("st-ro", ro); });
+  $("preview").querySelectorAll("input,select,textarea").forEach((c) => (c.disabled = c.dataset.ro === "1" || !!c.closest(".st-ro")));
+}
+</script>
+</body>
+</html>

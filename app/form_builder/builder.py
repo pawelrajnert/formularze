@@ -11,6 +11,7 @@ from html import escape
 from pathlib import Path
 
 from app.form_builder.draft import Draft
+from app.form_builder.enrich import dictionary, enrich
 
 CHOICE = {"SELECT", "RADIO", "CHECKBOX"}
 EMPTY_HTML = "<html><head></head><body></body></html>"
@@ -51,6 +52,9 @@ class _Builder:
         self.pending: list[tuple[dict, object, str]] = []  # (pole/sekcja, show_if, sekcja pola) do rozwiązania na końcu
         self.choice: set[str] = set()  # labele, pod którymi zapisano już pole wyboru
         self.local: dict[tuple[str, str], str] = {}  # (techName sekcji, label) -> ścieżka; ma pierwszeństwo
+        self.prefilled: set[str] = set()  # klucze danych inicjalnych już użyte (tylko pierwsze pole = wnioskodawca)
+        self.negate: dict[str, tuple[str, str]] = {}  # ścieżka pola słownikowego -> (opcja domyślna, druga opcja ze szkicu)
+        self.sec = None  # bieżąca sekcja szkicu
 
     def tech(self, label: str, fallback: str) -> str:
         base = slug(label) or fallback
@@ -72,7 +76,8 @@ class _Builder:
             "readOnly": f.read_only, "repeatingSectionGrid": [],
         }
         if f.default:
-            out["defaultValue"] = f.default
+            out["defaultValue"] = [f.default] if t in CHOICE else f.default  # reguły: "defaultValue": [] dla list
+        enrich(out, f, self.prefilled, self.sec.title, self.sec.repeating)
         if t == "CONSENT_SECTION":
             out["consentSectionConfig"] = {"consents": [{"description": _html(f.label), "required": f.required}], "files": []}
         out |= {"states": [], "questionOrder": order, "tooltipMessage": ""}
@@ -82,6 +87,9 @@ class _Builder:
             path = (f"tabs[{_js(tab_title)} in title].questions[{_js(sec_tech)} in field.techName]"
                     f".field.repeatingSectionGrid[{_js(out['techName'])} in field.techName].field.__userAnswer")
             self.local.setdefault((sec_tech, f.label), path)
+            # słownik zastąpił opcje "Polska"/"Inny kraj" -> warunek na drugą opcję to $not(domyślna)
+            if out.get("dictionaryName") and len(f.options) == 2 and f.default in f.options:
+                self.negate[path] = (f.default, next(o for o in f.options if o != f.default))
             # globalnie przy powtórzonym labelu wygrywa pierwsze pole wyboru, potem pierwsze w ogóle
             if f.label not in self.paths or (t in CHOICE and f.label not in self.choice):
                 self.paths[f.label] = path
@@ -94,7 +102,14 @@ class _Builder:
         for page in draft.pages:
             questions, y = [], 0
             for sec in page.sections or []:
-                fields = list(sec.fields or [])
+                # województwo/powiat/gmina/... -> jedno pole-drzewo TERYT na sekcję, kolejne poziomy pomijamy
+                fields, teryt = [], False
+                for f in sec.fields or []:
+                    is_teryt = dictionary(f).startswith("TERYT")
+                    if not (is_teryt and teryt):
+                        fields.append(f)
+                    teryt |= is_teryt
+                self.sec = sec
                 if not fields:
                     continue
                 sec_tech = self.tech(sec.title, "sekcja")
@@ -115,8 +130,14 @@ class _Builder:
             raise ValueError("szkic nie zawiera żadnego pola - nie da się zbudować formularza")
         for target, cond, sec_tech in self.pending:
             path = self.local.get((sec_tech, cond.field)) or self.paths.get(cond.field)
-            if path:  # nieznany label sterujący -> pole zawsze widoczne
-                target["states"].append({"type": "SHOW", "query": f"({json.dumps(cond.equals, ensure_ascii=False)} in {path})"})
+            if not path:  # nieznany label sterujący -> pole zawsze widoczne
+                continue
+            neg = self.negate.get(path)
+            if neg and cond.equals == neg[1]:
+                query = f"$not({json.dumps(neg[0], ensure_ascii=False)} in {path})"
+            else:
+                query = f"({json.dumps(cond.equals, ensure_ascii=False)} in {path})"
+            target["states"].append({"type": "SHOW", "query": query})
         finish = {
             "id": _uid(), "type": "TEXT_BLOCK", "techName": self.tech("podglad", "podglad"), "title": "",
             "description": _html(draft.finish_text or FINISH_TEXT), "options": [], "validation": [],

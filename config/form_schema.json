@@ -87,7 +87,8 @@
                       "items": {}
                     },
                     "defaultValue": {
-                      "type": "string"
+                      "type": ["string", "array"],
+                      "items": {"type": "string"}
                     },
                     "defaultValueType": {
                       "type": "string"

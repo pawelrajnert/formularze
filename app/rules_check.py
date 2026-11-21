@@ -7,7 +7,8 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 
 # Kopia data/.../importowanyPlikJsonSchemat (1).json z poprawioną literówką
-# "repetingSectionGrid" -> "repeatingSectionGrid" (przykłady i JSONata używają tej drugiej nazwy).
+# "repetingSectionGrid" -> "repeatingSectionGrid" (przykłady i JSONata używają tej drugiej nazwy)
+# oraz defaultValue string-or-array (Reguły techniczne: pola wyboru mają "defaultValue": [...]).
 SCHEMA = json.loads((Path(__file__).resolve().parent.parent / "config" / "form_schema.json").read_text("utf-8"))
 _validator = Draft202012Validator(SCHEMA)
 

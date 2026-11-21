@@ -1,10 +1,15 @@
+from pathlib import Path
+
 from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 from starlette.formparsers import MultiPartParser
 
 from app import config
-from app.pipeline import convert_document
+from app.ingest import IngestError
+from app.pipeline import ConversionError, convert_document
 from app.security import check_credentials, create_token, require_auth, require_configured
 from app.validation import check_content, check_name, read_limited
 
@@ -12,6 +17,8 @@ from app.validation import check_content, check_name, read_limited
 MultiPartParser.spool_max_size = 1 << 40
 
 app = FastAPI(title="COI — cyfryzacja formularzy", version="0.1.0")
+WEB_DIR = Path(__file__).resolve().parent.parent / "web"
+app.mount("/web", StaticFiles(directory=WEB_DIR), name="web")
 
 
 def _max_bytes() -> int:
@@ -29,6 +36,11 @@ async def reject_big_bodies(request: Request, call_next):
 class Credentials(BaseModel):
     username: str
     password: str
+
+
+@app.get("/", include_in_schema=False)
+def index() -> FileResponse:
+    return FileResponse(WEB_DIR / "index.html")
 
 
 @app.get("/health")
@@ -49,4 +61,11 @@ async def convert(file: UploadFile, debug: bool = False) -> dict:
     ext = check_name(file.filename)
     data = await read_limited(file, _max_bytes())
     check_content(data, ext)
-    return {"filename": file.filename, **convert_document(data, ext, debug)}
+    stem = file.filename.rsplit(".", 1)[0]
+    try:
+        # w wątku: OCR/LibreOffice/LLM blokują, a pętla zdarzeń ma obsługiwać inne żądania
+        result = await run_in_threadpool(convert_document, data, ext, debug, stem)
+    except (IngestError, ConversionError) as e:
+        raise HTTPException(422, str(e)) from e
+    # 504 nieużywane: błąd/timeout LLM zawsze kończy się fallbackiem heurystycznym w pipeline
+    return {"filename": file.filename, **result}
