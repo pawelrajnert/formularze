@@ -1,0 +1,338 @@
+[
+ {
+  "x": 0,
+  "y": 5,
+  "rows": 4,
+  "cols": 3,
+  "field": {
+   "id": "1515724d-e864-44d2-accc-f612d508065a",
+   "type": "SECTION",
+   "techName": "twoje_dane",
+   "title": "Twoje dane",
+   "description": "<html><head></head><body></body></html>",
+   "options": [],
+   "validation": [],
+   "readOnly": false,
+   "repeatingSectionGrid": [
+    {
+     "x": 0,
+     "y": 1,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "367694f6-4e43-476f-872a-66b08bdfa2e5",
+      "type": "TEXT_FIELD",
+      "techName": "nazwisko",
+      "title": "Nazwisko",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": true,
+      "repeatingSectionGrid": [],
+      "defaultValue": "PESEL.surname",
+      "defaultValueType": "EXTERNAL_SYSTEM",
+      "states": [],
+      "questionOrder": 1,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 0,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "acf4962c-0631-4667-b022-b7dcd170c037",
+      "type": "TEXT_FIELD",
+      "techName": "imie",
+      "title": "Imię",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": true,
+      "repeatingSectionGrid": [],
+      "defaultValue": "PESEL.name",
+      "defaultValueType": "EXTERNAL_SYSTEM",
+      "states": [],
+      "questionOrder": 0,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 2,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "312e236c-8a71-4cae-91cc-7e4854d487d5",
+      "type": "TEXT_FIELD",
+      "techName": "numer_pesel",
+      "title": "Numer PESEL",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": true,
+      "repeatingSectionGrid": [],
+      "defaultValue": "PESEL.pesel",
+      "defaultValueType": "EXTERNAL_SYSTEM",
+      "states": [],
+      "questionOrder": 2,
+      "tooltipMessage": ""
+     }
+    }
+   ],
+   "states": [],
+   "questionOrder": 5,
+   "tooltipMessage": ""
+  }
+ },
+ {
+  "x": 0,
+  "y": 9,
+  "rows": 9,
+  "cols": 3,
+  "field": {
+   "id": "daf23e57-fdcc-44cf-a2c0-4cff5c6e5f92",
+   "type": "SECTION",
+   "techName": "adres_zamieszkania",
+   "title": "Adres zamieszkania",
+   "description": "<html><head></head><body></body></html>",
+   "options": [],
+   "validation": [],
+   "readOnly": false,
+   "repeatingSectionGrid": [
+    {
+     "x": 0,
+     "y": 5,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "21016e72-7988-48f1-976b-2cbd91ef4b1b",
+      "type": "TEXT_FIELD",
+      "techName": "kod_pocztowy",
+      "title": "Kod pocztowy",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "defaultValue": "MLPZ.postCode",
+      "defaultValueType": "EXTERNAL_SYSTEM",
+      "states": [
+       {
+        "type": "SHOW",
+        "query": "(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+       }
+      ],
+      "questionOrder": 5,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 6,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "9b56b589-6c9a-498d-ad26-433b67d058cd",
+      "type": "TEXT_FIELD",
+      "techName": "ulica",
+      "title": "Ulica",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "defaultValue": "MLPZ.street",
+      "defaultValueType": "EXTERNAL_SYSTEM",
+      "states": [
+       {
+        "type": "SHOW",
+        "query": "(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+       }
+      ],
+      "questionOrder": 6,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 4,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "9ad0102d-3a24-44f9-8713-7c44b49ff361",
+      "type": "SELECT",
+      "techName": "wojewodztwo",
+      "title": "TERYT_4G_DOWODOWY",
+      "description": "",
+      "dictionaryName": "TERYT_4G_DOWODOWY",
+      "options": [],
+      "multiLevelTree": true,
+      "validation": [],
+      "searchEnabled": true,
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "defaultValue": [],
+      "states": [
+       {
+        "type": "SHOW",
+        "query": "(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+       }
+      ],
+      "questionOrder": 4,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 7,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "22106d5d-3f4e-41f7-b304-992c7976ab5b",
+      "type": "TEXT_FIELD",
+      "techName": "numer_budynku",
+      "title": "Numer budynku",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "defaultValue": "MLPZ.building",
+      "defaultValueType": "EXTERNAL_SYSTEM",
+      "states": [],
+      "questionOrder": 7,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 3,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "33a1176d-bb3a-49f6-8b2b-eb575845d4aa",
+      "type": "TEXT_FIELD",
+      "techName": "ulica_zagranica",
+      "title": "Ulica",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "states": [
+       {
+        "type": "SHOW",
+        "query": "$not(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+       }
+      ],
+      "questionOrder": 3,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 1,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "56fc776d-a833-4cf0-a7a6-ff45b3acf531",
+      "type": "TEXT_FIELD",
+      "techName": "miejscowosc_zagranica",
+      "title": "Miejscowość",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "states": [
+       {
+        "type": "SHOW",
+        "query": "$not(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+       }
+      ],
+      "questionOrder": 1,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 0,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "d5136840-c719-4e32-9cc6-53e26b9e75f2",
+      "type": "SELECT",
+      "techName": "kraj",
+      "title": "Kraj",
+      "description": "",
+      "dictionaryName": "Kraje",
+      "options": [],
+      "multiLevelTree": false,
+      "validation": [],
+      "searchEnabled": true,
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "defaultValue": [
+       "Polska"
+      ],
+      "states": [],
+      "questionOrder": 0,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 2,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "e7e405ef-30f4-4f18-abda-3c3ec3858744",
+      "type": "TEXT_FIELD",
+      "techName": "kod_pocztowy_zagranica",
+      "title": "Kod pocztowy",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "states": [
+       {
+        "type": "SHOW",
+        "query": "$not(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+       }
+      ],
+      "questionOrder": 2,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 8,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "b4e30636-61bf-4470-90e6-85404ff2735d",
+      "type": "TEXT_FIELD",
+      "techName": "numer_lokalu",
+      "title": "Numer lokalu",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "defaultValue": "MLPZ.apartment",
+      "defaultValueType": "EXTERNAL_SYSTEM",
+      "states": [],
+      "questionOrder": 8,
+      "tooltipMessage": ""
+     }
+    }
+   ],
+   "states": [],
+   "questionOrder": 9,
+   "tooltipMessage": ""
+  }
+ }
+]

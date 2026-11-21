@@ -19,12 +19,12 @@ def fields(form):
         yield from walk(t["questions"])
 
 
-def form_of(*flds, title="Wnioskodawca", repeating=False):
-    d = Draft.model_validate({"title": "T", "pages": [{"title": "Dane", "sections": [
+def form_of(*flds, title="Sprawa", repeating=False):
+    d = Draft.model_validate({"title": "T", "pages": [{"title": "Strona", "sections": [
         {"title": title, "repeating": repeating, "fields": list(flds)}]}]})
     form = build(d)
     assert check(form) == []
-    return {f["title"]: f for f in fields(form)}
+    return {f["title"]: f for f in fields({"tabs": form["tabs"][1:-2]})}  # bez stron z szablonów (F-14)
 
 
 def tf(label, **kw):
@@ -42,7 +42,10 @@ def test_required_defaults_to_false():
 def test_pesel_gets_validator_and_prefill():
     f = form_of(tf("Numer PESEL"))["Numer PESEL"]
     assert f["validation"] == ["PESEL"]
-    assert (f["defaultValue"], f["defaultValueType"], f["readOnly"]) == ("PESEL.pesel", "EXTERNAL_SYSTEM", True)
+    # PESEL.pesel ma już szablon „Twoje dane” (F-14) -> drugi raz nie
+    assert "defaultValueType" not in f
+    f = form_of(tf("Data urodzenia", type="DATEPICKER"))["Data urodzenia"]
+    assert (f["defaultValue"], f["defaultValueType"], f["readOnly"]) == ("PESEL.birthDate", "EXTERNAL_SYSTEM", True)
 
 
 def test_kraj_becomes_dictionary_select():
@@ -54,7 +57,7 @@ def test_kraj_becomes_dictionary_select():
 def test_email_zip_nip_and_teryt_merge():
     by = form_of(tf("Adres e-mail *"), tf("Kod pocztowy (zagranica)"), tf("NIP"),
                  tf("Województwo"), tf("Powiat"), tf("Gmina"))
-    assert by["Adres e-mail *"]["validation"] == ["EMAIL"] and by["Adres e-mail *"]["defaultValue"] == "MLPZ.email"
+    assert by["Adres e-mail *"]["validation"] == ["EMAIL"] and "defaultValue" not in by["Adres e-mail *"]  # MLPZ.email w szablonie
     assert by["Kod pocztowy (zagranica)"]["validation"] == []
     assert by["NIP"]["validation"] == ["NIP"]
     assert by["Województwo"]["dictionaryName"] == "TERYT_4G_DOWODOWY" and by["Województwo"]["multiLevelTree"] is True
@@ -64,17 +67,17 @@ def test_email_zip_nip_and_teryt_merge():
 def test_explicit_draft_settings_win():
     by = form_of(tf("Imię", default="Jan"), tf("PESEL", validators=["NIP"]),
                  {"label": "Kraj", "type": "RADIO", "required": True, "options": ["Polska", "Inny kraj"]},
-                 tf("Kontakt", prefill="MLPZ.phoneNumber"), tf("Kraj pochodzenia", dictionary=""),
+                 tf("Kontakt", prefill="MLPZ.secondName"), tf("Kraj pochodzenia", dictionary=""),
                  tf("Skąd jesteś", dictionary="Kraje"))
     assert by["Imię"]["defaultValue"] == "Jan" and "defaultValueType" not in by["Imię"]
     assert by["PESEL"]["validation"] == ["NIP", "PESEL"]
     assert by["Kraj"]["type"] == "RADIO" and "dictionaryName" not in by["Kraj"] and len(by["Kraj"]["options"]) == 2
-    assert by["Kontakt"]["defaultValue"] == "MLPZ.phoneNumber" and by["Kontakt"]["readOnly"] is False
+    assert by["Kontakt"]["defaultValue"] == "MLPZ.secondName" and by["Kontakt"]["readOnly"] is False
     assert by["Skąd jesteś"]["dictionaryName"] == "Kraje"
 
 
 def test_no_prefill_for_other_persons_or_repeating():
-    assert "defaultValueType" not in form_of(tf("Imię"), title="Dane pełnomocnika")["Imię"]
+    assert "defaultValueType" not in form_of(tf("Imię"), title="Dane małżonka")["Imię"]
     assert "defaultValueType" not in form_of(tf("Imię"), repeating=True)["Imię"]
 
 
@@ -84,5 +87,5 @@ def test_form1_fixture_enriched_and_valid():
     by = {f["techName"]: f for f in fields(form)}
     assert by["kraj"]["dictionaryName"] == "Kraje" and by["kraj"]["options"] == []
     assert by["kod_pocztowy_zagranica"]["states"][0]["query"].startswith('$not("Polska" in ')
-    assert by["imie"]["defaultValue"] == "MLPZ.name" and "defaultValueType" not in by["imie_2"]
+    assert by["imie"]["defaultValue"] == "PESEL.name" and "defaultValueType" not in by["imie_inna_osoba"]  # szablon z wzorca 5
     assert by["adres_e_mail"]["defaultValue"] == "MLPZ.email"

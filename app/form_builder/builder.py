@@ -1,5 +1,7 @@
 """F-07: Draft (od LLM) -> pełny JSON formularza COI. Deterministyczny poza UUID.
 
+Kolejność stron (wzorzec 1/5): „Dane” (szablony F-14) -> strony merytoryczne LLM -> „Kontakt i zgody” -> FINISH.
+
 CLI: python -m app.form_builder.builder draft.json > form.json
 """
 import json
@@ -10,13 +12,17 @@ import uuid
 from html import escape
 from pathlib import Path
 
+from app.form_builder import templates
 from app.form_builder.cleanup import tidy
 from app.form_builder.draft import Draft
-from app.form_builder.enrich import dictionary, enrich
+from app.form_builder.enrich import dictionary, enrich, norm
 
 CHOICE = {"SELECT", "RADIO", "CHECKBOX"}
 EMPTY_HTML = "<html><head></head><body></body></html>"
 FINISH_TEXT = "Zanim wyślesz wniosek, sprawdź uzupełnione dane na podglądzie. Jeśli zobaczysz błędy, wróć do edycji."
+DANE, KONTAKT = "Dane", "Kontakt i zgody"  # strony z szablonów; JSONata szablonów odwołuje się do tabs['Dane' in title]
+# Draft.applicant_kinds -> opcja RADIO „Wybierz, w czyim imieniu wnioskujesz” (kolejność jak we wzorcu)
+KIND_OPTION = {"osoba": "Swoim", "inna_osoba": "Innej osoby", "firma": "Osoby prawnej lub jednostki organizacyjnej"}
 
 
 def _uid() -> str:
@@ -67,6 +73,44 @@ class _Builder:
         self.names.add(name)
         return name
 
+    def insert(self, qs: list[dict]) -> list[dict]:
+        """Blok z szablonu na stronę: nowe UUID i techName (bez kolizji z polami LLM), JSONata na nowe nazwy."""
+        renamed = {}
+        for f in templates.walk(qs):
+            f["id"] = _uid()
+            renamed[f["techName"]] = f["techName"] = self.tech(f["techName"], f["type"].lower())
+            if f.get("defaultValueType") == "EXTERNAL_SYSTEM":
+                self.prefilled.add(f["defaultValue"])  # dane wnioskodawcy już są -> LLM-owe pola ich nie dublują
+        for f in templates.walk(qs):
+            for s in f["states"]:
+                s["query"] = re.sub(r"'([a-z0-9_]+)' in field\.techName",
+                                    lambda m: f"'{renamed.get(m[1], m[1])}' in field.techName", s["query"])
+        y = 0
+        for q in qs:
+            q["y"] = q["field"]["questionOrder"] = y
+            q["rows"] = len(q["field"]["repeatingSectionGrid"]) + 1
+            y += q["rows"]
+        return qs
+
+    def standard(self, draft: Draft) -> tuple[list[dict], list[dict]]:
+        """Strona „Dane” i „Kontakt i zgody” z szablonów, przycięte wg pól sterujących szkicu."""
+        kinds = [k for k in KIND_OPTION if k in draft.applicant_kinds] or ["osoba"]
+        if draft.proxy_allowed and "osoba" in kinds and "inna_osoba" not in kinds:
+            kinds.insert(1, "inna_osoba")  # pełnomocnik osoby fizycznej = ścieżka „Innej osoby” we wzorcu
+        title = escape(draft.title)
+        dane = (templates.load("organ") if draft.organ.strip() else []) + templates.load("podmiot") \
+            + templates.load("wnioskodawca") + templates.load("firma") + templates.load("inna_osoba") \
+            + (templates.load("pelnomocnictwo", tytul=title) if draft.proxy_allowed else [])
+        # opłata za pełnomocnictwo jest już w bloku pełnomocnictwa; osobna sekcja tylko dla opłaty za sam wniosek
+        if draft.fee_info.strip() and not (draft.proxy_allowed and "pelnomocn" in norm(draft.fee_info)):
+            dane += templates.load("oplata", oplata=_html(draft.fee_info))
+        if draft.organ.strip():
+            dane[0]["field"]["repeatingSectionGrid"][0]["field"]["defaultValue"] = draft.organ.strip()
+        dane = templates.restrict(dane, "wybierz_w_czyim_imieniu_wnioskujesz", [KIND_OPTION[k] for k in kinds])
+        dane = templates.restrict(dane, "wybierz_jako_kto_wnioskujesz",
+                                  ["Pełnomocnik", "Reprezentant"] if draft.proxy_allowed else ["Reprezentant"])
+        return self.insert(dane), self.insert(templates.load("kontakt"))
+
     def field(self, f, order: int, tab_title: str, sec_tech: str) -> dict:
         t = f.type
         text_only = t in ("TEXT_BLOCK", "CONSENT_SECTION")  # treść idzie do description/zgody, title pusty
@@ -112,8 +156,14 @@ class _Builder:
 
     def build(self, draft: Draft) -> dict:
         draft = tidy(draft, self.notes)
-        tabs = []
+        # same szablony to nie formularz: szkic bez pól merytorycznych (np. tylko „Podpis”) -> błąd, fallback w F-06
+        if not any(s.fields for p in draft.pages for s in p.sections or []):
+            raise ValueError("szkic nie zawiera żadnego pola - nie da się zbudować formularza")
+        dane, kontakt = self.standard(draft)  # najpierw szablony: zachowują techName ze wzorca
+        tabs = [{"id": _uid(), "title": DANE, "type": "MAIN", "questions": dane}]
         for page in draft.pages:
+            if page.title in (DANE, KONTAKT):  # tytuł strony musi być unikalny (JSONata: tabs['Dane' in title])
+                page.title += " (cd.)"
             questions, y = [], 0
             for sec in page.sections or []:
                 # województwo/powiat/gmina/... -> jedno pole-drzewo TERYT na sekcję, kolejne poziomy pomijamy
@@ -140,8 +190,7 @@ class _Builder:
                 y += len(children) + 1
             if questions:
                 tabs.append({"id": _uid(), "title": page.title, "type": "MAIN", "questions": questions})
-        if not tabs:
-            raise ValueError("szkic nie zawiera żadnego pola - nie da się zbudować formularza")
+        tabs.append({"id": _uid(), "title": KONTAKT, "type": "MAIN", "questions": kontakt})
         for target, cond, sec_tech in self.pending:
             path = (self.local.get((sec_tech, cond.field)) or self.paths.get(cond.field)
                     or self.by_option.get(cond.equals) or self.by_option.get(cond.field))

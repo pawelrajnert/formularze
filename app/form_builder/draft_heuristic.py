@@ -234,38 +234,19 @@ def heuristic_draft(doc: Document) -> tuple[Draft, list[str]]:
     for table in doc.tables or []:
         _table(c, table)
 
-    pages: list[DraftPage] = []
-    std = []
-    if organ:
-        urzad = organ.lower().startswith("urząd")
-        std.append(DraftSection(
-            title="Urząd, do którego jest składany wniosek" if urzad else "Organ, do którego jest składany wniosek",
-            fields=[DraftField(label="Nazwa urzędu" if urzad else "Nazwa organu", type="TEXT_FIELD", required=False,
-                               read_only=True, default=organ)]))
-    std.append(DraftSection(title="Twoje dane", fields=[
-        DraftField(label="Imię", type="TEXT_FIELD", required=True),
-        DraftField(label="Nazwisko", type="TEXT_FIELD", required=True)]))
-    pages.append(DraftPage(title="Dane", sections=std))
-
+    # F-14: organ, dane wnioskodawcy, kontakt i RODO wstawia builder z szablonów
     subject = [DraftSection(title=t, fields=fs, repeating=rep) for t, fs, rep in c.sections if fs]
     if not subject:
         subject = [DraftSection(title="Treść wniosku", fields=[
             DraftField(label="Treść wniosku", type="TEXTAREA", required=True,
                        hint="Nie udało się automatycznie rozpoznać pól formularza — opisz swoją sprawę.")])]
-    pages.append(DraftPage(title="Przedmiot wniosku", sections=subject))
-
-    contact = [DraftSection(title="Dane do kontaktu", fields=[
-        DraftField(label="Numer telefonu", type="TEXT_FIELD", required=False),
-        DraftField(label="Adres e-mail", type="TEXT_FIELD", required=False, validators=["EMAIL"])])]
     consents = list(dict.fromkeys(c.consents))
-    if clause_seen:
-        consents.append(RODO_CONSENT)
     if consents:
-        contact.append(DraftSection(title="Zgoda" if len(consents) == 1 else "Zgody i oświadczenia", fields=[
+        subject.append(DraftSection(title="Oświadczenia", fields=[
             DraftField(label=t, type="CONSENT_SECTION", required=True) for t in consents]))
-    pages.append(DraftPage(title="Kontakt z urzędem", sections=contact))
 
-    return Draft(title=title or "Wniosek", pages=pages), c.removed
+    return Draft(title=title or "Wniosek", pages=[DraftPage(title="Przedmiot wniosku", sections=subject)],
+                 organ=organ or ""), c.removed
 
 
 def _table(c: _Collector, table: list[list[str]]) -> None:

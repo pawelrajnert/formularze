@@ -1,7 +1,8 @@
 """Kontrakt F-06 -> F-07: kompaktowy szkic formularza, który zwraca LLM (structured output).
 
-LLM opisuje tylko treść. Builder (F-07) dokłada resztę: UUID, techName, siatkę x/y/rows/cols,
-questionOrder, flow.links, tab FINISH, opisy HTML i JSONatę ze `show_if`.
+LLM opisuje tylko treść merytoryczną + pola sterujące (organ, applicant_kinds, proxy_allowed, fee_info).
+Standardowe strony „Dane” i „Kontakt i zgody” builder wstawia z szablonów (F-14, N-C1).
+Builder (F-07) dokłada resztę: UUID, techName, siatkę x/y/rows/cols, questionOrder, flow.links, tab FINISH, opisy HTML i JSONatę ze `show_if`.
 Schemat dla LLM: Draft.model_json_schema().
 """
 from typing import Literal
@@ -15,6 +16,8 @@ FieldType = Literal[
 Validator = Literal["EMAIL", "PESEL", "NIP", "REGON", "ZIP_CODE", "EPUAP", "ADE", "SERIAL_NUMBER_ID_CARD"]
 # musi zgadzać się z config/field_rules.yaml -> dictionaries (pilnuje tests/test_dictionaries.py)
 Dictionary = Literal["", "Kraje", "TERYT_4G_DOWODOWY", "TERYT_DOWODOWY", "Numery kierunkowe"]
+
+ApplicantKind = Literal["osoba", "firma", "inna_osoba"]
 
 
 class ShowIf(BaseModel):
@@ -56,5 +59,13 @@ class DraftPage(BaseModel):
 
 class Draft(BaseModel):
     title: str = Field(max_length=255)
-    pages: list[DraftPage] = Field(min_length=1, description="strony z polami; builder sam doda stronę FINISH")
+    pages: list[DraftPage] = Field(min_length=1, description=(
+        "tylko strony merytoryczne; BEZ danych wnioskodawcy, adresu, pełnomocnika, opłaty, kontaktu i zgód RODO - "
+        "te builder wstawia sam ze standardu; builder sam doda też stronę FINISH"))
+    organ: str = Field(default="", description="nazwa organu, do którego składa się wniosek, np. Starosta Powiatu X; puste = nieznany")
+    applicant_kinds: list[ApplicantKind] = Field(default_factory=lambda: ["osoba"], description=(
+        "kto może złożyć wniosek: osoba - osoba fizyczna we własnym imieniu; firma - przedsiębiorca/podmiot z NIP/REGON/KRS; "
+        "inna_osoba - w imieniu innej osoby (np. dziecka, podopiecznego)"))
+    proxy_allowed: bool = Field(default=True, description="false tylko, gdy formularz wprost wyklucza pełnomocnika")
+    fee_info: str = Field(default="", description="opłata skarbowa: kwota i za co, np. '17 zł za pełnomocnictwo'; puste = brak opłaty")
     finish_text: str = Field(default="", description="tekst na stronę końcową, np. pouczenie / klauzula RODO")

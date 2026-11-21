@@ -1,0 +1,94 @@
+[
+ {
+  "x": 0,
+  "y": 2,
+  "rows": 3,
+  "cols": 3,
+  "field": {
+   "id": "44d80aba-5b97-4ff3-832c-eb11eaa61fb3",
+   "type": "SECTION",
+   "techName": "podmiot_wniosku",
+   "title": "Podmiot wniosku",
+   "description": "<html><head></head><body></body></html>",
+   "options": [],
+   "validation": [],
+   "readOnly": false,
+   "repeatingSectionGrid": [
+    {
+     "x": 0,
+     "y": 1,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "ede2ecc0-dd84-4064-878a-cea98fbb1769",
+      "type": "RADIO",
+      "techName": "wybierz_jako_kto_wnioskujesz",
+      "title": "Wybierz, jako kto wnioskujesz",
+      "description": "",
+      "options": [
+       {
+        "id": "Pełnomocnik",
+        "name": "Pełnomocnik",
+        "techName": "pelnomocnik"
+       },
+       {
+        "id": "Reprezentant",
+        "name": "Reprezentant"
+       }
+      ],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "states": [
+       {
+        "type": "SHOW",
+        "query": "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)"
+       }
+      ],
+      "questionOrder": 1,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 0,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "b6178265-e86c-4967-a520-8db9801c721f",
+      "type": "RADIO",
+      "techName": "wybierz_w_czyim_imieniu_wnioskujesz",
+      "title": "Wybierz, w czyim imieniu wnioskujesz",
+      "description": "",
+      "options": [
+       {
+        "id": "Swoim",
+        "name": "Swoim",
+        "techName": "swoim"
+       },
+       {
+        "id": "Innej osoby",
+        "name": "Innej osoby",
+        "techName": "innej_osoby"
+       },
+       {
+        "id": "Osoby prawnej lub jednostki organizacyjnej",
+        "name": "Osoby prawnej lub jednostki organizacyjnej",
+        "techName": "osoby_prawnej_lub_jednostki_organizacyjnej"
+       }
+      ],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "states": [],
+      "questionOrder": 0,
+      "tooltipMessage": ""
+     }
+    }
+   ],
+   "states": [],
+   "questionOrder": 2,
+   "tooltipMessage": ""
+  }
+ }
+]

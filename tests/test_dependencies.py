@@ -10,6 +10,8 @@ def f(label, type="TEXT_FIELD", options=None, show_if=None):
 
 
 def run(sections):
+    # + pole merytoryczne: sekcje standardowe usuwa tidy() (F-14), a build() wymaga choć jednego pola
+    sections = sections + [{"title": "Sprawa", "fields": [f("Opis sprawy", "TEXTAREA")]}]
     d = Draft.model_validate({"title": "Wniosek o test", "pages": [{"title": "Dane", "sections": sections}]})
     warnings = []
     out = postprocess(d, [], warnings)

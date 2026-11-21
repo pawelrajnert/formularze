@@ -1,0 +1,117 @@
+[
+ {
+  "x": 0,
+  "y": 0,
+  "rows": 3,
+  "cols": 3,
+  "field": {
+   "id": "c17ec6d7-5f8b-4685-8bed-f1f3addfa01a",
+   "type": "SECTION",
+   "techName": "dane_do_kontaktu",
+   "title": "Dane do kontaktu",
+   "description": "<html><head></head><body><p><span style=\"background-color: rgba(0, 0, 0, 0); color: rgb(57, 57, 57);\">Wpisanie danych do kontaktu może przyspieszyć załatwienie sprawy. Urzędnik będzie mógł skontaktować się z Tobą w przypadku pytań lub wątpliwości.</span></p><pre data-language=\"plain\"></pre><p><span style=\"color: rgb(57, 57, 57); background-color: rgb(255, 255, 255);\">Jeśli widzisz uzupełnione dane, sprawdź, czy są poprawne. Możesz je zmienić lub usunąć.</span></p></body></html>",
+   "options": [],
+   "validation": [],
+   "readOnly": false,
+   "repeatingSectionGrid": [
+    {
+     "x": 0,
+     "y": 0,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "09b435ac-0e4b-4570-9aff-36f143a8999d",
+      "type": "TEXT_FIELD",
+      "techName": "numer_telefonu",
+      "title": "Numer telefonu",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "defaultValue": "MLPZ.phoneNumber",
+      "defaultValueType": "EXTERNAL_SYSTEM",
+      "states": [],
+      "questionOrder": 0,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 1,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "01a98156-d512-457c-b881-65717857c80a",
+      "type": "TEXT_FIELD",
+      "techName": "adres_e_mail",
+      "title": "Adres e-mail",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "defaultValue": "MLPZ.email",
+      "defaultValueType": "EXTERNAL_SYSTEM",
+      "states": [],
+      "questionOrder": 1,
+      "tooltipMessage": ""
+     }
+    }
+   ],
+   "states": [],
+   "questionOrder": 0,
+   "tooltipMessage": ""
+  }
+ },
+ {
+  "x": 0,
+  "y": 3,
+  "rows": 2,
+  "cols": 3,
+  "field": {
+   "id": "762dd1a0-f56c-4d64-8fa8-5c1d5056d2c0",
+   "type": "SECTION",
+   "techName": "zgoda_wyrazenie",
+   "title": "Zgoda",
+   "description": "<html><head></head><body></body></html>",
+   "options": [],
+   "validation": [],
+   "readOnly": false,
+   "repeatingSectionGrid": [
+    {
+     "x": 0,
+     "y": 0,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "9c53c904-5721-4e8d-ade4-040ae631cb84",
+      "type": "CONSENT_SECTION",
+      "techName": "zgoda",
+      "title": "",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "consentSectionConfig": {
+       "consents": [
+        {
+         "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\">Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z </span><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"klauzulą informacyjną\" aria-label=\"Link otwiera się w nowej karcie\">klauzulą informacyjną</a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\" title=\" \" aria-label=\"Link otwiera się w nowej karcie\"> </a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"\" aria-label=\"Link otwiera się w nowej karcie\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></p></body></html>",
+         "required": true
+        }
+       ],
+       "files": []
+      },
+      "states": [],
+      "questionOrder": 0,
+      "tooltipMessage": ""
+     }
+    }
+   ],
+   "states": [],
+   "questionOrder": 3,
+   "tooltipMessage": ""
+  }
+ }
+]

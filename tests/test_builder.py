@@ -11,13 +11,16 @@ FIXTURE = Path(__file__).resolve().parent / "fixtures" / "draft_form1.json"
 DRAFT1 = Draft.model_validate_json(FIXTURE.read_text("utf-8"))
 
 
-def fields(form):
+def fields(form, tabs=slice(None)):
     def walk(qs):
         for q in qs:
             yield q["field"]
             yield from walk(q["field"]["repeatingSectionGrid"])
-    for t in form["tabs"]:
+    for t in form["tabs"][tabs]:
         yield from walk(t["questions"])
+
+
+LLM = slice(1, -2)  # strony merytoryczne; [0] „Dane” i [-2] „Kontakt i zgody” są z szablonów (F-14)
 
 
 def mini(*sections, pages=None):
@@ -40,35 +43,39 @@ def test_ids_unique_and_tech_names_unique():
 
 
 def test_show_if_gives_states():
-    form = build(DRAFT1)
+    form = build(DRAFT1.model_copy(update={"applicant_kinds": ["osoba", "firma"]}))
     by = {f["techName"]: f for f in fields(form)}
     assert by["wybierz_jako_kto_wnioskujesz"]["states"] == [{"type": "SHOW", "query":
         "(\"Osoby prawnej lub jednostki organizacyjnej\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName]"
         ".field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)"}]
-    # powtórzony label "Kraj": rozwiązywany najpierw w obrębie własnej sekcji
-    assert "'adres_siedziby' in field.techName].field.repeatingSectionGrid['kraj_2'" in by["kod_pocztowy_2"]["states"][0]["query"]
-    assert by["dane_innej_osoby"]["states"]  # show_if na sekcji
+    assert by["dane_innej_osoby"]["states"]  # warunek na sekcji z szablonu
+    # powtórzony label "Kraj" w szkicu LLM: rozwiązywany najpierw w obrębie własnej sekcji
+    adres = lambda t: {"title": t, "fields": [
+        {"label": "Kraj", "type": "SELECT", "options": ["Polska", "Inny kraj"], "default": "Polska"},
+        {"label": "Kod pocztowy", "type": "TEXT_FIELD", "show_if": {"field": "Kraj", "equals": "Polska"}}]}
+    by = {f["techName"]: f for f in fields(build(mini(adres("Adres nieruchomości"), adres("Adres działki"))), LLM)}
+    assert "'adres_dzialki' in field.techName].field.repeatingSectionGrid['kraj_3'" in by["kod_pocztowy_3"]["states"][0]["query"]
 
 
 def test_unknown_show_if_label_is_skipped():
     d = mini({"title": "S", "fields": [{"label": "A", "type": "TEXT_FIELD", "required": False,
                                         "show_if": {"field": "Nie ma", "equals": "x"}}]})
     form = build(d)
-    assert check(form) == [] and form["tabs"][0]["questions"][0]["field"]["repeatingSectionGrid"][0]["field"]["states"] == []
+    assert check(form) == [] and form["tabs"][1]["questions"][0]["field"]["repeatingSectionGrid"][0]["field"]["states"] == []
 
 
 def test_tech_name_collision_and_slug():
     assert slug("Źródło łąki, część 1!") == "zrodlo_laki_czesc_1"
     f = lambda: {"label": "Imię", "type": "TEXT_FIELD", "required": True}
     form = build(mini({"title": "Imię", "fields": [f(), f()]}))
-    assert [x["techName"] for x in fields(form)][:3] == ["imie", "imie_2", "imie_3"]
-    assert next(fields(form))["repeatingSectionGrid"][0]["field"]["validation"] == ["REQUIRED"]
+    assert [x["techName"] for x in fields(form, LLM)] == ["imie_2", "imie_3", "imie_4"]  # "imie" ma szablon „Twoje dane”
+    assert next(fields(form, LLM))["repeatingSectionGrid"][0]["field"]["validation"] == ["REQUIRED"]
 
 
 def test_repeating_section_and_validators():
     form = build(mini({"title": "Współwłaściciele", "repeating": True, "fields": [
         {"label": "PESEL", "type": "TEXT_FIELD", "required": False, "validators": ["PESEL"]}]}))
-    sec = form["tabs"][0]["questions"][0]["field"]
+    sec = form["tabs"][1]["questions"][0]["field"]
     assert check(form) == [] and sec["type"] == "REPEATING_SECTION"
     assert sec["repeatingSectionGrid"][0]["field"]["validation"] == ["PESEL"]
 
@@ -77,7 +84,7 @@ def test_empty_page_skipped_and_empty_draft_raises():
     d = mini({"title": "S", "fields": [{"label": "A", "type": "TEXT_FIELD", "required": False}]})
     d.pages.append(DraftPage.model_construct(title="Pusta", sections=[DraftSection.model_construct(title="X", fields=[])]))
     form = build(d)
-    assert check(form) == [] and [t["title"] for t in form["tabs"]] == ["Strona", "Strona końcowa"]
+    assert check(form) == [] and [t["title"] for t in form["tabs"]] == ["Dane", "Strona", "Kontakt i zgody", "Strona końcowa"]
     with pytest.raises(ValueError):
         build(Draft.model_construct(title="T", pages=[d.pages[1]], finish_text=""))
 
