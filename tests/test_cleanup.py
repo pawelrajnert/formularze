@@ -123,21 +123,32 @@ def test_v2_address_field_split_into_group():
                                              show_if={"field": "Rasa", "equals": "Chart"}),
                                          fld("Adres e-mail właściciela"), fld("Adres siedziby klubu - Ulica"),
                                          fld("Adres skrzynki ePUAP")]},
-        {"title": "Osoba odpowiedzialna", "fields": [fld("Dane", hint="ulica, nr domu, kod pocztowy, miejscowość")]})
+        {"title": "Osoba odpowiedzialna", "fields": [fld("Dane", hint="ulica, nr domu, kod pocztowy, miejscowość")]},
+        {"title": "Klub", "fields": [fld("Nazwa"), fld("Inny adres korespondencyjny")]})
     sec = by["Adres miejsca utrzymywania psa"]
     assert sec["type"] == "SECTION" and sec["states"]
     assert {"Adres e-mail właściciela", "Adres siedziby klubu - Ulica", "Adres skrzynki ePUAP"} <= set(by)  # nie rozbijane
-    assert [q["field"]["title"] for q in sec["repeatingSectionGrid"]] == ["Ulica", "Numer budynku", "Numer lokalu", "Kod pocztowy", "Miejscowość"]
-    assert [q["field"]["validation"] for q in sec["repeatingSectionGrid"]][2:4] == [[], ["REQUIRED", "ZIP_CODE"]]
+    assert [q["field"]["title"] for q in sec["repeatingSectionGrid"]] == ["Kraj", "Ulica", "Numer budynku", "Numer lokalu", "Kod pocztowy", "Miejscowość"]
+    assert sec["repeatingSectionGrid"][0]["field"]["dictionaryName"] == "Kraje"
+    assert [q["field"]["validation"] for q in sec["repeatingSectionGrid"]][3:5] == [[], ["REQUIRED", "ZIP_CODE"]]
     osoba = by["Osoba odpowiedzialna"]["repeatingSectionGrid"]  # jedyne pole -> grupa w miejscu
-    assert len(osoba) == 5 and sum("grupę adresową" in n for n in notes) == 2
+    assert len(osoba) == 6 and "Inny adres korespondencyjny" in by and sum("grupę adresową" in n for n in notes) == 3
 
 
 def test_v2_applicant_duplicates_dropped_consents_kept():
     """Przegląd v2: formularz 8 dublował dane składającego; „Zgody i oświadczenia” (4, 9) nie mogą wypaść."""
     _, by, _ = run({"title": "Dane identyfikacyjne", "fields": [fld("Imię / Nazwa pełna"), fld("PESEL")]},
                    {"title": "Adres zamieszkania/siedziby", "fields": [fld("Ulica")]},
+                   {"title": "Dane klubu sportowego", "fields": [fld("Nazwa klubu")]},
                    {"title": "Zgody i oświadczenia", "fields": [fld("Oświadczam, że zapoznałem się z regulaminem", "CHECKBOX")]},
                    {"title": "Lokal", "fields": [fld("Powierzchnia")]})
-    assert "Dane identyfikacyjne" not in by and "Adres zamieszkania/siedziby" not in by
+    assert "Dane identyfikacyjne" not in by and "Adres zamieszkania/siedziby" not in by and "Dane klubu sportowego" not in by
     assert by["oswiadczam_ze_zapoznalem_sie_z_regulaminem"]["type"] == "CONSENT_SECTION" and "Zgody i oświadczenia" in by
+
+
+def test_v3_single_checkbox_is_yes_no_not_consent():
+    """Przegląd v3, formularz 8: „☐ Załącznik A” stawał się zgodą, a kwota z warunkiem „TAK” była zawsze ukryta."""
+    _, by, _ = run({"title": "Załączniki", "fields": [fld("Załącznik A", "CHECKBOX", options=["TAK"]),
+                                                      fld("Kwota z załącznika A", show_if={"field": "Załącznik A", "equals": "TAK"})]})
+    assert by["Załącznik A"]["type"] == "RADIO" and [o["name"] for o in by["Załącznik A"]["options"]] == ["Tak", "Nie"]
+    assert by["Kwota z załącznika A"]["states"][0]["query"].startswith('("Tak" in ')

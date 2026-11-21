@@ -14,7 +14,7 @@ DROP = re.compile(C["drop"])
 CONSENT = re.compile(C["consent"])
 NUMBER = re.compile(C["number"])
 ADDRESS, ADDRESS_HINT = re.compile(C["address"]), re.compile(C["address_hint"])
-ADDRESS_PARTS = [("Ulica", True), ("Numer budynku", True), ("Numer lokalu", False), ("Kod pocztowy", True), ("Miejscowość", True)]
+ADDRESS_PARTS = [("Kraj", True), ("Ulica", True), ("Numer budynku", True), ("Numer lokalu", False), ("Kod pocztowy", True), ("Miejscowość", True)]
 S = {k: re.compile(v) for k, v in CFG["standard"].items()}
 
 
@@ -63,8 +63,11 @@ def _organ(d: Draft, fields: list, sec_title: str) -> None:
 def _fix_type(f, sec_title: str, notes: list) -> None:
     n, before = norm(f.label), f.type
     opts = {o.strip().lower() for o in f.options}
-    if f.type in ("CHECKBOX", "RADIO", "TEXT_FIELD") and (CONSENT.search(n) or (f.type == "CHECKBOX" and len(opts) <= 1)):
+    lone = f.type == "CHECKBOX" and len(opts) <= 1
+    if f.type in ("CHECKBOX", "RADIO", "TEXT_FIELD") and (CONSENT.search(n) or (lone and re.search(r"oswiadcz|zgod", norm(sec_title)))):
         f.type, f.options = "CONSENT_SECTION", []
+    elif lone:  # „☐ Załącznik A” poza oświadczeniami to pytanie Tak/Nie, nie zgoda (przegląd v3, formularz 8)
+        f.type, f.options = "RADIO", ["Tak", "Nie"]
     elif f.type in ("SELECT", "RADIO", "CHECKBOX") and f.label in f.options:  # LLM wpisał opcję jako label
         notes.append(f"label {f.label!r} był opcją -> {sec_title!r}")
         f.label = sec_title

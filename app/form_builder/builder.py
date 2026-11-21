@@ -59,6 +59,7 @@ class _Builder:
         self.pending: list[tuple[dict, object, str]] = []  # (pole/sekcja, show_if, sekcja pola) do rozwiązania na końcu
         self.choice: set[str] = set()  # labele, pod którymi zapisano już pole wyboru
         self.local: dict[tuple[str, str], str] = {}  # (techName sekcji, label) -> ścieżka; ma pierwszeństwo
+        self.options: dict[str, list[str]] = {}  # ścieżka pola wyboru -> opcje (warunek „TAK” trafia w opcję „Tak”)
         self.negate: dict[str, tuple[str, str]] = {}  # ścieżka pola słownikowego -> (opcja domyślna, druga opcja ze szkicu)
         self.by_option: dict[str, str] = {}  # opcja -> ścieżka pierwszego pola wyboru z tą opcją
         self.notes: list[str] = []  # co builder poprawił / pominął (trace)
@@ -147,6 +148,7 @@ class _Builder:
                 if t in CHOICE:
                     self.choice.add(f.label)
             if t in CHOICE:
+                self.options[path] = f.options
                 for o in f.options:  # show_if bywa na opcję zamiast labela pola
                     self.by_option.setdefault(o, path)
         return out
@@ -200,11 +202,12 @@ class _Builder:
                     x["validation"] = [v for v in x["validation"] if v != "REQUIRED"]
                 self.notes.append(f"show_if: nie znaleziono pola {cond.field!r} dla {target['title']!r}, warunek pominięty, zdjęto REQUIRED")
                 continue
+            equals = next((o for o in self.options.get(path, []) if o.casefold() == cond.equals.casefold()), cond.equals)
             neg = self.negate.get(path)
-            if neg and cond.equals == neg[1]:
+            if neg and equals == neg[1]:
                 query = f"$not({json.dumps(neg[0], ensure_ascii=False)} in {path})"
             else:
-                query = f"({json.dumps(cond.equals, ensure_ascii=False)} in {path})"
+                query = f"({json.dumps(equals, ensure_ascii=False)} in {path})"
             target["states"].append({"type": "SHOW", "query": query})
         # F-17: reguły COI - na stronie FINISH wyłącznie INFO_SECTION (wzorce 1/5 mają SECTION + TEXT_BLOCK)
         finish = {
