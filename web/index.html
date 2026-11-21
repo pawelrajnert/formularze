@@ -55,6 +55,8 @@ fieldset.grp > legend { font-weight:600; padding:0; margin-bottom:4px; }
 .opt { display:flex; gap:8px; align-items:flex-start; margin:4px 0; font-weight:400; }
 .opt input { width:20px; height:20px; margin-top:2px; flex:none; }
 .req { color:var(--err); }
+.chk label { font-weight:400; display:flex; gap:8px; align-items:flex-start; margin:6px 0; }
+.chk input { width:20px; height:20px; flex:none; margin-top:2px; }
 .hint { color:var(--muted); font-size:.9rem; margin:2px 0 4px; }
 .hint p, .txt p { margin:0 0 6px; }
 .info { background:#e8f0fa; border-left:4px solid var(--pri); padding:8px 12px; }
@@ -101,6 +103,13 @@ a { color:var(--pri); }
 
   <section id="result" hidden aria-label="Wynik konwersji">
     <div id="trace" class="card trace" aria-label="Przebieg konwersji"></div>
+    <section id="appr" class="card" hidden aria-labelledby="appr-h">
+      <h2 id="appr-h">Zatwierdzenie urzędnika</h2>
+      <p id="appr-st" role="status" aria-live="polite"></p>
+      <fieldset class="chk" style="border:0;padding:0;margin:0"><legend class="sr">Lista kontrolna</legend><div id="appr-checks"></div></fieldset>
+      <div class="actions"><button id="appr-go" type="button" disabled>Zatwierdź formularz</button></div>
+      <div id="appr-msg"></div>
+    </section>
     <div class="grid">
       <section class="card" aria-labelledby="json-h">
         <h2 id="json-h">JSON formularza</h2>
@@ -135,7 +144,7 @@ async function errorText(r) {
   let d = "";
   try { d = (await r.json()).detail; } catch { /* brak JSON */ }
   if (Array.isArray(d)) d = d.map((x) => x.msg).join("; ");
-  const base = { 400: "Nieprawidłowe żądanie", 401: "Brak autoryzacji", 413: "Plik jest za duży", 415: "Nieobsługiwany format pliku", 422: "Nie udało się przetworzyć dokumentu", 503: "Usługa nie jest skonfigurowana" }[r.status] || "Błąd serwera (" + r.status + ")";
+  const base = { 400: "Nieprawidłowe żądanie", 401: "Brak autoryzacji", 409: "Konflikt", 413: "Plik jest za duży", 415: "Nieobsługiwany format pliku", 422: "Nie udało się przetworzyć dokumentu", 503: "Usługa nie jest skonfigurowana" }[r.status] || "Błąd serwera (" + r.status + ")";
   return d ? base + ": " + d : base;
 }
 
@@ -223,12 +232,54 @@ function showResult() {
   $("json").textContent = JSON.stringify(result.form, null, 2);
   $("result").hidden = false;
   renderForm(result.form);
+  setupAppr();
   $("trace").scrollIntoView({ behavior: "smooth", block: "start" });
 }
-$("dl").addEventListener("click", () => {
+function save(obj, name) {
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(result.form, null, 2)], { type: "application/json" }));
-  a.download = result.stem + ".json"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" }));
+  a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$("dl").addEventListener("click", () => {
+  save(result.form, result.stem + ".json");
+  if (result.record) save(result.record, result.stem + ".approval.json");  // F-18: rekord audytu obok JSON-a
+});
+
+// --- F-18: zatwierdzenie (APPROVAL_REQUIRED) — bez niego eksport zablokowany ---
+function setupAppr() {
+  const ap = result.approval;
+  $("appr").hidden = !ap; $("dl").disabled = !!ap; setMsg($("appr-msg"), "");
+  if (!ap) return;
+  shownAt = Date.now();
+  const box = $("appr-checks"); box.innerHTML = "";
+  [...Object.entries(ap.checks), ["statement", ap.statement]].forEach(([k, t]) => {
+    const cb = el("input", { type: "checkbox", id: "ap-" + k, onchange: updAppr }); cb.dataset.k = k;
+    box.append(el("label", { htmlFor: cb.id }, cb, el("span", { textContent: t })));
+  });
+  updAppr();
+}
+function updAppr() {
+  if (!result || !result.approval || result.record) return;
+  const tabs = result.form.tabs || [], left = tabs.filter((t) => !visited.has(t.id)).map((t) => t.title);
+  const ok = !left.length && [...$("appr-checks").querySelectorAll("input")].every((c) => c.checked);
+  $("appr-go").disabled = !ok;
+  $("appr-st").textContent = "Status: DRAFT — eksport zablokowany do zatwierdzenia. " +
+    (left.length ? "Obejrzyj w podglądzie strony: " + left.join(", ") + "." : "Wszystkie strony podglądu obejrzane.");
+}
+$("appr-go").addEventListener("click", async () => {
+  const checks = {}; let statement = false;
+  $("appr-checks").querySelectorAll("input").forEach((c) => (c.dataset.k === "statement" ? (statement = c.checked) : (checks[c.dataset.k] = c.checked)));
+  $("appr-go").disabled = true;
+  try {
+    const r = await fetch(API + "/forms/approve", { method: "POST", headers: { ...authHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ form: result.form, token: result.approval.token, checks, statement, pages_visited: [...visited], review_seconds: Math.round((Date.now() - shownAt) / 1000) }) });
+    if (!r.ok) { setMsg($("appr-msg"), await errorText(r)); return updAppr(); }
+    result.record = (await r.json()).record;
+    $("appr-checks").querySelectorAll("input").forEach((c) => (c.disabled = true));
+    $("appr-st").textContent = "Status: APPROVED — " + result.record.approved_by + ", " + result.record.approved_at + ".";
+    setMsg($("appr-msg"), "✓ Zatwierdzono. „Pobierz JSON” zapisze formularz i obok rekord zatwierdzenia (.approval.json).", "ok");
+    $("dl").disabled = false;
+  } catch (err) { setMsg($("appr-msg"), "Błąd połączenia: " + err.message); updAppr(); }
 });
 $("copy").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText($("json").textContent); $("copy-st").textContent = "Skopiowano."; }
@@ -252,7 +303,7 @@ function safeHtml(html) {
 }
 const byPos = (a, b) => (a.y ?? 0) - (b.y ?? 0) || (a.x ?? 0) - (b.x ?? 0);
 const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
-let uid = 0, model = null, stated = [], gen = 0;
+let uid = 0, model = null, stated = [], gen = 0, visited = new Set(), shownAt = 0;
 const compiled = new Map();
 
 function tabOrder(tabs, links) {
@@ -287,7 +338,9 @@ function renderForm(form) {
     b.addEventListener("keydown", (e) => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d) { select((i + d + tabs.length) % tabs.length); btns[(i + d + tabs.length) % tabs.length].focus(); } });
     return b;
   });
+  visited = new Set([tabs[0] && tabs[0].id]);
   function select(i) {
+    visited.add(tabs[i].id); updAppr();
     btns.forEach((b, j) => { b.setAttribute("aria-selected", String(i === j)); b.tabIndex = i === j ? 0 : -1; });
     panels.forEach((p, j) => (p.hidden = i !== j));
     panels[i].focus();

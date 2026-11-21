@@ -6,7 +6,7 @@ from pathlib import Path
 from hackcore import (IngestError, LLMClient, MissingAPIKey, MissingDependency, ModelRegistryError, Registry,
                       UnknownModel, load_document, load_registry, selected_model_id)
 
-from app import config
+from app import approval, config
 from app.form_builder.builder import build
 from app.form_builder.draft_llm import draft_summary, make_draft
 from app.form_builder.draft_postprocess import paper_reason
@@ -89,6 +89,8 @@ def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "", m
         raise ConversionError(f"Formularz nie przeszedł walidacji: {'; '.join(errs[:5])}")
     # S-02: oznaczenie AI (art. 50) OBOK formularza — `form` zostaje czystym JSON-em zgodnym ze schematem
     extra = {"ai_disclosure": result.ai_disclosure} if result.ai_disclosure else {}
+    if config.settings.approval_required:  # F-18: wynik jest DRAFT, dopóki urzędnik go nie zatwierdzi
+        extra["approval"] = approval.issue(data, form, model_label, result.source, title_hint)
     if not debug:
         return {"form": form, **extra}
     removed = list(dict.fromkeys(result.removed_paper_elements + _removed_from_notes(notes)))

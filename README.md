@@ -82,6 +82,8 @@ Wszystkie zmienne pochodzą z `app/config.py`. Wzór jest w `.env.example`.
 | `JWT_SECRET` | Sekret do podpisu JWT. Gdy jest pusty, zwracają 503 | puste |
 | `JWT_ALGORITHM` | Algorytm JWT (PyJWT) | `HS256` |
 | `JWT_EXPIRE_MINUTES` | Czas ważności tokenu w minutach | `60` |
+| `APPROVAL_REQUIRED` | `true` włącza bramkę zatwierdzenia urzędnika (F-18): wynik ma status DRAFT, a eksport jest zablokowany do zatwierdzenia | `false` |
+| `AUDIT_DIR` | Katalog na rekordy zatwierdzeń `<sha256 JSON-a>.approval.json` (w compose wolumen `audit`) | `audit` |
 
 LLM jest używany tylko wtedy, gdy ustawione są wszystkie trzy zmienne `LLM_*`.
 
@@ -91,6 +93,7 @@ LLM jest używany tylko wtedy, gdy ustawione są wszystkie trzy zmienne `LLM_*`.
 |---|---|
 | `POST /api/v1/auth/token` | Body JSON `{"username", "password"}`. Zwraca `{"access_token", "token_type": "bearer"}` |
 | `POST /api/v1/forms/convert` | `multipart/form-data`, pole `file`, nagłówek `Authorization: Bearer <token>`, query `debug=false` |
+| `POST /api/v1/forms/approve` | Przy `APPROVAL_REQUIRED=true`. Body: `form`, `token` (z bloku `approval` odpowiedzi `/convert`), `checks`, `statement`, `pages_visited`, `review_seconds`. Zwraca `{"record"}` i zapisuje go w `AUDIT_DIR` |
 | `GET /health` | `{"status": "ok"}` (healthcheck w compose) |
 | `GET /` | frontend (`web/index.html`) |
 | `GET /docs` | OpenAPI / Swagger UI (FastAPI) |
@@ -160,6 +163,18 @@ Ollama nie wystawia portu na hosta i jest dostępna tylko w sieci compose. Model
 Czas na CPU: **TODO: X s/formularz** (jeszcze niezmierzony). Przez API Ministral 14B potrzebuje ok. 45 s na formularz 1.
 
 **Bez LLM:** gdy brakuje konfiguracji, LLM jest niedostępny albo jego szkic nie przechodzi walidatora, formularz powstaje ze szkicu heurystycznego. Ten wynik też przechodzi przez builder i walidator, więc zwykle dostajemy poprawny JSON. 422 pojawia się tylko wtedy, gdy nie da się odczytać tekstu albo nawet szkic heurystyczny nie przejdzie walidacji.
+
+## Zatwierdzenie urzędnika (playbook, F-18)
+
+Zasada: AI proponuje, a człowiek zatwierdza. Przy `APPROVAL_REQUIRED=true` formularz z `/convert` ma status DRAFT i nie da się go pobrać, dopóki urzędnik go nie zatwierdzi. Bramka siedzi w procesie, więc nie zależy od dobrej woli urzędnika.
+
+1. **Pochodzenie:** `/convert` zwraca podpisany token z SHA-256 pliku źródłowego i wygenerowanego JSON-a oraz nazwą modelu.
+2. **Obejrzenie całości:** przycisk „Zatwierdź” odblokowuje się dopiero, gdy urzędnik otworzy w podglądzie każdą stronę formularza. To przeciwdziała klikaniu bez czytania.
+3. **Elementy wrażliwe potwierdzane osobno**, bez „zaznacz wszystko”: zgodność z oryginałem, pola tylko do odczytu i dane z profilu zaufanego, pola wymagane, zgody i RODO, opłaty i numery kont. Do tego oświadczenie „Sprawdziłem zgodność formularza z oryginałem i przepisami”.
+4. **Kontrola serwera:** `/approve` odrzuca JSON zmieniony poza systemem (409), formularz, który nie przechodzi `rules_check` (422), niepełną listę kontrolną i nieobejrzane strony (400).
+5. **Rekord audytu obok JSON-a**, a nie w nim, więc JSON zostaje czysty: login z JWT, data, SHA-256 źródła i wyniku, model, hash promptu i szablonów, wynik lintera, czas przeglądu. Rekord nie zawiera danych osobowych z dokumentu. Zapisuje się w `AUDIT_DIR`, a „Pobierz JSON” zapisuje go jako `<nazwa>.approval.json` obok formularza.
+
+Podstawa: AI Act art. 14 (nadzór człowieka) i art. 50 (przejrzystość). Dalsze kroki (diff ręcznych poprawek, zasada czterech oczu, akceptacja każdej zmiany z listy „co zmieniliśmy”) są opisane w SPEC jako rozwój.
 
 ## Bezpieczeństwo
 

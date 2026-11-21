@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from starlette.concurrency import run_in_threadpool
 from starlette.formparsers import MultiPartParser
 
-from app import config
+from app import approval, config
 from app.pipeline import ConversionError, IngestError, convert_document
 from app.security import check_credentials, create_token, require_auth, require_configured
 from app.validation import check_content, check_name, read_limited
@@ -32,6 +32,15 @@ async def reject_big_bodies(request: Request, call_next):
     return await call_next(request)
 
 
+class Approval(BaseModel):
+    form: dict
+    token: str
+    checks: dict[str, bool]
+    statement: bool
+    pages_visited: list[str]
+    review_seconds: int = 0
+
+
 class Credentials(BaseModel):
     username: str
     password: str
@@ -53,6 +62,15 @@ def token(body: Credentials) -> dict:
     if not check_credentials(body.username, body.password):
         raise HTTPException(401, "Nieprawidłowy login lub hasło")
     return {"access_token": create_token(body.username), "token_type": "bearer"}
+
+
+@app.post("/api/v1/forms/approve")
+def approve(body: Approval, user: str | None = Depends(require_auth)) -> dict:
+    try:
+        record = approval.approve(**body.model_dump(), user=user)
+    except approval.ApprovalError as e:
+        raise HTTPException(e.status, str(e)) from e
+    return {"record": record}
 
 
 @app.post("/api/v1/forms/convert", dependencies=[Depends(require_auth)])
