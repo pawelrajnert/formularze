@@ -72,3 +72,30 @@ def test_llm_conditions_not_overwritten():
 def test_no_yes_no_question_no_condition():
     out, _ = run([{"title": "S", "fields": [f("Jeśli tak, podaj numer")]}])
     assert fields(out)["Jeśli tak, podaj numer"].show_if is None
+
+
+def test_atomize_combined_fields():
+    out, w = run([{"title": "Osoba odpowiedzialna", "fields": [
+        f("Imię i nazwisko osoby odpowiedzialnej"), f("Telefon/e-mail"), f("Nazwa firmy/Imię"),
+    ]}])
+    labels = [x.label for x in out.pages[0].sections[0].fields]
+    assert labels[:4] == ["Imię osoby odpowiedzialnej", "Nazwisko osoby odpowiedzialnej", "Numer telefonu", "Adres e-mail"]
+    assert fields(out)["Adres e-mail"].validators == ["EMAIL"]
+    assert any("zbiorcze" in x for x in w)
+
+
+def test_neutral_forms_nip_regon_and_caps_options():
+    out, _ = run([{"title": "S", "fields": [
+        f("Zapoznałem/am się z regulaminem", "CONSENT_SECTION"),
+        f("NIP/REGON"), f("Numer telefonu/fax"),
+        f("Czy masz kompostownik?", "RADIO", ["TAK", "NIE"]),
+        f("Pojemność kompostownika", show_if={"field": "Czy masz kompostownik?", "equals": "TAK"}),
+    ]}])
+    fs = fields(out)
+    assert "Potwierdzam zapoznanie się z regulaminem" in fs
+    from app.form_builder.draft_postprocess import neutralize
+    assert neutralize("Oświadczam, że jestem świadomy/a odpowiedzialności karnej") == \
+        "Oświadczam, że mam świadomość odpowiedzialności karnej"
+    assert {"NIP", "REGON", "Numer telefonu"} <= fs.keys()
+    assert fs["Czy masz kompostownik?"].options == ["Tak", "Nie"]
+    assert fs["Pojemność kompostownika"].show_if.equals == "Tak"

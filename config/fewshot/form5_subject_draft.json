@@ -1,0 +1,36 @@
+{
+  "title": "Wniosek o stwierdzenie nadpłaty podatku",
+  "pages": [
+    {
+      "title": "Informacje o nadpłacie",
+      "sections": [
+        {
+          "title": "Informacje o nadpłacie",
+          "fields": [
+            {"label": "Podatek, którego dotyczy nadpłata", "type": "TEXT_FIELD", "required": false},
+            {"label": "Kwota", "type": "NUMBER", "required": false},
+            {"label": "Uzasadnienie", "type": "TEXTAREA", "required": false,
+             "hint": "Uzasadnij, dlaczego Twoim zdaniem powstała nadpłata i z czego wynika jej wysokość."}
+          ]
+        },
+        {
+          "title": "Rozliczenie nadpłaty",
+          "fields": [
+            {"label": "Wybierz, co mamy zrobić z nadpłatą", "type": "RADIO", "required": false,
+             "options": ["Zaliczyć na poczet przyszłego zobowiązania podatkowego", "Zwrócić przelewem na rachunek bankowy"]},
+            {"label": "Nazwa podatku", "type": "TEXT_FIELD", "required": false,
+             "show_if": {"field": "Wybierz, co mamy zrobić z nadpłatą", "equals": "Zaliczyć na poczet przyszłego zobowiązania podatkowego"}},
+            {"label": "Numer rachunku", "type": "TEXT_FIELD", "required": false,
+             "show_if": {"field": "Wybierz, co mamy zrobić z nadpłatą", "equals": "Zwrócić przelewem na rachunek bankowy"}}
+          ]
+        },
+        {
+          "title": "Korekta deklaracji",
+          "fields": [
+            {"label": "Plik deklaracji podatkowej", "type": "FILE_UPLOADER", "required": false}
+          ]
+        }
+      ]
+    }
+  ]
+}

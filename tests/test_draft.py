@@ -19,8 +19,10 @@ def test_llm_prompt_has_fewshot_and_fits_limit():
     import json
     from app.form_builder.draft_llm import MAX_CHUNK_CHARS, system_prompt
     sys_p = system_prompt()
-    example = sys_p.split("Poprawny szkic dla przykładu:\n", 1)[1]
-    Draft.model_validate_json(example)  # przykład few-shot to poprawny szkic
-    assert "RADIO" in example and "show_if" in example
+    example = sys_p.split("Poprawny szkic dla przykładu:\n", 1)[1].split("\n", 1)[0]
+    example2 = sys_p.split("Strony przedmiotu wniosku dla przykładu 2:\n", 1)[1]
+    for ex in (example, example2):
+        Draft.model_validate_json(ex)  # przykłady few-shot to poprawne szkice
+    assert "RADIO" in example and "show_if" in example and "show_if" in example2
     total = len(sys_p) + MAX_CHUNK_CHARS + len(json.dumps(Draft.model_json_schema(), ensure_ascii=False))
     assert total < 60_000  # ~15k tokenów przy ~4 znakach/token
