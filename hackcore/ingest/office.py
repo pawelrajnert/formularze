@@ -210,7 +210,7 @@ def _xlsx_shapes_and_comments(data: bytes) -> str:
     trzymają tam np. listę załączników. Tekst wyciągamy regexem (bez parsera XML: plik z zewnątrz)."""
     out = []
     with zipfile.ZipFile(io.BytesIO(data)) as z:
-        for name in sorted(n for n in z.namelist() if re.fullmatch(r"xl/(drawings/drawing|comments)\d*\.xml", n)):
+        for name in sorted(n for n in z.namelist() if re.fullmatch(r"xl/(drawings/drawing|comments/comment|comments)\d*\.xml", n)):
             xml = z.read(name).decode("utf-8", "replace")
             block = r"<xdr:sp\b.*?</xdr:sp>" if "drawings" in name else r"<comment\b.*?</comment>"
             for part in re.findall(block, xml, re.S):
