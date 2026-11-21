@@ -2,16 +2,22 @@
 
 - structured outputs: response_format=json_schema (N-X3); schemat z $ref rozwijany inline (małe modele kopiowały $ref),
 - instrukcja JSON powtórzona w prompcie (małe modele), temperature=0,
-- 429 (darmowe plany, Mistral 2 req/min): czekamy >= 31 s, max 3 próby,
+- limit zapytań (X-11): okno 60 s per endpoint+klucz. Limit czytamy z nagłówka `x-ratelimit-limit-req-minute`
+  (Mistral free = 2/min, bez Retry-After) i czekamy DOKŁADNIE tyle, ile trzeba, zanim wyślemy zapytanie
+  (zamiast stałych 31 s po 429, które bywały za krótkie -> podwójne czekanie). Bez nagłówków: 31 s po 429,
+- odpowiedź ucięta (finish_reason=length): ponowienie przy temperature=0 da to samo -> od razu LLMError,
 - zły JSON: wycięcie {...} z odpowiedzi + walidacja pydantic, 1 retry,
 - po wyczerpaniu prób: LLMError -> wołający robi fallback (COI: heurystyka, UZP: same regexy).
 """
 import copy
+import hashlib
 import json
 import logging
 import os
 import re
+import threading
 import time
+from collections import deque
 from collections.abc import Callable
 from typing import Any, TypeVar
 
@@ -28,6 +34,67 @@ JSON_HINT = "\n\nOdpowiedz WYŁĄCZNIE poprawnym obiektem JSON zgodnym ze schema
 
 class LLMError(RuntimeError):
     """LLM niedostępny / limit / nie dał poprawnego JSON-a po wszystkich próbach."""
+
+
+class TruncatedOutput(ValueError):
+    """Model doszedł do limitu długości odpowiedzi — JSON jest ucięty."""
+
+
+WINDOW_S = 60.0
+MAX_WAIT_S = 65.0
+
+
+class RateWindow:
+    """Przesuwne okno zapytań do jednego endpointu+klucza (wspólne dla wszystkich klientów w procesie).
+
+    Limit poznajemy z nagłówków odpowiedzi; do tego czasu nie czekamy proaktywnie (zachowanie jak wcześniej).
+    """
+
+    def __init__(self) -> None:
+        self.limit: int | None = None
+        self.times: deque[float] = deque()
+        self.lock = threading.Lock()
+
+    def _trim(self, now: float) -> None:
+        while self.times and now - self.times[0] >= WINDOW_S:
+            self.times.popleft()
+
+    def wait_before(self, now: float) -> float:
+        """Ile czekać przed wysłaniem zapytania, żeby nie dostać 429 (0 = można od razu)."""
+        with self.lock:
+            self._trim(now)
+            if self.limit and len(self.times) >= self.limit:
+                return min(MAX_WAIT_S, self.times[0] + WINDOW_S + 0.5 - now)
+            return 0.0
+
+    def wait_after_429(self, now: float, fallback: float) -> float:
+        """Po 429: do wygaśnięcia najstarszego zapytania z okna; gdy okno puste (zapytania z innego procesu) -> fallback."""
+        with self.lock:
+            self._trim(now)
+            if self.times:
+                return max(1.0, min(MAX_WAIT_S, self.times[0] + WINDOW_S + 0.5 - now))
+            return fallback
+
+    def record(self, now: float) -> None:
+        with self.lock:
+            self.times.append(now)
+
+    def learn(self, headers: Any) -> None:
+        try:
+            if v := headers.get("x-ratelimit-limit-req-minute"):
+                self.limit = int(v)
+        except (AttributeError, TypeError, ValueError):
+            pass
+
+
+_WINDOWS: dict[str, RateWindow] = {}
+_WINDOWS_LOCK = threading.Lock()
+
+
+def rate_window(base_url: str, api_key: str) -> RateWindow:
+    key = base_url.rstrip("/") + "|" + hashlib.sha256((api_key or "").encode()).hexdigest()[:16]
+    with _WINDOWS_LOCK:
+        return _WINDOWS.setdefault(key, RateWindow())
 
 
 def inline_refs(schema: dict) -> dict:
@@ -75,6 +142,8 @@ class LLMClient:
         # max_retries=0: retry/backoff robimy sami (SDK czeka za krótko na 429 Mistrala)
         self._client = openai.OpenAI(base_url=base_url, api_key=api_key or "none", timeout=timeout, max_retries=0)
         self._json_schema_ok = True  # gdy endpoint odrzuci json_schema -> json_object do końca życia klienta
+        self.window = rate_window(base_url, api_key)
+        self.waited_s = 0.0  # ile czasu ten klient spędził na czekaniu na limit (do trace / benchmarku)
 
     @classmethod
     def from_env(cls) -> "LLMClient | None":
@@ -89,14 +158,28 @@ class LLMClient:
             return {"type": "json_schema", "json_schema": {"name": name, "schema": inline_refs(schema)}}
         return {"type": "json_object"}
 
+    def _sleep(self, seconds: float, why: str) -> None:
+        if seconds <= 0:
+            return
+        log.warning("LLM: czekam %.1f s (%s)", seconds, why)
+        self.waited_s += seconds
+        time.sleep(seconds)
+
     def _call(self, system: str, user: str, schema: dict | None, name: str) -> str:
-        resp = self._client.chat.completions.create(
+        self._sleep(self.window.wait_before(time.monotonic()), f"limit {self.window.limit} zapytań/min")
+        self.window.record(time.monotonic())
+        raw = self._client.chat.completions.with_raw_response.create(
             model=self.model,
             temperature=0,
             messages=[{"role": "system", "content": system + JSON_HINT}, {"role": "user", "content": user}],
             response_format=self._response_format(schema, name),
         )
-        return resp.choices[0].message.content or ""
+        self.window.learn(raw.headers)
+        resp = raw.parse()
+        choice = resp.choices[0]
+        if getattr(choice, "finish_reason", None) == "length":
+            raise TruncatedOutput("Odpowiedź modelu ucięta (limit długości) — za długi dokument lub zapętlenie")
+        return choice.message.content or ""
 
     def complete_json(self, system: str, user: str, schema: dict | None = None, name: str = "response") -> dict:
         return self._complete(system, user, schema, name, validate=None)
@@ -125,9 +208,12 @@ class LLMClient:
                 return data
             except openai.RateLimitError as e:
                 last = e
+                self.window.learn(getattr(getattr(e, "response", None), "headers", None))
                 if attempt < self.max_attempts:
-                    log.warning("LLM 429, czekam %.0f s (próba %d/%d)", self.rate_limit_wait, attempt, self.max_attempts)
-                    time.sleep(self.rate_limit_wait)
+                    wait = self.window.wait_after_429(time.monotonic(), self.rate_limit_wait)
+                    self._sleep(wait, f"429, próba {attempt}/{self.max_attempts}")
+            except TruncatedOutput as e:  # temperature=0 -> ponowienie da to samo; nie marnujemy limitu i czasu
+                raise LLMError(str(e)) from e
             except openai.BadRequestError as e:
                 # endpoint nie zna json_schema -> raz przełączamy na json_object i próbujemy ponownie (bez liczenia próby)
                 if self._json_schema_ok and schema is not None and "response_format" in str(e).lower():
