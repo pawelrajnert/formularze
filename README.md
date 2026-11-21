@@ -84,6 +84,8 @@ Wszystkie zmienne pochodzą z `app/config.py`. Wzór jest w `.env.example`.
 | `JWT_EXPIRE_MINUTES` | Czas ważności tokenu w minutach | `60` |
 | `APPROVAL_REQUIRED` | `true` włącza bramkę zatwierdzenia urzędnika (F-18): wynik ma status DRAFT, a eksport jest zablokowany do zatwierdzenia | `false` |
 | `RATE_LIMIT_PER_MINUTE` | Limit zapytań na IP w oknie 60 s, osobno dla `/auth/token` i `/forms/convert`. `0` wyłącza limit | `30` |
+| `LLM_MODEL_ID` | Model z rejestru `config/models.yaml` (pierwszeństwo przed `LLM_*`). Per żądanie: `?model=<id>`, lista: `GET /api/v1/models` | puste |
+| `COMPLIANCE_ENABLED` | `true` włącza maskowanie danych osobowych przed LLM i blok `ai_disclosure` (AI Act art. 50) obok JSON-a | `false` |
 | `AUDIT_DIR` | Katalog na rekordy zatwierdzeń `<sha256 JSON-a>.approval.json` (w compose wolumen `audit`) | `audit` |
 
 LLM jest używany tylko wtedy, gdy ustawione są wszystkie trzy zmienne `LLM_*`.
@@ -178,6 +180,22 @@ Zasada: AI proponuje, a człowiek zatwierdza. Przy `APPROVAL_REQUIRED=true` form
 5. **Rekord audytu obok JSON-a**, a nie w nim, więc JSON zostaje czysty: login z JWT, data, SHA-256 źródła i wyniku, model, hash promptu i szablonów, wynik lintera, czas przeglądu. Rekord nie zawiera danych osobowych z dokumentu. Zapisuje się w `AUDIT_DIR`, a „Pobierz JSON” zapisuje go jako `<nazwa>.approval.json` obok formularza.
 
 Podstawa: AI Act art. 14 (nadzór człowieka) i art. 50 (przejrzystość). Dalsze kroki (diff ręcznych poprawek, zasada czterech oczu, akceptacja każdej zmiany z listy „co zmieniliśmy”) są opisane w SPEC jako rozwój.
+
+## AI Act i RODO
+
+**Klasyfikacja ryzyka:** system przygotowuje konfigurację formularza dla urzędnika. Nie ocenia obywatela i nie decyduje o świadczeniach, więc nie jest systemem wysokiego ryzyka w rozumieniu rozporządzenia (UE) 2024/1689. Załącznik III pkt 5a obejmuje ocenę uprawnień do świadczeń i usług publicznych, a tego nie robimy.
+
+| Wymóg | Jak go spełniamy | Gdzie |
+|---|---|---|
+| Art. 14: nadzór człowieka | AI proponuje, urzędnik zatwierdza. Przy `APPROVAL_REQUIRED=true` eksport jest zablokowany do zatwierdzenia, a urzędnik musi obejrzeć każdą stronę i osobno potwierdzić elementy wrażliwe | [Zatwierdzenie urzędnika](#zatwierdzenie-urzędnika-playbook-f-18) |
+| Art. 50: przejrzystość treści AI | Przy `COMPLIANCE_ENABLED=true` odpowiedź ma blok `ai_disclosure` (czy użyto AI, model, hash promptu, które części są deterministyczne, `human_verified`). Rekord zatwierdzenia zapisuje model i wersje promptu oraz szablonów. Wszystko leży **obok** JSON-a, więc JSON formularza zostaje czysty i zgodny ze schematem | `/convert`, `AUDIT_DIR` |
+| Art. 4: kompetencje w zakresie AI | Lista kontrolna w UI mówi urzędnikowi, co sprawdzić: zgodność z oryginałem, pola tylko do odczytu i dane z profilu zaufanego, pola wymagane, zgody i RODO, opłaty i konta | panel „Zatwierdzenie urzędnika” |
+| Wyjaśnialność wyniku | Karta „Co zmieniliśmy względem papieru” (`trace.changes`): co usunęliśmy z papieru i dlaczego, co doszło ze standardu COI (z podstawą prawną), co poprawiliśmy i co urzędnik musi sprawdzić | UI, `/convert?debug=true` |
+| Ograniczenie roli AI | LLM opisuje tylko część merytoryczną. Strony „Dane” i „Kontakt i zgody”, identyfikatory, siatkę i stronę końcową robi deterministyczny builder z szablonów, a każdy wynik przechodzi walidator `rules_check` | `app/form_builder/` |
+| RODO: minimalizacja danych | Przy `COMPLIANCE_ENABLED=true` PESEL, NIP, REGON, IBAN, e-mail, telefon i nr dowodu z wypełnionego dokumentu są maskowane, zanim tekst trafi do LLM. Logi klienta LLM nie zawierają treści dokumentu. Wariant lokalny (profil `local-llm`, Ollama) sprawia, że dane w ogóle nie opuszczają urzędu | `hackcore/privacy.py`, [LLM: API albo model lokalny](#llm-api-albo-model-lokalny) |
+| Otwarte modele | Rejestr `config/models.yaml` dopuszcza tylko modele z otwartymi wagami i licencją z allowlisty (Apache-2.0). Licencje sprawdzone na kartach modeli | `config/models.yaml` |
+
+Obie flagi są domyślnie wyłączone (`false`), żeby jury mogło od razu pobrać JSON. W pracy urzędu włączamy obie.
 
 ## Bezpieczeństwo
 
