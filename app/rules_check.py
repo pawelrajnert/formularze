@@ -3,6 +3,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from jsonschema import Draft202012Validator
 
@@ -17,6 +18,10 @@ CONTAINERS = {"SECTION", "REPEATING_SECTION"}
 INPUTS = {"TEXT_FIELD", "CHECKBOX", "NUMBER", "CONSENT_SECTION", "SELECT", "TEXTAREA", "FILE_UPLOADER", "RADIO", "DATEPICKER"}
 NON_INPUTS = {"TEXT_BLOCK", "INFO_SECTION"}
 CHOICE = {"SELECT", "RADIO", "CHECKBOX"}
+# S-01: linki tylko do serwisów publicznych z szablonów; HTML z dokumentu/LLM builder i tak escape'uje
+LINK_HOSTS = ("gov.pl", "warszawa19115.pl")
+LINK = re.compile(r"""<[^>]*?\b(?:href|src)\s*=\s*["']?([^"'\s>]*)""", re.I)
+MAX_LEN = {"title": 1000, "name": 1000, "description": 50_000, "defaultValue": 5000, "query": 5000}
 VALIDATORS = {"REQUIRED", "EMAIL", "PESEL", "NIP", "REGON", "ZIP_CODE", "EPUAP", "ADE", "SERIAL_NUMBER_ID_CARD"}
 
 
@@ -74,10 +79,42 @@ def _fields(qs: list):
         yield from _fields(f.get("repeatingSectionGrid") or [])
 
 
+def _link_ok(url: str) -> bool:
+    u = urlsplit(url.strip())
+    if not u.scheme:  # bez schematu (np. „klauzulą informacyjną” ze wzorca COI) nie ma dokąd prowadzić ani czego uruchomić
+        return not u.netloc and not re.search(r"[:&/\\]", url)  # bez //host, encji (&#58;) i schematów
+    if u.scheme == "data":
+        return url.startswith("data:image/")
+    host = (u.hostname or "").lower()
+    return u.scheme == "https" and any(host == h or host.endswith("." + h) for h in LINK_HOSTS)
+
+
+def _strings(x, key: str = "", path: str = ""):
+    if isinstance(x, dict):
+        for k, v in x.items():
+            yield from _strings(v, k, f"{path}/{k}")
+    elif isinstance(x, list):
+        for i, v in enumerate(x):
+            yield from _strings(v, key, f"{path}/{i}")
+    elif isinstance(x, str):
+        yield key, path or "(root)", x
+
+
+def _output_errors(form: dict) -> list[str]:
+    """S-01 (LLM05): limity długości tekstów i allowlista linków w HTML wyniku."""
+    errs = []
+    for key, path, s in _strings(form):
+        if len(s) > MAX_LEN.get(key, 50_000):
+            errs.append(f"{path}: tekst ma {len(s)} znaków (max {MAX_LEN.get(key, 50_000)})")
+        errs += [f"{path}: niedozwolony link {u[:100]!r}" for u in LINK.findall(s) if not _link_ok(u)]
+    return errs
+
+
 def check(form: dict) -> list[str]:
     errs = [f"schemat: {'/'.join(map(str, e.absolute_path)) or '(root)'}: {e.message}" for e in _validator.iter_errors(form)]
     if errs or not isinstance(form, dict):
         return errs or ["schemat: formularz musi być obiektem JSON"]
+    errs += _output_errors(form)
 
     title = form.get("title")
     if not isinstance(title, str) or not title.strip():

@@ -9,7 +9,7 @@ from starlette.formparsers import MultiPartParser
 
 from app import approval, config
 from app.pipeline import ConversionError, IngestError, UnknownModel, convert_document, registry
-from app.security import check_credentials, create_token, require_auth, require_configured
+from app.security import check_credentials, create_token, rate_limit, require_auth, require_configured
 from app.validation import check_content, check_name, read_limited
 
 # pliki tylko w pamięci: Starlette domyślnie zrzuca upload > 1 MB do pliku tymczasowego
@@ -26,7 +26,9 @@ def _max_bytes() -> int:
 
 @app.middleware("http")
 async def reject_big_bodies(request: Request, call_next):
-    # shortcut: tylko Content-Length; upload chunked bez nagłówka trafia do read_limited dopiero po sparsowaniu
+    # chunked nie ma Content-Length, a parser multipart trzymałby całe ciało w pamięci przed read_limited -> 411
+    if "transfer-encoding" in request.headers:
+        return JSONResponse({"detail": "Wymagany nagłówek Content-Length (upload chunked nieobsługiwany)"}, status_code=411)
     if int(request.headers.get("content-length") or 0) > _max_bytes() + 64 * 1024:
         return JSONResponse({"detail": "Plik za duży"}, status_code=413)
     return await call_next(request)
@@ -56,7 +58,7 @@ def health() -> dict:
     return {"status": "ok"}
 
 
-@app.post("/api/v1/auth/token")
+@app.post("/api/v1/auth/token", dependencies=[Depends(rate_limit)])
 def token(body: Credentials) -> dict:
     require_configured()  # 503 zamiast tokenu z pustym sekretem/hasłem
     if not check_credentials(body.username, body.password):
@@ -78,7 +80,7 @@ def approve(body: Approval, user: str | None = Depends(require_auth)) -> dict:
     return {"record": record}
 
 
-@app.post("/api/v1/forms/convert", dependencies=[Depends(require_auth)])
+@app.post("/api/v1/forms/convert", dependencies=[Depends(rate_limit), Depends(require_auth)])
 async def convert(file: UploadFile, debug: bool = False, model: str | None = None) -> dict:
     ext = check_name(file.filename)
     data = await read_limited(file, _max_bytes())

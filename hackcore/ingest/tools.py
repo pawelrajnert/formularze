@@ -19,6 +19,13 @@ _WIN_SOFFICE = (r"C:\Program Files\LibreOffice\program\soffice.exe",
 
 MIN_OCR_WIDTH = 2000      # węższe obrazy powiększamy (Tesseract lubi ~300 DPI, x-height >= 20 px)
 SOFFICE_TIMEOUT_S = float(os.environ.get("SOFFICE_TIMEOUT", "120"))
+# S-01: profil LO z wyłączonymi makrami (poziom "bardzo wysoki" + DisableMacrosExecution) - makra z DOC/ODS nie ruszą
+_NO_MACROS = """<?xml version="1.0" encoding="UTF-8"?>
+<oor:items xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<item oor:path="/org.openoffice.Office.Common/Security/Scripting"><prop oor:name="MacroSecurityLevel" oor:op="fuse"><value>3</value></prop></item>
+<item oor:path="/org.openoffice.Office.Common/Security/Scripting"><prop oor:name="DisableMacrosExecution" oor:op="fuse"><value>true</value></prop></item>
+</oor:items>
+"""
 
 
 def _find(env: str, names: tuple[str, ...], fallbacks: tuple[str, ...]) -> str | None:
@@ -149,6 +156,8 @@ def soffice_convert(data: bytes, src_ext: str, target: str) -> bytes:
         src = t / f"in.{src_ext}"
         src.write_bytes(data)
         out_dir = t / "out"
+        (t / "profile" / "user").mkdir(parents=True)
+        (t / "profile" / "user" / "registrymodifications.xcu").write_text(_NO_MACROS, "utf-8")
         args = [cmd, f"-env:UserInstallation={(t / 'profile').as_uri()}",
                 "--headless", "--norestore", "--nolockcheck",
                 "--convert-to", target, "--outdir", str(out_dir), str(src)]

@@ -21,6 +21,7 @@ class Settings:
     jwt_expire_minutes: int = field(default_factory=lambda: int(_env("JWT_EXPIRE_MINUTES", "60")))
     approval_required: bool = field(default_factory=lambda: _env("APPROVAL_REQUIRED", "false").lower() == "true")
     audit_dir: str = field(default_factory=lambda: _env("AUDIT_DIR", "audit"))
+    rate_limit_per_minute: int = field(default_factory=lambda: int(_env("RATE_LIMIT_PER_MINUTE", "30")))
 
 
 settings = Settings()
