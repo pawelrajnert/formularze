@@ -55,6 +55,13 @@ fieldset.grp > legend { font-weight:600; padding:0; margin-bottom:4px; }
 .opt { display:flex; gap:8px; align-items:flex-start; margin:4px 0; font-weight:400; }
 .opt input { width:20px; height:20px; margin-top:2px; flex:none; }
 .req { color:var(--err); }
+.tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin:8px 0 12px; }
+.tile { border:1px solid var(--line); border-radius:6px; padding:8px 10px; }
+.tile b { display:block; font-size:1.6em; line-height:1.2; color:var(--pri); font-variant-numeric:tabular-nums; }
+.tile span { color:var(--muted); font-size:.9em; }
+.chg summary { cursor:pointer; font-weight:600; padding:6px 0; }
+.chg ul { margin:4px 0 8px; padding-left:20px; }
+.chg.warn { background:var(--warn-bg); border:1px solid #8a6d00; border-radius:6px; padding:4px 12px; }
 .chk label { font-weight:400; display:flex; gap:8px; align-items:flex-start; margin:6px 0; }
 .chk input { width:20px; height:20px; flex:none; margin-top:2px; }
 .hint { color:var(--muted); font-size:.9rem; margin:2px 0 4px; }
@@ -103,6 +110,12 @@ a { color:var(--pri); }
 
   <section id="result" hidden aria-label="Wynik konwersji">
     <div id="trace" class="card trace" aria-label="Przebieg konwersji"></div>
+    <section id="changes" class="card" hidden aria-labelledby="ch-h">
+      <h2 id="ch-h">Co zmieniliśmy względem papieru</h2>
+      <p class="hint">E-formularz to nie skan papieru: system usuwa to, co w sieci zbędne, i dokłada sekcje ze standardu COI.</p>
+      <div id="ch-sum" class="tiles"></div>
+      <div id="ch-lists"></div>
+    </section>
     <section id="appr" class="card" hidden aria-labelledby="appr-h">
       <h2 id="appr-h">Zatwierdzenie urzędnika</h2>
       <p id="appr-st" role="status" aria-live="polite"></p>
@@ -232,6 +245,7 @@ function showResult() {
   $("json").textContent = JSON.stringify(result.form, null, 2);
   $("result").hidden = false;
   renderForm(result.form);
+  renderChanges(tr.changes);
   setupAppr();
   $("trace").scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -244,6 +258,21 @@ $("dl").addEventListener("click", () => {
   save(result.form, result.stem + ".json");
   if (result.record) save(result.record, result.stem + ".approval.json");  // F-18: rekord audytu obok JSON-a
 });
+
+// --- N-C4: co zmieniliśmy względem papieru ---
+function renderChanges(ch) {
+  $("changes").hidden = !ch;
+  if (!ch) return;
+  const s = ch.summary;
+  $("ch-sum").replaceChildren(...[[s.fields, "pól w e-formularzu"], [s.from_document, "z treści dokumentu"],
+    [s.from_standard, "ze standardu COI"], [s.conditional, "pokazuje się warunkowo"], [s.prefilled, "z profilu zaufanego"],
+    [s.removed, "elementów papieru usunięto"]].map(([n, t]) => el("div", { className: "tile" }, el("b", { textContent: String(n) }), el("span", { textContent: t }))));
+  $("ch-lists").replaceChildren(...[["check", "Do sprawdzenia przez urzędnika", true], ["removed", "Usunięte z papieru", true],
+    ["improved", "Poprawione (pola atomowe, typy, formy neutralne)", false], ["added", "Dodane ze standardu COI", false]]
+    .filter(([k]) => (ch[k] || []).length)
+    .map(([k, t, open]) => el("details", { className: "chg" + (k === "check" ? " warn" : ""), open },
+      el("summary", { textContent: t + " (" + ch[k].length + ")" }), el("ul", {}, ...ch[k].map((x) => el("li", { textContent: x }))))));
+}
 
 // --- F-18: zatwierdzenie (APPROVAL_REQUIRED) — bez niego eksport zablokowany ---
 function setupAppr() {
@@ -391,7 +420,7 @@ function renderField(f) {
       wrap.append(fs); return wrap;
     }
     case "TEXT_BLOCK": case "INFO_SECTION":
-      wrap.append(el("div", { className: f.type === "INFO_SECTION" ? "txt info" : "txt", innerHTML: safeHtml(f.description) || (f.title || "") }));
+      wrap.append(el("div", { className: f.type === "INFO_SECTION" ? "txt info" : "txt", innerHTML: safeHtml(f.description) || safeHtml(f.title) }));
       return wrap;
     case "RADIO": case "CHECKBOX": {
       const multi = f.type === "CHECKBOX";

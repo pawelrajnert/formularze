@@ -93,3 +93,20 @@ def test_llm_client_cached_per_config():
     assert pipeline._llm("", "", "") is None
     a, b = pipeline._llm("http://x/v1", "k", "m"), pipeline._llm("http://x/v1", "k", "m")
     assert a is b and a.model == "m"
+
+
+def test_changes_summary_n_c4():
+    """N-C4: „co zmieniliśmy względem papieru” w trace — usunięte, dodane ze standardu, poprawione, do sprawdzenia."""
+    out = convert_document(FILES["docx"].read_bytes(), "docx", True)
+    form = out["form"]
+    ch = pipeline.changes(form, ["Podpis — pominięty: podpis elektroniczny.", "Pole zbiorcze „A” rozbite na: B, C."], [
+        "usunięto sekcję 'Twoje dane' (dubluje sekcję standardową)", "'Kwota': TEXT_FIELD -> NUMBER",
+        "pole zbiorcze 'Adres psa' rozbite na grupę adresową",
+        "show_if: nie znaleziono pola 'Rodzaj' dla 'Dane trenera', warunek pominięty, zdjęto REQUIRED"])
+    assert len(ch["removed"]) == 2 and "zastąpione sekcją standardową" in ch["removed"][1]
+    assert ch["improved"][1] == "„Kwota”: liczba zamiast: pole tekstowe (standard COI)." and len(ch["improved"]) == 3
+    assert any("profilu zaufanego" in a for a in ch["added"]) and any("RODO" in a for a in ch["added"])
+    assert "„Dane trenera”" in ch["check"][0]
+    s = ch["summary"]
+    assert s["fields"] == s["from_document"] + s["from_standard"] and s["from_standard"] > 0 and s["prefilled"] > 0
+    assert out["trace"]["changes"]["summary"]["fields"] == s["fields"]

@@ -65,6 +65,57 @@ def _removed_from_notes(notes: list[str]) -> list[str]:
     return out
 
 
+TYPES = {"TEXT_FIELD": "pole tekstowe", "TEXTAREA": "pole opisowe", "CHECKBOX": "pola wyboru", "RADIO": "wybór jednej opcji",
+         "SELECT": "lista rozwijana", "NUMBER": "liczba", "CONSENT_SECTION": "zgoda", "DATEPICKER": "data"}
+INPUTS = set(TYPES) | {"FILE_UPLOADER"}
+# dlaczego sekcja standardowa doszła, choć papier jej nie ma (pierwsze pasujące słowo w tytule)
+WHY_ADDED = [("organ", "adresat wniosku z góry, obywatel nie musi go szukać"),
+             ("podmiot", "wniosek w imieniu własnym, firmy albo innej osoby"),
+             ("twoje dane", "dane z profilu zaufanego, bez przepisywania"),
+             ("adres", "adres z rejestru, z gałęzią dla adresu za granicą"),
+             ("innej osoby", "wniosek za inną osobę"), ("reprezentant", "dokument, że reprezentujesz podmiot"),
+             ("pełnomocn", "pełnomocnik wg KPA (art. 32–33)"), ("opłat", "opłata skarbowa wg ustawy o opłacie skarbowej"),
+             ("kontakt", "kontakt do szybkiego wyjaśnienia sprawy"), ("zgod", "klauzula informacyjna RODO (art. 13)")]
+
+
+def _fields(qs: list):
+    for q in qs:
+        yield q["field"]
+        yield from _fields(q["field"]["repeatingSectionGrid"])
+
+
+def changes(form: dict, removed: list[str], notes: list[str]) -> dict:
+    """N-C4: „JSON ma inną zawartość niż papier” — co system usunął, dodał ze standardu i poprawił, z uzasadnieniem."""
+    tabs = form["tabs"]
+    out = {"removed": [r for r in removed if "pominięt" in r], "improved": [r for r in removed if "pominięt" not in r],
+           "added": [], "check": []}
+    for n in notes:
+        if m := re.match(r"usunięto (pole|sekcję) '(.+)' \(dubluje", n):
+            out["removed"].append(f"{m.group(1).capitalize()} „{m.group(2)}” — zastąpione sekcją standardową COI (bez wpisywania danych dwa razy).")
+        elif m := re.match(r"'(.+)': (\w+) -> (\w+)$", n):
+            a, b = TYPES.get(m.group(2), m.group(2)), TYPES.get(m.group(3), m.group(3))
+            out["improved"].append(f"„{m.group(1)}”: {b} zamiast: {a} (standard COI).")
+        elif m := re.match(r"pole zbiorcze '(.+)' rozbite na grupę adresową", n):
+            out["improved"].append(f"„{m.group(1)}” rozbite na Kraj, Ulicę, Numer budynku, Numer lokalu, Kod pocztowy i Miejscowość.")
+        elif m := re.match(r"show_if: nie znaleziono pola '(.+)' dla '(.+)',", n):
+            out["check"].append(f"„{m.group(2)}” miało się pokazywać zależnie od „{m.group(1)}”, ale takiego pola nie ma. "
+                                "Jest zawsze widoczne i nieobowiązkowe — sprawdź z oryginałem.")
+    for t in (tabs[0], tabs[-2]):  # strony „Dane” i „Kontakt i zgody” z szablonów F-14
+        for q in t["questions"]:
+            title = q["field"]["title"]
+            why = next((w for k, w in WHY_ADDED if k in title.lower()), "standard COI")
+            out["added"].append(f"„{title}” — {why} (sekcja standardowa ze wzorców COI).")
+    every = [f for t in tabs for f in _fields(t["questions"]) if f["type"] in INPUTS]
+    doc = [f for t in tabs[1:-2] for f in _fields(t["questions"]) if f["type"] in INPUTS]
+    out["summary"] = {
+        "fields": len(every), "from_document": len(doc), "from_standard": len(every) - len(doc),
+        "conditional": sum(bool(f["states"]) for t in tabs for f in _fields(t["questions"])),
+        "prefilled": sum(f.get("defaultValueType") == "EXTERNAL_SYSTEM" for f in every),
+        "removed": len(out["removed"]), "improved": len(out["improved"]),
+    }
+    return out
+
+
 def _reason(result, no_llm: str) -> str:
     if result.source == "llm":
         return ""
@@ -97,4 +148,5 @@ def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "", m
     return {"form": form, **extra, "draft": result.draft.model_dump(), "trace": {
         "source": result.source, "model": model_label, "reason": _reason(result, no_llm), "seconds": draft_summary(result)["seconds"],
         "text_chars": len(doc.text), "ocr_used": doc.ocr_used, "rules_errors": [],
-        "cleanup": notes, "removed_paper_elements": removed, "warnings": result.warnings}}
+        "cleanup": notes, "removed_paper_elements": removed, "warnings": result.warnings,
+        "changes": changes(form, removed, notes)}}

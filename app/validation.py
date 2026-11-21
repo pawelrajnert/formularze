@@ -10,6 +10,7 @@ ALLOWED = {"pdf", "doc", "docx", "ods", "xlsx", "jpg", "jpeg", "png"}
 BAD_CHARS = set(";:><\\/|'*%$")
 ODS_MIME = b"application/vnd.oasis.opendocument.spreadsheet"
 CHUNK = 64 * 1024
+MAX_UNZIPPED = 200 * 1024 * 1024  # python-docx/openpyxl rozpakowują całe XML-e do pamięci
 
 
 def check_name(name: str | None) -> str:
@@ -35,6 +36,11 @@ def _zip_kind(data: bytes) -> str | None:
     try:
         with zipfile.ZipFile(io.BytesIO(data)) as z:
             names = set(z.namelist())
+            # rozmiary z nagłówków: zipfile i tak nie rozpakuje wpisu ponad zadeklarowany file_size
+            if sum(i.file_size for i in z.infolist()) > MAX_UNZIPPED:
+                raise HTTPException(413, f"Archiwum po rozpakowaniu przekracza {MAX_UNZIPPED // (1024 * 1024)} MB (zip-bomba?)")
+            if any(n.lower().endswith("vbaproject.bin") or n.startswith(("Basic/", "Scripts/")) for n in names):
+                raise HTTPException(415, "Plik zawiera makra lub skrypty - niedozwolone")
             if "word/document.xml" in names:
                 return "docx"
             if "xl/workbook.xml" in names:
