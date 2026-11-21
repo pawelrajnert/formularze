@@ -171,6 +171,23 @@ def test_xlsx_rows_sheets_merged():
     assert doc.tables[1] == [["Drugi arkusz"]]
 
 
+def test_xlsx_shapes_and_comments():
+    """D-01: wzór krajowy (gov.pl) trzyma listę załączników w polach tekstowych, a uwagi w komentarzach komórek."""
+    import zipfile
+    import openpyxl
+    from openpyxl.comments import Comment
+    wb = openpyxl.Workbook()
+    wb.active["A1"] = "Wniosek"
+    wb.active["A1"].comment = Comment("Pole obowiązkowe", "urząd")
+    buf = io.BytesIO()
+    wb.save(buf)
+    with zipfile.ZipFile(buf, "a") as z:
+        z.writestr("xl/drawings/drawing1.xml", '<xdr:wsDr xmlns:xdr="x" xmlns:a="y"><xdr:sp><xdr:txBody>'
+                   '<a:p><a:r><a:t>1. Mapa &amp; wypis</a:t></a:r></a:p></xdr:txBody></xdr:sp></xdr:wsDr>')
+    doc = load_document(buf.getvalue(), "f.xlsx")
+    assert doc.pages[-1] == "[Pola tekstowe i komentarze]\n1. Mapa & wypis\nPole obowiązkowe"
+
+
 def test_xlsx_broken():
     with pytest.raises(IngestError):
         load_document(b"nie zip", "x.xlsx")

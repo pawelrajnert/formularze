@@ -6,7 +6,10 @@ XLSX: wszystkie arkusze, wiersz -> komórki niepuste " | ", scalone komórki tyl
 """
 import dataclasses
 import datetime as dt
+import html
 import io
+import re
+import zipfile
 
 from hackcore.document import Document, register
 from hackcore.ingest.tools import normalize_text, soffice_convert
@@ -194,7 +197,27 @@ def load_xlsx(data: bytes, max_pages: int | None = None) -> Document:
             pages.append(f"[Arkusz: {ws.title}]\n{body}" if len(wb.worksheets) > 1 else body)
     finally:
         wb.close()
+    if extra := _xlsx_shapes_and_comments(data):
+        pages.append(extra)
     return Document.from_pages(pages or [""], "xlsx", tables=tables)
+
+
+_XML_RUN = re.compile(r"<(?:a:)?t(?:\s[^>]*)?>([^<]*)</(?:a:)?t>")
+
+
+def _xlsx_shapes_and_comments(data: bytes) -> str:
+    """D-01: pola tekstowe/kształty (xl/drawings) i komentarze komórek - openpyxl ich nie czyta, a wzory urzędowe
+    trzymają tam np. listę załączników. Tekst wyciągamy regexem (bez parsera XML: plik z zewnątrz)."""
+    out = []
+    with zipfile.ZipFile(io.BytesIO(data)) as z:
+        for name in sorted(n for n in z.namelist() if re.fullmatch(r"xl/(drawings/drawing|comments)\d*\.xml", n)):
+            xml = z.read(name).decode("utf-8", "replace")
+            block = r"<xdr:sp\b.*?</xdr:sp>" if "drawings" in name else r"<comment\b.*?</comment>"
+            for part in re.findall(block, xml, re.S):
+                text = normalize_text(html.unescape("".join(_XML_RUN.findall(part))))
+                if text:
+                    out.append(text)
+    return "[Pola tekstowe i komentarze]\n" + "\n".join(out) if out else ""
 
 
 # ---------------------------------------------------------------- DOC / ODS (LibreOffice)
