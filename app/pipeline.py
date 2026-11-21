@@ -8,6 +8,7 @@ from hackcore import (IngestError, LLMClient, MissingAPIKey, MissingDependency, 
 
 from app import approval, config
 from app.form_builder.builder import build
+from app.form_builder.cleanup import unsupported_statements
 from app.form_builder.draft_llm import draft_summary, make_draft
 from app.form_builder.draft_postprocess import paper_reason
 from app.rules_check import check
@@ -97,8 +98,12 @@ def changes(form: dict, removed: list[str], notes: list[str]) -> dict:
             out["improved"].append(f"„{m.group(1)}”: {b} zamiast: {a} (standard COI).")
         elif m := re.match(r"pole zbiorcze '(.+)' rozbite na grupę adresową", n):
             out["improved"].append(f"„{m.group(1)}” rozbite na Kraj, Ulicę, Numer budynku, Numer lokalu, Kod pocztowy i Miejscowość.")
-        elif m := re.match(r"show_if: nie znaleziono pola '(.+)' dla '(.+)',", n):
-            out["check"].append(f"„{m.group(2)}” miało się pokazywać zależnie od „{m.group(1)}”, ale takiego pola nie ma. "
+        elif m := re.match(r"oświadczenie '(.+)' nie występuje w dokumencie", n):
+            out["check"].append(f"Oświadczenie „{m.group(1)}” nie występuje w dokumencie — mogło zostać dopisane przez AI. "
+                                "Jest nieobowiązkowe; usuń je albo potwierdź z oryginałem.")
+        elif m := re.match(r"show_if: (nie znaleziono pola|pusta wartość warunku) '(.+)' dla '(.+)',", n):
+            why = "takiego pola nie ma" if m.group(1) == "nie znaleziono pola" else "warunek nie ma wartości"
+            out["check"].append(f"„{m.group(3)}” miało się pokazywać zależnie od „{m.group(2)}”, ale {why}. "
                                 "Jest zawsze widoczne i nieobowiązkowe — sprawdź z oryginałem.")
     for t in (tabs[0], tabs[-2]):  # strony „Dane” i „Kontakt i zgody” z szablonów F-14
         for q in t["questions"]:
@@ -135,6 +140,7 @@ def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "", m
     if title_hint and not doc.text.strip():  # pusty dokument: tytuł z nazwy pliku zamiast „Wniosek”
         result.draft.title = title_hint[:255]
     notes: list[str] = []
+    unsupported_statements(result.draft, doc.text, notes)
     form = build(result.draft, notes)
     if errs := check(form):  # make_draft już to sprawdza — tu tylko bezpiecznik
         raise ConversionError(f"Formularz nie przeszedł walidacji: {'; '.join(errs[:5])}")

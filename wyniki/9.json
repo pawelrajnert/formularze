@@ -2,7 +2,7 @@
   "title": "Wniosek o przyznanie stypendium/nagrody/wyróżnienia sportowego Rady Miasta Zgierza",
   "tabs": [
     {
-      "id": "07dc0974-e0d7-4eac-8989-b024825d4ff9",
+      "id": "c04ab02a-cc86-46fa-bc26-854a7d0aa97a",
       "title": "Dane",
       "type": "MAIN",
       "questions": [
@@ -12,7 +12,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "d8955b48-f830-4384-8813-17438723740e",
+            "id": "2b05e7db-a3bb-4cb3-ab2c-e4b3148d6331",
             "type": "SECTION",
             "techName": "organ_do_ktorego_jest_skladany_wniosek",
             "title": "Organ, do którego jest składany wniosek",
@@ -27,7 +27,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "0200c3e2-0778-4cd2-aac0-5316318be770",
+                  "id": "f029417f-1cbb-4069-9b37-119e0bc520f6",
                   "type": "TEXT_FIELD",
                   "techName": "nazwa_organu",
                   "title": "Nazwa organu",
@@ -54,7 +54,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "182c3d6f-5150-43fe-b33a-81ee7fc3ed5b",
+            "id": "2e709c75-80f5-4a43-9f6d-31a743d0fdb7",
             "type": "SECTION",
             "techName": "podmiot_wniosku",
             "title": "Podmiot wniosku",
@@ -69,7 +69,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "a2ffd4e0-328b-4734-b015-5180b4bc459e",
+                  "id": "a49d8aa6-b5f2-4964-b161-2d7f8585f624",
                   "type": "RADIO",
                   "techName": "wybierz_jako_kto_wnioskujesz",
                   "title": "Wybierz, jako kto wnioskujesz",
@@ -105,7 +105,7 @@
           "rows": 4,
           "cols": 3,
           "field": {
-            "id": "14db3820-30cf-40fd-bb0a-76e761ffc82e",
+            "id": "1d09d42a-2003-478a-880d-4dcfd64479a7",
             "type": "SECTION",
             "techName": "twoje_dane",
             "title": "Twoje dane",
@@ -120,7 +120,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "50ad78b1-ba7c-451a-b044-a413803b55b6",
+                  "id": "e7548e40-a80a-4d96-aeb2-7874cc060b68",
                   "type": "TEXT_FIELD",
                   "techName": "nazwisko",
                   "title": "Nazwisko",
@@ -142,7 +142,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "2f6cca89-3617-4251-8f93-52c8e655a484",
+                  "id": "8f08ebfa-1b5b-4006-befc-96781b7e565c",
                   "type": "TEXT_FIELD",
                   "techName": "imie",
                   "title": "Imię",
@@ -164,7 +164,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "21aef812-5437-4a19-9ed0-643f88ca7104",
+                  "id": "59e28a0a-ccbe-42d5-b942-dc9843d7fa1f",
                   "type": "TEXT_FIELD",
                   "techName": "numer_pesel",
                   "title": "Numer PESEL",
@@ -192,7 +192,7 @@
           "rows": 10,
           "cols": 3,
           "field": {
-            "id": "b2835a79-132e-4388-afa9-a2286ed0e67f",
+            "id": "e6a05ed5-cc68-4686-99c1-e2453d295b3f",
             "type": "SECTION",
             "techName": "adres_zamieszkania",
             "title": "Adres zamieszkania",
@@ -207,7 +207,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "a164c8f7-f627-4834-ba58-5699e9b76346",
+                  "id": "6ae7ac4e-197d-4c82-a745-c9c63c60fa50",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy",
                   "title": "Kod pocztowy",
@@ -234,7 +234,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "25d28b0e-15b4-45ca-9a1c-c03b377789a9",
+                  "id": "f11bb43c-bba6-4a8a-8572-42d9704ab855",
                   "type": "TEXT_FIELD",
                   "techName": "ulica",
                   "title": "Ulica",
@@ -261,7 +261,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "5dd8fc2f-69e1-4ecc-a4d2-3def9b7684e2",
+                  "id": "416904e9-893b-4554-96c6-24ffd68bfae3",
                   "type": "SELECT",
                   "techName": "wojewodztwo",
                   "title": "TERYT_4G_DOWODOWY",
@@ -290,7 +290,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "f6b9be0d-76a5-43d3-b276-49c4d3138948",
+                  "id": "a01a7a5c-f823-4eed-b0d6-45f3b8afd398",
                   "type": "TEXT_FIELD",
                   "techName": "numer_budynku",
                   "title": "Numer budynku",
@@ -312,7 +312,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "4d2ac2c2-8f58-49c7-b5d0-1845d76d26c5",
+                  "id": "bd0981f4-5626-407e-a1e1-ee5f2a37e703",
                   "type": "TEXT_FIELD",
                   "techName": "ulica_zagranica",
                   "title": "Ulica",
@@ -337,7 +337,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "0917027c-e3a9-47c4-8224-40b6bee2e80e",
+                  "id": "8276227b-3c96-4baa-8e3a-da708ebf4201",
                   "type": "TEXT_FIELD",
                   "techName": "miejscowosc_zagranica",
                   "title": "Miejscowość",
@@ -362,7 +362,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "fe81b49a-b7e1-43e6-b837-c81c182935cf",
+                  "id": "9889e13c-fd8f-4503-a9f6-229ae69764bb",
                   "type": "SELECT",
                   "techName": "kraj",
                   "title": "Kraj",
@@ -388,7 +388,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "f57e11c2-135c-400d-9fbb-8d4ad5ddb50a",
+                  "id": "d6032a5f-24e2-4a97-b944-e46d5c7a8c9b",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy_zagranica",
                   "title": "Kod pocztowy",
@@ -413,7 +413,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "ac0f28c3-8cca-4ca0-9084-d62c38f8825b",
+                  "id": "289526e4-3566-4dc2-9e51-6f2aa1479aef",
                   "type": "TEXT_FIELD",
                   "techName": "numer_lokalu",
                   "title": "Numer lokalu",
@@ -441,7 +441,7 @@
           "rows": 5,
           "cols": 3,
           "field": {
-            "id": "359f4b9c-1130-4800-b294-f4e32aecac7c",
+            "id": "57285f33-2fb8-4848-a14d-917127103b7e",
             "type": "SECTION",
             "techName": "dane_podmiotu",
             "title": "Dane podmiotu",
@@ -456,7 +456,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "9aad7eba-f49a-4016-968f-11f64bce3e7e",
+                  "id": "f9b667cb-9c5b-46fd-a4aa-07a7feb511a4",
                   "type": "TEXT_FIELD",
                   "techName": "nazwa",
                   "title": "Nazwa",
@@ -476,7 +476,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "e0a4a6f7-15e9-43d2-828d-1c8dae51e8ba",
+                  "id": "1eb25cbb-4442-42e6-9ce3-63bcdb405603",
                   "type": "TEXT_FIELD",
                   "techName": "nip",
                   "title": "NIP",
@@ -496,7 +496,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "e22a98ce-0036-427e-81e4-93c650bc1cf3",
+                  "id": "2087ea75-1eb0-4861-8666-9e72ac6f28a8",
                   "type": "TEXT_FIELD",
                   "techName": "regon",
                   "title": "REGON",
@@ -516,7 +516,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "f73fff32-78a4-4ded-8924-159050408e76",
+                  "id": "53abfbcb-317f-4169-ae7c-ea0d4825ff02",
                   "type": "TEXT_FIELD",
                   "techName": "numer_krs",
                   "title": "Numer KRS",
@@ -542,7 +542,7 @@
           "rows": 10,
           "cols": 3,
           "field": {
-            "id": "46a41d91-cf61-451d-9451-4b868e2bbda9",
+            "id": "850945e5-db56-4c7d-b441-a277b7b78fa8",
             "type": "SECTION",
             "techName": "adres_siedziby",
             "title": "Adres siedziby",
@@ -557,7 +557,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "af5723e8-69c1-4ce2-93eb-bab0c90e960f",
+                  "id": "03939fcf-0c2e-46f4-ba15-472c181e58f0",
                   "type": "TEXT_FIELD",
                   "techName": "miejscowosc_siedziba_zagranica",
                   "title": "Miejscowość",
@@ -582,7 +582,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "9c77cff3-265e-43df-9a17-6eadef12dd98",
+                  "id": "1a8962b4-e0e6-4929-909a-649da9eb1bed",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy_siedziba_zagranica",
                   "title": "Kod pocztowy",
@@ -607,7 +607,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "7ad162d0-77fc-4f25-b3f1-8be3d0b84947",
+                  "id": "07fe31ab-cb59-4d26-afea-1b9ca56d34b1",
                   "type": "TEXT_FIELD",
                   "techName": "ulica_siedziba_zagranica",
                   "title": "Ulica",
@@ -632,7 +632,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "55adcf42-4878-49e4-8a8e-15dfb5d5a892",
+                  "id": "c248076e-1124-4e23-9cc9-4959979ffa30",
                   "type": "SELECT",
                   "techName": "wojewodztwo_siedziba",
                   "title": "TERYT_4G_DOWODOWY",
@@ -659,7 +659,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "535f7f54-c790-4de8-abc3-82de153424cf",
+                  "id": "e1372080-caf4-49c7-9be3-b0752ae841bf",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy_siedziba",
                   "title": "Kod pocztowy",
@@ -684,7 +684,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "efa211af-ff2b-4483-ba52-58ed36d39c20",
+                  "id": "6d8c4bc4-64dd-4a0b-b566-b5f66870c007",
                   "type": "TEXT_FIELD",
                   "techName": "ulica_siedziba",
                   "title": "Ulica",
@@ -710,7 +710,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "3dc733d0-7096-49da-a564-3783fea654b4",
+                  "id": "a6e72821-4c95-4cbb-aeb1-21c671d7277a",
                   "type": "TEXT_FIELD",
                   "techName": "numer_budynku_siedziba",
                   "title": "Numer budynku",
@@ -730,7 +730,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "04e1b9fd-f1e5-44b8-9543-0ab3b824830f",
+                  "id": "94c96d65-f142-4ebe-b066-d8c8ac0e4f04",
                   "type": "TEXT_FIELD",
                   "techName": "numer_lokalu_siedziba",
                   "title": "Numer lokalu",
@@ -750,7 +750,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "9878a5a6-bee4-4578-af77-25cbc5e84836",
+                  "id": "635b55a1-bd7a-48af-8f41-7fb91848a3a7",
                   "type": "SELECT",
                   "techName": "kraj_siedziba",
                   "title": "Kraj",
@@ -781,7 +781,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "d3860036-752d-43f7-93df-f27114ee01dc",
+            "id": "1415471d-23dc-4d08-8090-21f35a8e784a",
             "type": "SECTION",
             "techName": "potwierdzenie_ze_jestes_reprezentantem",
             "title": "Potwierdzenie, że jesteś reprezentantem",
@@ -796,7 +796,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "7a5e0ca3-13d7-4e02-aa0b-79aed88e6b6f",
+                  "id": "f78e5093-c5e4-4488-a266-f8e71fdd16a1",
                   "type": "FILE_UPLOADER",
                   "techName": "plik_z_odpisem_danych",
                   "title": "Plik z odpisem danych",
@@ -827,7 +827,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "badb07f8-11cb-4bfc-868d-2ef234172e0d",
+            "id": "3049504d-37fb-41a0-b757-605568f0d888",
             "type": "SECTION",
             "techName": "pelnomocnictwo",
             "title": "Pełnomocnictwo",
@@ -842,7 +842,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b899a411-cef2-426c-9d46-35beedc7de09",
+                  "id": "6186303c-04f5-495e-8ed9-a8553cd8b856",
                   "type": "FILE_UPLOADER",
                   "techName": "plik_dokumentu_z_pelnomocnictwem",
                   "title": "Plik dokumentu z pełnomocnictwem",
@@ -873,7 +873,7 @@
           "rows": 3,
           "cols": 3,
           "field": {
-            "id": "036df5e6-589c-4263-b419-7815b8ae0fd8",
+            "id": "6651f652-4194-4f89-be53-6b431ce7ff5e",
             "type": "SECTION",
             "techName": "oplata_skarbowa_pelnomocnictwo_2",
             "title": "Opłata skarbowa za pełnomocnictwo",
@@ -888,7 +888,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b51cc56e-8dad-46f0-8054-a90eb2e45488",
+                  "id": "269db82c-ee5f-4a7f-8fcc-099733cafc6d",
                   "type": "TEXT_BLOCK",
                   "techName": "oplata_info",
                   "title": "",
@@ -908,7 +908,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "37c896d8-a43a-4084-b89a-dc38c8e9a68e",
+                  "id": "6abfb407-6b52-40d9-93af-bd0586b8ffb6",
                   "type": "FILE_UPLOADER",
                   "techName": "plik_z_potwierdzeniem_przelewu_2",
                   "title": "Plik z potwierdzeniem przelewu",
@@ -936,7 +936,7 @@
       ]
     },
     {
-      "id": "269e91cd-eb89-4941-8430-63e5d18e6b3e",
+      "id": "c55e0493-354c-49b6-8487-c397bf1ec863",
       "title": "Informacje o klubie sportowym",
       "type": "MAIN",
       "questions": [
@@ -946,10 +946,10 @@
           "rows": 4,
           "cols": 3,
           "field": {
-            "id": "1d5fd835-5faa-4a8a-b10d-a1163e576205",
+            "id": "d118d4dd-f2ae-41a0-8430-b18a9018d1f6",
             "type": "SECTION",
-            "techName": "dane_reprezentanta_klubu",
-            "title": "Dane reprezentanta klubu",
+            "techName": "dane_klubu_sportowego",
+            "title": "Dane klubu sportowego",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -961,12 +961,33 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "228d1a50-a4b6-4345-a6ce-67a6baa454e2",
-                  "type": "TEXT_FIELD",
-                  "techName": "imie_reprezentanta_klubu",
-                  "title": "Imię reprezentanta klubu",
+                  "id": "6e3a083c-31f2-4260-adbf-ca2e8154f614",
+                  "type": "RADIO",
+                  "techName": "preferowany_sposob_korespondencji_z_urzedem",
+                  "title": "Preferowany sposób korespondencji z urzędem",
                   "description": "",
-                  "options": [],
+                  "options": [
+                    {
+                      "id": "Poczta tradycyjna - adres siedziby klubu",
+                      "name": "Poczta tradycyjna - adres siedziby klubu",
+                      "techName": "poczta_tradycyjna_adres_siedziby_klubu"
+                    },
+                    {
+                      "id": "Poczta tradycyjna - inny adres korespondencyjny",
+                      "name": "Poczta tradycyjna - inny adres korespondencyjny",
+                      "techName": "poczta_tradycyjna_inny_adres_korespondencyjny"
+                    },
+                    {
+                      "id": "Skrzynka ePUAP",
+                      "name": "Skrzynka ePUAP",
+                      "techName": "skrzynka_epuap"
+                    },
+                    {
+                      "id": "eDoręczenia",
+                      "name": "eDoręczenia",
+                      "techName": "edoreczenia"
+                    }
+                  ],
                   "validation": [
                     "REQUIRED"
                   ],
@@ -983,18 +1004,23 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "ced0b379-e67b-4aac-9a7f-6c0baa00b5cb",
+                  "id": "a85e2576-24ac-4ef0-8bab-a1a820e12a05",
                   "type": "TEXT_FIELD",
-                  "techName": "nazwisko_reprezentanta_klubu",
-                  "title": "Nazwisko reprezentanta klubu",
+                  "techName": "adres_skrzynki_epuap",
+                  "title": "Adres skrzynki ePUAP",
                   "description": "",
                   "options": [],
                   "validation": [
-                    "REQUIRED"
+                    "EPUAP"
                   ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "states": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Skrzynka ePUAP\" in tabs['Informacje o klubie sportowym' in title].questions['dane_klubu_sportowego' in field.techName].field.repeatingSectionGrid['preferowany_sposob_korespondencji_z_urzedem' in field.techName].field.__userAnswer)"
+                    }
+                  ],
                   "questionOrder": 1,
                   "tooltipMessage": ""
                 }
@@ -1005,110 +1031,21 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "c18ef5e8-475e-4cc1-b75a-830df2b9ef68",
+                  "id": "eb018d5a-3c46-4455-a1d2-34cf28e9450e",
                   "type": "TEXT_FIELD",
-                  "techName": "numer_telefonu_reprezentanta_klubu",
-                  "title": "Numer telefonu reprezentanta klubu",
+                  "techName": "adres_skrzynki_edoreczen",
+                  "title": "Adres skrzynki eDoręczeń",
                   "description": "",
                   "options": [],
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 2,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 0,
-            "tooltipMessage": ""
-          }
-        }
-      ]
-    },
-    {
-      "id": "75631372-839d-4c24-a6d6-092810b203cf",
-      "title": "Informacje o kandydacie/kandydatce",
-      "type": "MAIN",
-      "questions": [
-        {
-          "x": 0,
-          "y": 0,
-          "rows": 4,
-          "cols": 3,
-          "field": {
-            "id": "7d4c0313-0f8b-4055-955e-69d18a3f7a4e",
-            "type": "SECTION",
-            "techName": "dane_osobowe",
-            "title": "Dane osobowe",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "20087f38-57a5-4a03-9c81-ab2d6b57d489",
-                  "type": "TEXT_FIELD",
-                  "techName": "imie_kandydata_kandydatki",
-                  "title": "Imię kandydata/kandydatki",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"eDoręczenia\" in tabs['Informacje o klubie sportowym' in title].questions['dane_klubu_sportowego' in field.techName].field.repeatingSectionGrid['preferowany_sposob_korespondencji_z_urzedem' in field.techName].field.__userAnswer)"
+                    }
                   ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "43f4297c-ecd1-414e-b68d-cf0c2fec5bfa",
-                  "type": "TEXT_FIELD",
-                  "techName": "nazwisko_kandydata_kandydatki",
-                  "title": "Nazwisko kandydata/kandydatki",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 2,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "597bb449-3e50-42c2-9c55-982de8f54405",
-                  "type": "DATEPICKER",
-                  "techName": "data_urodzenia_kandydata_kandydatki",
-                  "title": "Data urodzenia kandydata/kandydatki",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
                   "questionOrder": 2,
                   "tooltipMessage": ""
                 }
@@ -1125,10 +1062,10 @@
           "rows": 7,
           "cols": 3,
           "field": {
-            "id": "fbd93022-d06f-43b4-8570-9efbe4e6a87d",
+            "id": "47b786ab-1c40-4110-b475-5f7ad0d3b8ee",
             "type": "SECTION",
-            "techName": "adres_zameldowania_kandydata_kandydatki",
-            "title": "Adres zameldowania kandydata/kandydatki",
+            "techName": "adres_siedziby_klubu",
+            "title": "Adres siedziby klubu",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -1140,7 +1077,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "e98030cd-d26a-47cc-bec9-3cfa34c4f144",
+                  "id": "4a6c69db-6622-4a8b-8559-cc8c4e3b425e",
                   "type": "SELECT",
                   "techName": "kraj_2",
                   "title": "Kraj",
@@ -1168,7 +1105,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "9ac3f84f-bf0e-4936-9e84-bd55964a147e",
+                  "id": "5897ecc8-22a7-4ecc-ae26-42e1ff4badba",
                   "type": "TEXT_FIELD",
                   "techName": "ulica_2",
                   "title": "Ulica",
@@ -1190,7 +1127,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "967c7dd1-2336-4bdb-92c4-3fd37ce67da3",
+                  "id": "2deff161-260b-424f-ac59-4b25b9eeba30",
                   "type": "TEXT_FIELD",
                   "techName": "numer_budynku_2",
                   "title": "Numer budynku",
@@ -1212,7 +1149,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "4df8c900-2dff-41e0-8602-9cebcba14787",
+                  "id": "60140c86-c20e-4baf-9d1c-323efa463241",
                   "type": "TEXT_FIELD",
                   "techName": "numer_lokalu_2",
                   "title": "Numer lokalu",
@@ -1232,7 +1169,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "2d7bc20c-841e-44f4-8c3f-0ceb82a56afe",
+                  "id": "5e30bf2c-891a-4403-92ec-4031e1806168",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy_2",
                   "title": "Kod pocztowy",
@@ -1255,7 +1192,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "f8129151-88bc-4a30-a6fe-45ddf68febf4",
+                  "id": "81ab4494-c3e8-4be4-8881-e7929d4321b1",
                   "type": "TEXT_FIELD",
                   "techName": "miejscowosc",
                   "title": "Miejscowość",
@@ -1283,10 +1220,10 @@
           "rows": 7,
           "cols": 3,
           "field": {
-            "id": "71c9dbfb-2488-4df5-b964-6db82ade2738",
+            "id": "56d6cef5-4598-4329-ba5a-f424993ebdb3",
             "type": "SECTION",
-            "techName": "adres_do_korespondencji_jesli_rozni_sie_od_adresu_zameldowan",
-            "title": "Adres do korespondencji (jeśli różni się od adresu zameldowania)",
+            "techName": "inny_adres_korespondencyjny",
+            "title": "Inny adres korespondencyjny",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -1298,7 +1235,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "f2f2a078-9480-4ca9-bd54-f6ec98c549e7",
+                  "id": "d5d8262a-3916-4acc-92d5-04caf11f1272",
                   "type": "SELECT",
                   "techName": "kraj_3",
                   "title": "Kraj",
@@ -1324,7 +1261,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "1794e4c1-a320-459f-af2a-3fb462f9785c",
+                  "id": "9728a012-01da-45f2-806a-bb59c6a103a5",
                   "type": "TEXT_FIELD",
                   "techName": "ulica_3",
                   "title": "Ulica",
@@ -1344,7 +1281,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "4c9879de-7c9f-4b85-aeeb-e7004539d59f",
+                  "id": "41177e17-8402-41b7-a477-9a25ee2676d4",
                   "type": "TEXT_FIELD",
                   "techName": "numer_budynku_3",
                   "title": "Numer budynku",
@@ -1364,7 +1301,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "4ecfd3f4-0396-4cb7-b1b6-2bd9fdac103e",
+                  "id": "c4a8ecfc-8534-4ae0-8da2-22f8973c592a",
                   "type": "TEXT_FIELD",
                   "techName": "numer_lokalu_3",
                   "title": "Numer lokalu",
@@ -1384,7 +1321,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b15d64d4-f90f-43a2-b754-5b65cbc0ab80",
+                  "id": "8d90f498-0f58-480d-865e-06664c54d45d",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy_3",
                   "title": "Kod pocztowy",
@@ -1406,9 +1343,559 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "e1b90c57-e0a2-4f65-bd6d-7c9e784d2aa3",
+                  "id": "eb052121-b527-4415-a58f-4a8c1a16e264",
                   "type": "TEXT_FIELD",
                   "techName": "miejscowosc_2",
+                  "title": "Miejscowość",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [
+              {
+                "type": "SHOW",
+                "query": "(\"Poczta tradycyjna - inny adres korespondencyjny\" in tabs['Informacje o klubie sportowym' in title].questions['dane_klubu_sportowego' in field.techName].field.repeatingSectionGrid['preferowany_sposob_korespondencji_z_urzedem' in field.techName].field.__userAnswer)"
+              }
+            ],
+            "questionOrder": 11,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 18,
+          "rows": 2,
+          "cols": 3,
+          "field": {
+            "id": "52062ade-d3fe-4730-8638-db9b1f5a29cb",
+            "type": "SECTION",
+            "techName": "dane_reprezentanta_klubu",
+            "title": "Dane reprezentanta klubu",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "28e9a452-d680-429f-b1d4-45b9f5992e7f",
+                  "type": "RADIO",
+                  "techName": "czy_wniosek_sklada_reprezentant_klubu",
+                  "title": "Czy wniosek składa reprezentant klubu?",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Tak",
+                      "name": "Tak",
+                      "techName": "tak"
+                    },
+                    {
+                      "id": "Nie",
+                      "name": "Nie",
+                      "techName": "nie"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 18,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 20,
+          "rows": 4,
+          "cols": 3,
+          "field": {
+            "id": "6ee8ab2b-72f2-4d4e-a347-871e20ac70b3",
+            "type": "SECTION",
+            "techName": "dane_reprezentanta_klubu_sportowego",
+            "title": "Dane reprezentanta klubu sportowego",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "64a63d06-6039-4596-aa35-bcd8908b4956",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_reprezentanta_klubu",
+                  "title": "Imię reprezentanta klubu",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "bfd5ee7e-f62c-493b-b431-42e9a04834bf",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwisko_reprezentanta_klubu",
+                  "title": "Nazwisko reprezentanta klubu",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "a41fbb2b-4a8a-46f3-ab16-2ff4f669c3ed",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_telefonu_reprezentanta_klubu",
+                  "title": "Numer telefonu reprezentanta klubu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [
+              {
+                "type": "SHOW",
+                "query": "(\"Tak\" in tabs['Informacje o klubie sportowym' in title].questions['dane_reprezentanta_klubu' in field.techName].field.repeatingSectionGrid['czy_wniosek_sklada_reprezentant_klubu' in field.techName].field.__userAnswer)"
+              }
+            ],
+            "questionOrder": 20,
+            "tooltipMessage": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": "244ee2ac-1a50-40f2-8d46-c61b7b1fd11f",
+      "title": "Informacje o kandydacie/kandydatce",
+      "type": "MAIN",
+      "questions": [
+        {
+          "x": 0,
+          "y": 0,
+          "rows": 4,
+          "cols": 3,
+          "field": {
+            "id": "6e7d138b-384d-4b21-ab05-983e14193aac",
+            "type": "SECTION",
+            "techName": "dane_osobowe",
+            "title": "Dane osobowe",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "c32ab633-3e8a-40ed-833f-5724020b486f",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_kandydata_kandydatki",
+                  "title": "Imię kandydata/kandydatki",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "ca1de005-ec52-4e67-8d3b-a584d300457f",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwisko_kandydata_kandydatki",
+                  "title": "Nazwisko kandydata/kandydatki",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "f16cbe8b-de84-4387-b290-e075f01f0906",
+                  "type": "DATEPICKER",
+                  "techName": "data_urodzenia_kandydata_kandydatki",
+                  "title": "Data urodzenia kandydata/kandydatki",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 0,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "rows": 7,
+          "cols": 3,
+          "field": {
+            "id": "7244c5e5-0a0b-4121-92d5-d590a6e36e3b",
+            "type": "SECTION",
+            "techName": "adres_zameldowania_kandydata_kandydatki",
+            "title": "Adres zameldowania kandydata/kandydatki",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "8ec6726c-2efa-45fc-a211-ebfd794610eb",
+                  "type": "SELECT",
+                  "techName": "kraj_4",
+                  "title": "Kraj",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "dictionaryName": "Kraje",
+                  "multiLevelTree": false,
+                  "searchEnabled": true,
+                  "defaultValue": [
+                    "Polska"
+                  ],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "6e56e834-c70a-42d9-9539-d8588c8aafc7",
+                  "type": "TEXT_FIELD",
+                  "techName": "ulica_4",
+                  "title": "Ulica",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "0644761d-0858-4d04-9fe2-8c9aabbaf136",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_budynku_4",
+                  "title": "Numer budynku",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "1aa891f8-b2c5-4df4-b0aa-28bf1e859c14",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_lokalu_4",
+                  "title": "Numer lokalu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "07385861-9c4e-49a6-bf15-5d9d0b806164",
+                  "type": "TEXT_FIELD",
+                  "techName": "kod_pocztowy_4",
+                  "title": "Kod pocztowy",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED",
+                    "ZIP_CODE"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "fbbc4cf1-1020-49a0-bb1e-03942efb0b23",
+                  "type": "TEXT_FIELD",
+                  "techName": "miejscowosc_3",
+                  "title": "Miejscowość",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 4,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 11,
+          "rows": 7,
+          "cols": 3,
+          "field": {
+            "id": "5e24a1b5-a601-4af8-98fc-e401bc3f1b9d",
+            "type": "SECTION",
+            "techName": "adres_do_korespondencji_jesli_inny_niz_zameldowanie",
+            "title": "Adres do korespondencji (jeśli inny niż zameldowanie)",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "9a46ac46-3704-4b45-92e7-d19acbc091bb",
+                  "type": "SELECT",
+                  "techName": "kraj_5",
+                  "title": "Kraj",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "dictionaryName": "Kraje",
+                  "multiLevelTree": false,
+                  "searchEnabled": true,
+                  "defaultValue": [
+                    "Polska"
+                  ],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "a8c9cc10-b49d-41b4-abbf-dbf706bc20b7",
+                  "type": "TEXT_FIELD",
+                  "techName": "ulica_5",
+                  "title": "Ulica",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "ac257694-31c1-470f-9068-d531d10bac3d",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_budynku_5",
+                  "title": "Numer budynku",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "ce9492f6-b673-44e2-af4f-b9de2688af7b",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_lokalu_5",
+                  "title": "Numer lokalu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "29993dc6-e5af-41bf-b193-05a55a6c89b2",
+                  "type": "TEXT_FIELD",
+                  "techName": "kod_pocztowy_5",
+                  "title": "Kod pocztowy",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "ZIP_CODE"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "a31aa439-5e4d-4e38-8daf-a49b2131ace5",
+                  "type": "TEXT_FIELD",
+                  "techName": "miejscowosc_4",
                   "title": "Miejscowość",
                   "description": "",
                   "options": [],
@@ -1429,10 +1916,10 @@
         {
           "x": 0,
           "y": 18,
-          "rows": 4,
+          "rows": 5,
           "cols": 3,
           "field": {
-            "id": "a2033ae3-1bca-46bf-81a3-7d494170b8c6",
+            "id": "66890b41-98ef-4e11-b70f-1bb1d81ed9d7",
             "type": "SECTION",
             "techName": "dyscypliny_sportowe",
             "title": "Dyscypliny sportowe",
@@ -1447,7 +1934,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "c3e51bdb-b117-4451-8617-95f3fb4d2858",
+                  "id": "6a6d0ec3-1fc0-432b-afdd-907199fc2167",
                   "type": "CHECKBOX",
                   "techName": "rodzaj_dyscypliny_sportowej",
                   "title": "Rodzaj dyscypliny sportowej",
@@ -1459,14 +1946,14 @@
                       "techName": "zespolowa"
                     },
                     {
-                      "id": "indywidualna – inna",
-                      "name": "indywidualna – inna",
-                      "techName": "indywidualna_inna"
-                    },
-                    {
                       "id": "indywidualna – lekkoatletyka",
                       "name": "indywidualna – lekkoatletyka",
                       "techName": "indywidualna_lekkoatletyka"
+                    },
+                    {
+                      "id": "indywidualna – inna",
+                      "name": "indywidualna – inna",
+                      "techName": "indywidualna_inna"
                     }
                   ],
                   "validation": [
@@ -1485,10 +1972,35 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "5f5fcb67-8ee6-4c6d-bd7f-19c6614f116e",
+                  "id": "529cca4e-f491-48a0-9f9f-79c33f0292cd",
+                  "type": "TEXT_FIELD",
+                  "techName": "inna_indywidualna_dyscyplina",
+                  "title": "Inna indywidualna dyscyplina",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"indywidualna – inna\" in tabs['Informacje o kandydacie/kandydatce' in title].questions['dyscypliny_sportowe' in field.techName].field.repeatingSectionGrid['rodzaj_dyscypliny_sportowej' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "43626921-0c4d-4e71-b3e7-0105ca1f0cd9",
                   "type": "CHECKBOX",
-                  "techName": "dyscypliny_sportowe_wybierz_konkretne",
-                  "title": "Dyscypliny sportowe (wybierz konkretne)",
+                  "techName": "konkretne_dyscypliny_sportowe",
+                  "title": "Konkretne dyscypliny sportowe",
                   "description": "",
                   "options": [
                     {
@@ -1598,17 +2110,17 @@
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
-                  "questionOrder": 1,
+                  "questionOrder": 2,
                   "tooltipMessage": ""
                 }
               },
               {
                 "x": 0,
-                "y": 2,
+                "y": 3,
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "c92a9211-9a80-4e6f-9733-1a8f334c982a",
+                  "id": "7ea3c8d5-4a68-45ac-921c-51b71f4a70ba",
                   "type": "TEXT_FIELD",
                   "techName": "inna_dyscyplina_sportowa",
                   "title": "Inna dyscyplina sportowa",
@@ -1617,13 +2129,8 @@
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "states": [
-                    {
-                      "type": "SHOW",
-                      "query": "(\"indywidualna – inna\" in tabs['Informacje o kandydacie/kandydatce' in title].questions['dyscypliny_sportowe' in field.techName].field.repeatingSectionGrid['rodzaj_dyscypliny_sportowej' in field.techName].field.__userAnswer)"
-                    }
-                  ],
-                  "questionOrder": 2,
+                  "states": [],
+                  "questionOrder": 3,
                   "tooltipMessage": ""
                 }
               }
@@ -1636,7 +2143,7 @@
       ]
     },
     {
-      "id": "3d0c3a62-63dc-4827-9306-600dc3cb608e",
+      "id": "d2705fc3-78fc-44f1-b2cb-b9cf43feaedc",
       "title": "Osiągnięcia sportowe",
       "type": "MAIN",
       "questions": [
@@ -1646,7 +2153,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "f7e73f94-a414-476b-a845-0aefe78247e5",
+            "id": "c636cd89-ff58-4c39-aeac-f0fa5e14c785",
             "type": "SECTION",
             "techName": "opis_osiagniec",
             "title": "Opis osiągnięć",
@@ -1661,11 +2168,11 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "af8006c0-63b7-40c1-a374-a3634120d7da",
+                  "id": "c1f815d6-c8b1-4586-b141-751414649118",
                   "type": "TEXTAREA",
-                  "techName": "najwazniejsze_osiagniecia_sportowe_kandydata_kandydatki",
-                  "title": "Najważniejsze osiągnięcia sportowe kandydata/kandydatki",
-                  "description": "<html><head></head><body><p>Opisz osiągnięcia, które będą brane pod uwagę przy ocenie wniosku.</p></body></html>",
+                  "techName": "opis_najwazniejszych_osiagniec_sportowych_kandydata_kandydat",
+                  "title": "Opis najważniejszych osiągnięć sportowych kandydata/kandydatki",
+                  "description": "",
                   "options": [],
                   "validation": [
                     "REQUIRED"
@@ -1689,7 +2196,7 @@
           "rows": 4,
           "cols": 3,
           "field": {
-            "id": "777a5405-a796-432c-a989-8881aa968098",
+            "id": "34130838-7fda-4a5d-a4e1-5be5e8edf6cb",
             "type": "SECTION",
             "techName": "dokumenty_potwierdzajace_osiagniecia",
             "title": "Dokumenty potwierdzające osiągnięcia",
@@ -1704,11 +2211,11 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "ad249095-372a-4062-b595-bbe9dc642adc",
+                  "id": "51c60d88-4060-4224-8da1-9c9b0f8e6b9e",
                   "type": "FILE_UPLOADER",
-                  "techName": "dyplomy_lub_inne_dokumenty_potwierdzajace_osiagniecia_sporto",
-                  "title": "Dyplomy lub inne dokumenty potwierdzające osiągnięcia sportowe",
-                  "description": "<html><head></head><body><p>Dołącz dyplomy, komunikaty z zawodów lub inne oficjalne dokumenty.</p></body></html>",
+                  "techName": "dyplomy_i_inne_dokumenty_potwierdzajace_osiagniecia_sportowe",
+                  "title": "Dyplomy i inne dokumenty potwierdzające osiągnięcia sportowe",
+                  "description": "",
                   "options": [],
                   "validation": [],
                   "readOnly": false,
@@ -1724,11 +2231,11 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "9f8a74d8-75a8-4b0c-94ba-8da5f0cdac75",
+                  "id": "3126752f-c55d-4314-aea7-e6ed8d881afc",
                   "type": "FILE_UPLOADER",
                   "techName": "opinia_macierzystego_klubu_sportowego",
                   "title": "Opinia macierzystego klubu sportowego",
-                  "description": "<html><head></head><body><p>Dokument potwierdzający nienaganną postawę etyczną i moralną sportowca.</p></body></html>",
+                  "description": "",
                   "options": [],
                   "validation": [],
                   "readOnly": false,
@@ -1744,11 +2251,11 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "519b6f83-0e62-4943-9f5f-a19366ebbec0",
+                  "id": "ea015baf-a7b5-48e6-9d16-0a13d642bbdf",
                   "type": "FILE_UPLOADER",
-                  "techName": "zaswiadczenia_z_polskiego_zwiazku_sportowego",
-                  "title": "Zaświadczenia z Polskiego Związku Sportowego",
-                  "description": "<html><head></head><body><p>Zaświadczenia wydane przez odpowiedni Polski Związek Sportowy lub inne oficjalne dokumenty.</p></body></html>",
+                  "techName": "zaswiadczenia_z_polskiego_zwiazku_sportowego_lub_innych_ofic",
+                  "title": "Zaświadczenia z Polskiego Związku Sportowego lub innych oficjalnych dokumentów",
+                  "description": "",
                   "options": [],
                   "validation": [],
                   "readOnly": false,
@@ -1770,7 +2277,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "937a75ce-01c6-40cf-8f24-9446ffbca5f8",
+            "id": "4b0446bf-655b-46a8-8634-8b0bb04e05cc",
             "type": "SECTION",
             "techName": "dodatkowe_informacje",
             "title": "Dodatkowe informacje",
@@ -1785,7 +2292,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "74f575e3-e913-48b0-95cb-a430dafb60ac",
+                  "id": "052fcf59-df01-47e0-bfda-12c6e3be1536",
                   "type": "TEXTAREA",
                   "techName": "ewentualne_dodatkowe_informacje_o_kandydacie_kandydatce",
                   "title": "Ewentualne dodatkowe informacje o kandydacie/kandydatce",
@@ -1808,7 +2315,7 @@
       ]
     },
     {
-      "id": "05c60412-0fee-46c9-a4f5-b85d9327b3b6",
+      "id": "e71af6c8-fcee-4dad-b4af-a9e0fe5a97c2",
       "title": "Oświadczenia",
       "type": "MAIN",
       "questions": [
@@ -1818,7 +2325,7 @@
           "rows": 3,
           "cols": 3,
           "field": {
-            "id": "2da45a33-9be2-471c-8dc5-dcc8199c231f",
+            "id": "8c860be8-058b-46b1-95fa-4c31893df34a",
             "type": "SECTION",
             "techName": "oswiadczenia",
             "title": "Oświadczenia",
@@ -1833,22 +2340,20 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "8efab0b9-09ad-47bd-8c90-34fd0e97730d",
+                  "id": "cbfb7db1-f507-4fcc-9ddf-6fb36f36f7ca",
                   "type": "CONSENT_SECTION",
-                  "techName": "oswiadczam_ze_wszystkie_podane_informacje_sa_prawdziwe_i_zgo",
+                  "techName": "oswiadczam_ze_podane_przez_mnie_dane_sa_prawdziwe_i_aktualne",
                   "title": "",
                   "description": "",
                   "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
+                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "consentSectionConfig": {
                     "consents": [
                       {
-                        "description": "<html><head></head><body><p>Oświadczam, że wszystkie podane informacje są prawdziwe i zgodne z rzeczywistością.</p></body></html>",
-                        "required": true
+                        "description": "<html><head></head><body><p>Oświadczam, że podane przez mnie dane są prawdziwe i aktualne.</p></body></html>",
+                        "required": false
                       }
                     ],
                     "files": []
@@ -1864,9 +2369,9 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b0ed9226-d358-434b-b37a-4080efab9f5b",
+                  "id": "9d9d1fe9-f7e4-42be-9a50-e1f4233ac3d6",
                   "type": "CONSENT_SECTION",
-                  "techName": "zgadzam_sie_na_kontakt_e_mailowy_w_sprawie_rozpatrzenia_wnio",
+                  "techName": "zgadzam_sie_na_kontakt_e_mailowy_w_sprawie_wniosku",
                   "title": "",
                   "description": "",
                   "options": [],
@@ -1876,7 +2381,7 @@
                   "consentSectionConfig": {
                     "consents": [
                       {
-                        "description": "<html><head></head><body><p>Zgadzam się na kontakt e-mailowy w sprawie rozpatrzenia wniosku.</p></body></html>",
+                        "description": "<html><head></head><body><p>Zgadzam się na kontakt e-mailowy w sprawie wniosku.</p></body></html>",
                         "required": false
                       }
                     ],
@@ -1896,7 +2401,7 @@
       ]
     },
     {
-      "id": "bf3fb304-3fa9-4b3f-b16a-96c35f9f5343",
+      "id": "e0e523e3-8f2d-446b-8a39-ecf71b148958",
       "title": "Kontakt i zgody",
       "type": "MAIN",
       "questions": [
@@ -1906,7 +2411,7 @@
           "rows": 3,
           "cols": 3,
           "field": {
-            "id": "440279ba-4be0-400d-a46f-11501a434694",
+            "id": "5ee02d22-a1ec-416b-8cb3-6b8c8fc25fc1",
             "type": "SECTION",
             "techName": "dane_do_kontaktu",
             "title": "Dane do kontaktu",
@@ -1921,7 +2426,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "17528d3d-6cae-4517-8cd3-c503bded216c",
+                  "id": "2b2fe846-e345-4e59-84ff-c8492f366bfc",
                   "type": "TEXT_FIELD",
                   "techName": "numer_telefonu",
                   "title": "Numer telefonu",
@@ -1943,7 +2448,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "ccd85f90-ccd1-47a6-9538-2537eab43c2c",
+                  "id": "6f7c9e53-da43-4d92-80ca-5f9dd8c4ef05",
                   "type": "TEXT_FIELD",
                   "techName": "adres_e_mail",
                   "title": "Adres e-mail",
@@ -1971,7 +2476,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "88921d7d-3af2-46ad-99b2-77741d1f6754",
+            "id": "fe1f8415-2ce6-4e51-b5df-45875cd3e6d8",
             "type": "SECTION",
             "techName": "zgoda_wyrazenie",
             "title": "Zgoda",
@@ -1986,7 +2491,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "82483a86-c4be-436f-990f-bb30f33dc1b2",
+                  "id": "e3783017-163f-47e7-b722-d251c48c6e08",
                   "type": "CONSENT_SECTION",
                   "techName": "zgoda",
                   "title": "",
@@ -2018,7 +2523,7 @@
       ]
     },
     {
-      "id": "3f3d3d8a-2fd5-4d34-b57b-aaefa22b0d47",
+      "id": "29465b46-69ec-40b1-bfaf-c3a6fe6caceb",
       "title": "Strona końcowa",
       "type": "FINISH",
       "questions": [
@@ -2028,7 +2533,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "91dc626d-b9f2-4cd3-b285-ed6d7b862b90",
+            "id": "12e5e1d0-636e-4364-b3ee-df1920ec08a6",
             "type": "INFO_SECTION",
             "techName": "podglad_uzupelnionego_wniosku",
             "title": "Podgląd uzupełnionego wniosku",
@@ -2048,34 +2553,34 @@
   "flow": {
     "links": [
       {
-        "id": "350b29b2-1209-4437-b6c9-599fac0b441a",
-        "source": "07dc0974-e0d7-4eac-8989-b024825d4ff9",
-        "target": "269e91cd-eb89-4941-8430-63e5d18e6b3e"
+        "id": "c5ca45ae-0cae-44c1-a604-884a5c61eccf",
+        "source": "c04ab02a-cc86-46fa-bc26-854a7d0aa97a",
+        "target": "c55e0493-354c-49b6-8487-c397bf1ec863"
       },
       {
-        "id": "a85049f3-0498-4a2a-927e-29b82b7ba42d",
-        "source": "269e91cd-eb89-4941-8430-63e5d18e6b3e",
-        "target": "75631372-839d-4c24-a6d6-092810b203cf"
+        "id": "d7c38332-aff4-43b4-9f34-065c79e6bee9",
+        "source": "c55e0493-354c-49b6-8487-c397bf1ec863",
+        "target": "244ee2ac-1a50-40f2-8d46-c61b7b1fd11f"
       },
       {
-        "id": "3dbbc317-b30d-407f-84b0-f60c0e69ed7f",
-        "source": "75631372-839d-4c24-a6d6-092810b203cf",
-        "target": "3d0c3a62-63dc-4827-9306-600dc3cb608e"
+        "id": "d7da2a59-6978-43a6-80b0-645d5afcfdb2",
+        "source": "244ee2ac-1a50-40f2-8d46-c61b7b1fd11f",
+        "target": "d2705fc3-78fc-44f1-b2cb-b9cf43feaedc"
       },
       {
-        "id": "4cc90236-acde-47a2-849c-1b6dfc2cb2a1",
-        "source": "3d0c3a62-63dc-4827-9306-600dc3cb608e",
-        "target": "05c60412-0fee-46c9-a4f5-b85d9327b3b6"
+        "id": "4178cb83-a4b1-471b-97b2-7ffb8b9b23ed",
+        "source": "d2705fc3-78fc-44f1-b2cb-b9cf43feaedc",
+        "target": "e71af6c8-fcee-4dad-b4af-a9e0fe5a97c2"
       },
       {
-        "id": "f6642873-d653-4707-b15e-3e6ad7b405d6",
-        "source": "05c60412-0fee-46c9-a4f5-b85d9327b3b6",
-        "target": "bf3fb304-3fa9-4b3f-b16a-96c35f9f5343"
+        "id": "324b73ad-f05d-4d67-a2f1-b83996cb6f4f",
+        "source": "e71af6c8-fcee-4dad-b4af-a9e0fe5a97c2",
+        "target": "e0e523e3-8f2d-446b-8a39-ecf71b148958"
       },
       {
-        "id": "766bcd7a-6fc2-4281-b1b9-8861d4673b81",
-        "source": "bf3fb304-3fa9-4b3f-b16a-96c35f9f5343",
-        "target": "3f3d3d8a-2fd5-4d34-b57b-aaefa22b0d47"
+        "id": "917f1787-c593-43d8-a1e2-567cbfb95232",
+        "source": "e0e523e3-8f2d-446b-8a39-ecf71b148958",
+        "target": "29465b46-69ec-40b1-bfaf-c3a6fe6caceb"
       }
     ]
   }

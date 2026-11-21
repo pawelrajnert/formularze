@@ -65,6 +65,8 @@ def _check_field(f: dict, path: str, container: bool, ids: dict, errs: list) -> 
             errs.append(f"{path}.states[{i}]: typ stanu musi być jednym z {sorted(allowed_states)}")
         elif not isinstance(s.get("query"), str) or not s["query"].strip():
             errs.append(f"{path}.states[{i}]: brak wyrażenia JSONata w 'query'")
+        elif re.search(r"""(["'])\1 in """, s["query"]):
+            errs.append(f"{path}.states[{i}]: warunek z pustą wartością — pole nigdy się nie pokaże")
     children = f.get("repeatingSectionGrid") or []
     if t in CONTAINERS and not children:
         errs.append(f"{path}: sekcja bez pól")

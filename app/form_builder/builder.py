@@ -197,10 +197,13 @@ class _Builder:
             by_opt = self.by_option.get(cond.equals) if norm(cond.equals) not in ("tak", "nie") else None
             path = next((p for p in (self.local.get((sec_tech, cond.field)), self.paths.get(cond.field),
                                      by_opt, self.by_option.get(cond.field)) if p and own not in p), None)
+            if not cond.equals.strip():  # warunek bez wartości (przegląd v4, form. 6) = pole nigdy niewidoczne
+                path = None
             if not path:  # nieznany label sterujący -> pole zawsze widoczne, więc nie może być wymagane
                 for x in [target] + [q["field"] for q in target["repeatingSectionGrid"]]:
                     x["validation"] = [v for v in x["validation"] if v != "REQUIRED"]
-                self.notes.append(f"show_if: nie znaleziono pola {cond.field!r} dla {target['title']!r}, warunek pominięty, zdjęto REQUIRED")
+                why = "pusta wartość warunku" if not cond.equals.strip() else "nie znaleziono pola"
+                self.notes.append(f"show_if: {why} {cond.field!r} dla {target['title']!r}, warunek pominięty, zdjęto REQUIRED")
                 continue
             equals = next((o for o in self.options.get(path, []) if o.casefold() == cond.equals.casefold()), cond.equals)
             neg = self.negate.get(path)

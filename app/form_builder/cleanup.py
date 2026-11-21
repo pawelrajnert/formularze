@@ -102,3 +102,23 @@ def _split_addresses(sec: DraftSection, notes: list) -> list[DraftSection]:
         sec.fields.remove(f)
         out.append(DraftSection(title=f.label, repeating=sec.repeating, fields=parts, show_if=f.show_if or sec.show_if))
     return out
+
+
+def _stems(text: str) -> set[str]:
+    return {w[:5] for w in norm(text).split() if len(w) >= 4}
+
+
+def unsupported_statements(draft: Draft, source_text: str, notes: list) -> None:
+    """R-03 (przegląd v4): LLM dopisywał wymagane oświadczenia, których nie ma w dokumencie („dane są prawdziwe”).
+    Oświadczenie słabo pokryte słowami źródła traci REQUIRED i trafia do „do sprawdzenia” - nie usuwamy, decyduje urzędnik.
+    shortcut: pokrycie po 5-literowych rdzeniach słów, bez lematyzacji; przy fałszywych alarmach podnieść próg albo użyć NER."""
+    src = _stems(source_text)
+    for page in draft.pages:
+        for sec in page.sections or []:
+            for f in sec.fields or []:
+                if not f.required or not (f.type == "CONSENT_SECTION" or CONSENT.search(norm(f.label))):
+                    continue
+                words = _stems(f.label)
+                if words and len(words & src) / len(words) < 0.6:
+                    f.required = False
+                    notes.append(f"oświadczenie {f.label!r} nie występuje w dokumencie, zdjęto REQUIRED")

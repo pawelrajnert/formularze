@@ -107,3 +107,22 @@ def test_cli(capsys, monkeypatch):
     monkeypatch.setattr(sys, "argv", ["builder", str(FIXTURE)])
     runpy.run_module("app.form_builder.builder", run_name="__main__")
     assert check(json.loads(capsys.readouterr().out)) == []
+
+
+def test_v4_empty_show_if_value_is_skipped():
+    """Przegląd v4, formularz 6: warunek z pustą wartością ukrywał wymiary na zawsze."""
+    d = mini({"title": "Zajęcie", "fields": [{"label": "Rodzaj", "type": "RADIO", "options": ["Jezdnia", "Chodnik"]},
+                                             {"label": "Długość", "type": "NUMBER", "required": True,
+                                              "show_if": {"field": "Rodzaj", "equals": " "}}]})
+    notes = []
+    form = build(d, notes)
+    by = {f["techName"]: f for f in fields(form, LLM)}
+    assert by["dlugosc"]["states"] == [] and by["dlugosc"]["validation"] == [] and check(form) == []
+    assert any("pusta wartość warunku" in n for n in notes)
+
+
+def test_rules_check_rejects_empty_condition():
+    form = build(DRAFT1)
+    f = next(f for f in fields(form) if f["type"] == "TEXT_FIELD")
+    f["states"] = [{"type": "SHOW", "query": "(\"\" in tabs['Dane' in title].questions)"}]
+    assert any("pustą wartością" in e for e in check(form))

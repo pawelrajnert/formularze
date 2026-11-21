@@ -152,3 +152,27 @@ def test_v3_single_checkbox_is_yes_no_not_consent():
                                                       fld("Kwota z załącznika A", show_if={"field": "Załącznik A", "equals": "TAK"})]})
     assert by["Załącznik A"]["type"] == "RADIO" and [o["name"] for o in by["Załącznik A"]["options"]] == ["Tak", "Nie"]
     assert by["Kwota z załącznika A"]["states"][0]["query"].startswith('("Tak" in ')
+
+
+def test_v4_content_sections_not_dropped_as_duplicates():
+    """Przegląd v4: „Dane klubu sportowego” (9) traciło całą sekcję z ePUAP; „Nazwa organu, w którym zapłacono” (2) wypadało."""
+    _, by, _ = run({"title": "Dane klubu sportowego", "fields": [fld("Nazwa"), fld("Adres skrzynki ePUAP")]},
+                   {"title": "Opłata", "fields": [fld("Nazwa organu, w którym zapłacono opłatę"), fld("Organ")]},
+                   {"title": "Organ, w którym zapłacono", "fields": [fld("Data wpłaty", "DATEPICKER")]})
+    assert "Adres skrzynki ePUAP" in by and "Nazwa" not in by  # sekcja zostaje, wypadają tylko pola wnioskodawcy
+    assert "Nazwa organu, w którym zapłacono opłatę" in by and "Organ" not in by
+    assert "Organ, w którym zapłacono" in by
+
+
+def test_r03_unsupported_statement_loses_required():
+    from app.form_builder.cleanup import unsupported_statements
+    d = Draft.model_validate({"title": "T", "pages": [{"title": "S", "sections": [{"title": "Oświadczenia", "fields": [
+        fld("Oświadczam, że zapoznałem się z regulaminem świetlicy", "CHECKBOX", required=True),
+        fld("Oświadczam, że podane dane są prawdziwe i aktualne", "CHECKBOX", required=True),
+        fld("Liczba osób", "NUMBER", required=True)]}]}]})
+    notes = []
+    unsupported_statements(d, "Oświadczam, że zapoznałam/em się z Regulaminem korzystania ze świetlicy wiejskiej.", notes)
+    req = {f.label: f.required for f in d.pages[0].sections[0].fields}
+    assert req == {"Oświadczam, że zapoznałem się z regulaminem świetlicy": True,
+                   "Oświadczam, że podane dane są prawdziwe i aktualne": False, "Liczba osób": True}
+    assert len(notes) == 1 and "nie występuje w dokumencie" in notes[0]
