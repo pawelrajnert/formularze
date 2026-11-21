@@ -56,6 +56,21 @@ models:
     context: 262144
     notes: Mniejszy brat 14B; ten sam klucz Mistral API.
 
+  - id: ministral-3b-api
+    backend: mistral-api
+    base_url: https://api.mistral.ai/v1
+    model: ministral-3b-latest
+    api_key_env: [MISTRAL_API_KEY, LLM_API_KEY]
+    license: Apache-2.0
+    license_source: https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/mistralai/Ministral-3-3B-Instruct-2512
+    params_b: 3.4             # + 0.4B enkoder wizji
+    quantization: null
+    context: 262144
+    notes: Najmniejszy z rodziny Ministral 3; ten sam klucz Mistral API.
+
   - id: ministral-14b-ollama
     backend: ollama
     base_url_env: OLLAMA_BASE_URL
