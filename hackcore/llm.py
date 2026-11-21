@@ -146,5 +146,6 @@ class LLMClient:
                 if bad_json_retries <= 0:
                     break
                 bad_json_retries -= 1
-                log.warning("LLM zwrócił zły JSON (%s), ponawiam", e)
+                # S-01: sam typ błędu - komunikat pydantic cytuje input_value, czyli treść dokumentu
+                log.warning("LLM zwrócił zły JSON (%s), ponawiam", type(e).__name__)
         raise LLMError(f"LLM nie odpowiedział poprawnie po {attempt} próbach: {last}") from last

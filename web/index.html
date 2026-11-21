@@ -420,7 +420,7 @@ function renderField(f) {
       wrap.append(fs); return wrap;
     }
     case "TEXT_BLOCK": case "INFO_SECTION":
-      wrap.append(el("div", { className: f.type === "INFO_SECTION" ? "txt info" : "txt", innerHTML: safeHtml(f.description) || (f.title || "") }));
+      wrap.append(el("div", { className: f.type === "INFO_SECTION" ? "txt info" : "txt", innerHTML: safeHtml(f.description) || safeHtml(f.title) }));
       return wrap;
     case "RADIO": case "CHECKBOX": {
       const multi = f.type === "CHECKBOX";

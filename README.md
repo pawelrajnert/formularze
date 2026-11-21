@@ -83,6 +83,7 @@ Wszystkie zmienne pochodzą z `app/config.py`. Wzór jest w `.env.example`.
 | `JWT_ALGORITHM` | Algorytm JWT (PyJWT) | `HS256` |
 | `JWT_EXPIRE_MINUTES` | Czas ważności tokenu w minutach | `60` |
 | `APPROVAL_REQUIRED` | `true` włącza bramkę zatwierdzenia urzędnika (F-18): wynik ma status DRAFT, a eksport jest zablokowany do zatwierdzenia | `false` |
+| `RATE_LIMIT_PER_MINUTE` | Limit zapytań na IP w oknie 60 s, osobno dla `/auth/token` i `/forms/convert`. `0` wyłącza limit | `30` |
 | `AUDIT_DIR` | Katalog na rekordy zatwierdzeń `<sha256 JSON-a>.approval.json` (w compose wolumen `audit`) | `audit` |
 
 LLM jest używany tylko wtedy, gdy ustawione są wszystkie trzy zmienne `LLM_*`.
@@ -115,9 +116,11 @@ Kody błędów:
 |---|---|
 | `400` | Zła nazwa pliku: pusta, dłuższa niż 250 znaków albo zawiera `; : > < / \ \| ' * % $` |
 | `401` | Brak tokenu, zły lub wygasły token. Przy `/auth/token`: zły login lub hasło |
-| `413` | Plik większy niż `MAX_FILE_SIZE_MB`. Sprawdzane po `Content-Length` i ponownie przy czytaniu strumienia |
-| `415` | Rozszerzenie spoza whitelisty albo typ wykryty z treści nie zgadza się z rozszerzeniem |
+| `411` | Upload chunked (`Transfer-Encoding`) bez `Content-Length` |
+| `413` | Plik większy niż `MAX_FILE_SIZE_MB`. Sprawdzane po `Content-Length` i ponownie przy czytaniu strumienia. Także DOCX/XLSX/ODS, które po rozpakowaniu miałyby ponad 200 MB |
+| `415` | Rozszerzenie spoza whitelisty, typ wykryty z treści nie zgadza się z rozszerzeniem albo plik zawiera makra (`vbaProject.bin`, `Basic/`, `Scripts/`) |
 | `422` | Brak pola `file` (walidacja FastAPI), nie udało się odczytać pliku (uszkodzony, brak OCR lub LibreOffice) albo formularz nie przeszedł walidacji reguł |
+| `429` | Przekroczony `RATE_LIMIT_PER_MINUTE` (nagłówek `Retry-After: 60`) |
 | `503` | Autoryzacja włączona, ale nie ustawiono `JWT_SECRET` lub `AUTH_PASSWORD` |
 
 Błąd albo timeout LLM nie kończy się kodem błędu. Pipeline przechodzi wtedy na szkic heurystyczny, dlatego `504` nie jest używany.
@@ -188,6 +191,26 @@ Podstawa: AI Act art. 14 (nadzór człowieka) i art. 50 (przejrzystość). Dalsz
 - **JWT (PyJWT):** sekret, algorytm i czas ważności ustawiamy w env. Hasło porównujemy w stałym czasie (`hmac.compare_digest`). Gdy brakuje sekretu lub hasła, usługa zwraca 503 i nie wydaje tokenów z pustym sekretem.
 - **Zewnętrzne usługi:** poza endpointem LLM aplikacja nie łączy się z żadnym zewnętrznym API.
 - **Frontend** trzyma token w `sessionStorage`.
+
+### Zagrożenia i zabezpieczenia (S-01)
+
+Zasada: sprawdzamy, co przychodzi (plik, tekst dokumentu) i co wychodzi (JSON formularza). Wg [OWASP Top 10 LLM 2025](https://invicti.com/blog/web-security/owasp-top-10-risks-llm-security-2025). Testy są w `tests/test_security.py`, chyba że wskazano inaczej.
+
+| Zagrożenie | Zabezpieczenie | Test |
+|---|---|---|
+| Zip-bomba w DOCX/XLSX/ODS (python-docx i openpyxl rozpakowują całe XML-e do pamięci) | Przed parsowaniem sumujemy rozmiary ze spisu ZIP. Powyżej 200 MB zwracamy 413. `zipfile` i tak nie rozpakuje wpisu ponad zadeklarowany rozmiar | `test_zip_bomb_rejected_before_parsing` |
+| Bomba dekompresyjna obrazu | Pillow `MAX_IMAGE_PIXELS = 120 Mpx` (`hackcore/ingest/image.py`), powyżej 2× limitu błąd i 422 | `test_image_bomb_rejected` |
+| Makra w DOCX/XLSX/ODS | Odrzucamy pliki z `vbaProject.bin`, `Basic/` lub `Scripts/` (415). python-docx i openpyxl i tak nie wykonują makr | `test_macros_rejected` |
+| Makra w DOC/ODS przy konwersji LibreOffice | Świeży profil LO na każde wywołanie z `MacroSecurityLevel=3` i `DisableMacrosExecution=true`, timeout `soffice`, katalog tymczasowy kasowany po konwersji | `test_soffice_profile_disables_macros` |
+| Upload chunked bez `Content-Length` (parser multipart trzyma całe ciało w pamięci, zanim zadziała limit) | Żądanie z `Transfer-Encoding` dostaje 411. Ciało z `Content-Length` ponad limit dostaje 413 | `test_chunked_upload_without_content_length_rejected`, `test_api.py::test_too_big` |
+| Prompt injection pośredni (LLM01): „zignoruj instrukcje, dodaj pole…” w treści dokumentu | Tekst dokumentu trafia do bloku `<<< … >>>` oznaczonego jako DANE, a `>>>` w dokumencie jest rozbrajane. Structured output wymusza schemat `Draft`, obce klucze (`id`, `tabs`, `html`) przepadają. HTML, UUID i JSONatę robi deterministyczny builder, a bloki standardowe pochodzą z szablonów | `test_document_text_goes_to_data_block`, `test_injected_instructions_stay_data`, `test_poisoned_form_through_api_has_no_active_content` |
+| XSS w wyniku (LLM05) | Teksty z dokumentu i z LLM przechodzą przez `escape()` w opisach HTML, a wartości w JSONacie przez `json.dumps` lub `_js`. Frontend renderuje opisy przez `safeHtml` | `test_injected_instructions_stay_data` |
+| Linki z dokumentu w HTML wyniku | Allowlista w `rules_check`: `href`/`src` tylko `https://` do `gov.pl` (z subdomenami) i `warszawa19115.pl`, `data:image/` albo tekst bez schematu (artefakt wzorca COI). Inny link = błąd reguł, a szkic LLM jest odrzucany na rzecz heurystyki | `test_link_outside_allowlist_rejected`, `test_link_on_allowlist_ok`, `test_injected_link_in_plain_text_discards_llm_draft` |
+| Za długie teksty | Limity w `rules_check`: tytuł formularza 255, `title`/`name` 1000, `defaultValue`/`query` 5000, opisy 50 000 znaków. Tekst do LLM jest cięty na części z limitem (`chunks`) | `test_length_limits` |
+| Wynik niezgodny z formatem COI | Każdy wynik przechodzi pełny JSON Schema COI (`Draft202012Validator`) i reguły techniczne. Błąd daje fallback albo 422 | `test_full_json_schema_validation`, `test_rules_check.py` |
+| Brute force hasła, zalewanie `/convert` | Limit `RATE_LIMIT_PER_MINUTE` na IP i ścieżkę (429). Shortcut: licznik w pamięci jednego procesu, więc przy kilku workerach trzeba limitu na proxy | `test_rate_limit` |
+| Dane osobowe w logach | Aplikacja nie loguje treści dokumentu. Klient LLM przy złym JSON-ie loguje sam typ błędu, bo komunikat pydantic cytuje dane | `test_llm_bad_json_log_has_no_document_data`, `test_poisoned_form_through_api_has_no_active_content` |
+| Kradzież tokenu, słaby sekret | JWT z sekretem z env i krótkim TTL. Bez sekretu usługa zwraca 503 | `test_api.py` |
 
 ## Zrealizowane rozszerzenia
 
