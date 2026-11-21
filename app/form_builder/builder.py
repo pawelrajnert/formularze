@@ -205,18 +205,13 @@ class _Builder:
             else:
                 query = f"({json.dumps(cond.equals, ensure_ascii=False)} in {path})"
             target["states"].append({"type": "SHOW", "query": query})
+        # F-17: reguły COI - na stronie FINISH wyłącznie INFO_SECTION (wzorce 1/5 mają SECTION + TEXT_BLOCK)
         finish = {
-            "id": _uid(), "type": "TEXT_BLOCK", "techName": self.tech("podglad", "podglad"), "title": "",
-            "description": _html(FINISH_TEXT), "options": [], "validation": [],
+            "id": _uid(), "type": "INFO_SECTION", "techName": self.tech("Podgląd uzupełnionego wniosku", "podglad"),
+            "title": "Podgląd uzupełnionego wniosku", "description": _html(FINISH_TEXT), "options": [], "validation": [],
             "readOnly": False, "repeatingSectionGrid": [], "states": [], "questionOrder": 0, "tooltipMessage": "",
         }
-        finish_sec = {
-            "id": _uid(), "type": "SECTION", "techName": self.tech("Podgląd uzupełnionego wniosku", "podglad"),
-            "title": "Podgląd uzupełnionego wniosku", "description": EMPTY_HTML, "options": [], "validation": [],
-            "readOnly": False, "repeatingSectionGrid": [_q(0, 0, 1, finish)], "states": [], "questionOrder": 0,
-            "tooltipMessage": "",
-        }
-        tabs.append({"id": _uid(), "title": "Strona końcowa", "type": "FINISH", "questions": [_q(0, 0, 2, finish_sec)]})
+        tabs.append({"id": _uid(), "title": "Strona końcowa", "type": "FINISH", "questions": [_q(0, 0, 2, finish)]})
         links = [{"id": _uid(), "source": a["id"], "target": b["id"]} for a, b in zip(tabs, tabs[1:])]
         return {"title": draft.title, "tabs": tabs, "flow": {"links": links}}
 

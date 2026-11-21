@@ -40,8 +40,8 @@ def test_a_paper_fields_and_sections_dropped():
 
 def test_b_finish_always_standard():
     form, _, _ = run({"title": "S", "fields": [fld("A")]}, finish_text="#/$defs/TextBlock RODO ...")
-    fin = form["tabs"][-1]["questions"][0]["field"]["repeatingSectionGrid"][0]["field"]
-    assert fin["description"] == _html(FINISH_TEXT)
+    fin = form["tabs"][-1]["questions"][0]["field"]
+    assert fin["type"] == "INFO_SECTION" and fin["description"] == _html(FINISH_TEXT)
 
 
 def test_c_statements_become_consents():

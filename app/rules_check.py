@@ -29,7 +29,7 @@ def _check_field(f: dict, path: str, container: bool, ids: dict, errs: list) -> 
     t = f.get("type")
     if t not in CONTAINERS | INPUTS | NON_INPUTS:
         errs.append(f"{path}: nieznany typ pola {t!r}")
-    if container and t not in CONTAINERS:
+    if container and t not in CONTAINERS | {"INFO_SECTION"}:
         errs.append(f"{path}: pole {t} musi być w SECTION lub REPEATING_SECTION, a leży bezpośrednio na stronie")
     if not container and t in CONTAINERS:
         errs.append(f"{path}: sekcja {t} zagnieżdżona w innej sekcji (niedozwolone)")
@@ -107,6 +107,9 @@ def check(form: dict) -> list[str]:
         for j, q in enumerate(qs):
             _check_field(_f(q), f"{path}.questions[{j}]", True, ids, errs)
         if tab.get("type") == "FINISH":
+            for f in map(_f, qs):
+                if f.get("type") != "INFO_SECTION":
+                    errs.append(f"{path}: na stronie FINISH dozwolona wyłącznie INFO_SECTION, jest {f.get('type')} ({f.get('techName')})")
             for f in _fields(qs):
                 if f.get("type") in INPUTS:
                     errs.append(f"{path}: na stronie FINISH niedozwolone pole wejściowe {f.get('type')} ({f.get('techName')})")

@@ -69,3 +69,14 @@ def test_pdf_with_png_content():
 
 def test_docx_renamed_to_xlsx():
     assert upload("a.xlsx", FILES["docx"].read_bytes()).status_code == 415
+
+
+def test_unknown_model_400():
+    r = client.post("/api/v1/forms/convert?model=nie-ma", files={"file": (FILES["pdf"].name, FILES["pdf"].read_bytes())},
+                    headers=auth())
+    assert r.status_code == 400 and "Nieznany model" in r.json()["detail"]
+
+
+def test_models_list_without_secrets():
+    r = client.get("/api/v1/models", headers=auth())
+    assert r.status_code == 200 and r.json() and "api_key_env" not in r.json()[0]

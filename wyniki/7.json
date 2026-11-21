@@ -1,18 +1,910 @@
 {
-  "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznanych za agresywne",
+  "title": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
   "tabs": [
     {
-      "id": "61c721bf-0a0c-4cf6-a638-bfc1c5442fa6",
-      "title": "Informacje o opłacie",
+      "id": "242834b2-4859-4382-9ec2-f7bce19c6187",
+      "title": "Dane",
       "type": "MAIN",
       "questions": [
         {
           "x": 0,
           "y": 0,
+          "rows": 2,
+          "cols": 3,
+          "field": {
+            "id": "36bab1d0-67c8-429d-a46f-11e764588413",
+            "type": "SECTION",
+            "techName": "organ_do_ktorego_jest_skladany_wniosek",
+            "title": "Organ, do którego jest składany wniosek",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "5c3d982a-f068-491f-a36f-4a24d310557f",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwa_organu",
+                  "title": "Nazwa organu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": true,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "Urząd Miejski Wrocławia, Wydział Środowiska",
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "questionOrder": 0,
+            "tooltipMessage": "",
+            "states": []
+          }
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "rows": 2,
+          "cols": 3,
+          "field": {
+            "id": "17516b96-736e-417f-ad36-879b558c6ae5",
+            "type": "SECTION",
+            "techName": "podmiot_wniosku",
+            "title": "Podmiot wniosku",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "cc24c442-c6e9-4901-8e55-146a3c119e49",
+                  "type": "RADIO",
+                  "techName": "wybierz_w_czyim_imieniu_wnioskujesz",
+                  "title": "Wybierz, w czyim imieniu wnioskujesz",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Swoim",
+                      "name": "Swoim",
+                      "techName": "swoim"
+                    },
+                    {
+                      "id": "Innej osoby",
+                      "name": "Innej osoby",
+                      "techName": "innej_osoby"
+                    }
+                  ],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 2,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "rows": 4,
+          "cols": 3,
+          "field": {
+            "id": "ccdbef65-7ba8-4a16-96bd-d69fec93753c",
+            "type": "SECTION",
+            "techName": "twoje_dane",
+            "title": "Twoje dane",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "514e1e60-da8b-4695-8576-1d1ff3895bcc",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwisko",
+                  "title": "Nazwisko",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": true,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "PESEL.surname",
+                  "defaultValueType": "EXTERNAL_SYSTEM",
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "6d843b05-2d78-4c62-9c45-0e6e6f609e2c",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie",
+                  "title": "Imię",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": true,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "PESEL.name",
+                  "defaultValueType": "EXTERNAL_SYSTEM",
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "2922060a-17e1-482a-bbbb-fa44e0a910a4",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_pesel",
+                  "title": "Numer PESEL",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": true,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "PESEL.pesel",
+                  "defaultValueType": "EXTERNAL_SYSTEM",
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 4,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 8,
+          "rows": 10,
+          "cols": 3,
+          "field": {
+            "id": "5cdabd23-a0ad-49af-9cea-bde5bd803cf7",
+            "type": "SECTION",
+            "techName": "adres_zamieszkania",
+            "title": "Adres zamieszkania",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "317fb28f-7040-4bef-be3e-ba4788af2c38",
+                  "type": "TEXT_FIELD",
+                  "techName": "kod_pocztowy",
+                  "title": "Kod pocztowy",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "MLPZ.postCode",
+                  "defaultValueType": "EXTERNAL_SYSTEM",
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 6,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "4aabeae7-fd38-4e84-84dd-a2956dfa5673",
+                  "type": "TEXT_FIELD",
+                  "techName": "ulica",
+                  "title": "Ulica",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "MLPZ.street",
+                  "defaultValueType": "EXTERNAL_SYSTEM",
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 6,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "3f29e6a0-7a82-4339-94cc-29ebbe7d0d56",
+                  "type": "SELECT",
+                  "techName": "wojewodztwo",
+                  "title": "TERYT_4G_DOWODOWY",
+                  "description": "",
+                  "dictionaryName": "TERYT_4G_DOWODOWY",
+                  "options": [],
+                  "multiLevelTree": true,
+                  "validation": [],
+                  "searchEnabled": true,
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 7,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "b142d9e1-af5d-4f43-b6a8-815756fdb020",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_budynku",
+                  "title": "Numer budynku",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "MLPZ.building",
+                  "defaultValueType": "EXTERNAL_SYSTEM",
+                  "states": [],
+                  "questionOrder": 7,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "ac2b8d1a-f022-47da-a70a-7841884ed488",
+                  "type": "TEXT_FIELD",
+                  "techName": "ulica_zagranica",
+                  "title": "Ulica",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "$not(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "4becd5c4-0961-4673-9c71-4c8d7fcdf749",
+                  "type": "TEXT_FIELD",
+                  "techName": "miejscowosc_zagranica",
+                  "title": "Miejscowość",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "$not(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "f7a3d9b0-7065-4ebf-821e-41e8956e425b",
+                  "type": "SELECT",
+                  "techName": "kraj",
+                  "title": "Kraj",
+                  "description": "",
+                  "dictionaryName": "Kraje",
+                  "options": [],
+                  "multiLevelTree": false,
+                  "validation": [],
+                  "searchEnabled": true,
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": [
+                    "Polska"
+                  ],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "4965a6b0-7874-4de9-913d-30241054f268",
+                  "type": "TEXT_FIELD",
+                  "techName": "kod_pocztowy_zagranica",
+                  "title": "Kod pocztowy",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "$not(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania' in field.techName].field.repeatingSectionGrid['kraj' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 8,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "a76039fa-b618-4c10-9517-8985d1b85078",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_lokalu",
+                  "title": "Numer lokalu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "MLPZ.apartment",
+                  "defaultValueType": "EXTERNAL_SYSTEM",
+                  "states": [],
+                  "questionOrder": 8,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 8,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 18,
           "rows": 3,
           "cols": 3,
           "field": {
-            "id": "d3f2e217-36d4-4307-9c22-0a6b8601483c",
+            "id": "50db61cc-4def-41c8-a0ac-90c70fcd3e6d",
+            "type": "SECTION",
+            "techName": "dane_innej_osoby",
+            "title": "Dane innej osoby",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "08df09a0-faa6-491e-9805-cf7520753b6d",
+                  "type": "TEXT_FIELD",
+                  "techName": "nazwisko_inna_osoba",
+                  "title": "Nazwisko",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "2d6b9d80-6397-4240-b96c-0d66874ec262",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_inna_osoba",
+                  "title": "Imię",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [
+              {
+                "type": "SHOW",
+                "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)\r\n"
+              }
+            ],
+            "questionOrder": 18,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 21,
+          "rows": 10,
+          "cols": 3,
+          "field": {
+            "id": "31e3ebc4-c45c-417c-87aa-3d74317027b5",
+            "type": "SECTION",
+            "techName": "adres_zamieszkania_osoby_ktorej_jestes_pelnomocnikiem",
+            "title": "Adres zamieszkania innej osoby",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 7,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "8f57cb54-76b9-4641-ba70-5ed3c7d66248",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_budynku_inna_osoba",
+                  "title": "Numer budynku",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 7,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "5f884278-9aaa-4b88-afb5-a92c84e89392",
+                  "type": "TEXT_FIELD",
+                  "techName": "ulica_inna_osoba_zagranica",
+                  "title": "Ulica",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "$not(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania_osoby_ktorej_jestes_pelnomocnikiem' in field.techName].field.repeatingSectionGrid['kraj_inna_osoba' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 8,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "a0b71706-8e3e-4c10-82de-0dfd48b6dd19",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_lokalu_inna_osoba",
+                  "title": "Numer lokalu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 8,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "6e856c6e-20f6-45bc-8cfd-957841c4a21f",
+                  "type": "TEXT_FIELD",
+                  "techName": "kod_pocztowy_inna_osoba_zagranica",
+                  "title": "Kod pocztowy",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "$not(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania_osoby_ktorej_jestes_pelnomocnikiem' in field.techName].field.repeatingSectionGrid['kraj_inna_osoba' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "635618ea-b445-48e5-86ff-685112c9762e",
+                  "type": "SELECT",
+                  "techName": "kraj_inna_osoba",
+                  "title": "Kraj",
+                  "description": "",
+                  "dictionaryName": "Kraje",
+                  "options": [],
+                  "multiLevelTree": false,
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": [
+                    "Polska"
+                  ],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "ca5ab4a3-5f1f-4942-b110-99f22f65ed58",
+                  "type": "SELECT",
+                  "techName": "wojewodztwo_inna_osoba",
+                  "title": "TERYT_4G_DOWODOWY",
+                  "description": "",
+                  "dictionaryName": "TERYT_4G_DOWODOWY",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania_osoby_ktorej_jestes_pelnomocnikiem' in field.techName].field.repeatingSectionGrid['kraj_inna_osoba' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "99273b34-3fa7-4abd-941b-9657bdca4f86",
+                  "type": "TEXT_FIELD",
+                  "techName": "kod_pocztowy_inna_osoba",
+                  "title": "Kod pocztowy",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania_osoby_ktorej_jestes_pelnomocnikiem' in field.techName].field.repeatingSectionGrid['kraj_inna_osoba' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "17b2d006-8622-4de4-a1cb-813c28227b06",
+                  "type": "TEXT_FIELD",
+                  "techName": "miejscowosc_inna_osoba_zagranica",
+                  "title": "Miejscowość",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "$not(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania_osoby_ktorej_jestes_pelnomocnikiem' in field.techName].field.repeatingSectionGrid['kraj_inna_osoba' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 6,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "dcd6bf89-8a8c-4492-9226-d0126e7c34dd",
+                  "type": "TEXT_FIELD",
+                  "techName": "ulica_inna_osoba",
+                  "title": "Ulica",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Polska\" in tabs['Dane' in title].questions['adres_zamieszkania_osoby_ktorej_jestes_pelnomocnikiem' in field.techName].field.repeatingSectionGrid['kraj_inna_osoba' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 6,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [
+              {
+                "type": "SHOW",
+                "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)\r\n"
+              }
+            ],
+            "questionOrder": 21,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 31,
+          "rows": 2,
+          "cols": 3,
+          "field": {
+            "id": "f7abd89d-2273-4213-be42-6776ea13884b",
+            "type": "SECTION",
+            "techName": "pelnomocnictwo",
+            "title": "Pełnomocnictwo",
+            "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Dodaj dokument potwierdzający, że jesteś pełnomocnikiem.</span></p></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "6f6f7cb2-6851-46d8-93a8-137e3598d315",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_dokumentu_z_pelnomocnictwem",
+                  "title": "Plik dokumentu z pełnomocnictwem",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [
+              {
+                "type": "SHOW",
+                "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)\r\n\r\nor \r\n\r\n(\r\n\r\nfalse\r\n\r\nand \r\n\r\nfalse\r\n\r\n\r\n)"
+              }
+            ],
+            "questionOrder": 31,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 33,
+          "rows": 4,
+          "cols": 3,
+          "field": {
+            "id": "fe4568b9-7e62-4297-990b-bbd38ef80214",
+            "type": "SECTION",
+            "techName": "oplata_skarbowa_pelnomocnictwo_1",
+            "title": "Opłata skarbowa",
+            "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(31, 35, 40);\">Nie musisz płacić za złożenie pełnomocnictwa wystawionego przez najbliższą rodzinę: małżonka, dzieci, rodziców, dziadków, wnuków, rodzeństwo. Więcej informacji na stronie </span><strong style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\"><a href=\"https://www.biznes.gov.pl/pl/portal/0089#8\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"biznes.gov.pl \" aria-label=\"Link otwiera się w nowej karcie\">biznes.gov.pl <img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></strong></p></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "d309f2c6-45f4-4eb8-93ce-7b96c5388f38",
+                  "type": "RADIO",
+                  "techName": "czy_zlozenie_pelnomocnictwa_wymaga_oplaty_skarbowej",
+                  "title": "Czy złożenie pełnomocnictwa wymaga opłaty skarbowej?",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Tak",
+                      "name": "Tak",
+                      "techName": "tak"
+                    },
+                    {
+                      "id": "Nie",
+                      "name": "Nie",
+                      "techName": "nie"
+                    }
+                  ],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "90e057b8-75b1-4c96-ad00-1d334f4d74f6",
+                  "type": "TEXT_BLOCK",
+                  "techName": "oplata_info_1",
+                  "title": "",
+                  "description": "<html><head></head><body><p>Opłata skarbowa za pełnomocnictwo wynosi <strong>17 zł</strong>.</p><p>Przelej ją na konto urzędu miasta lub gminy właściwego dla adresu zamieszkania osoby, która udzieliła pełnomocnictwa. Jeśli adres nie jest w Polsce, opłatę przelej na konto <a href=\"https://warszawa19115.pl/-/oplata-skarbowa\" rel=\"noopener noreferrer\" target=\"_blank\" title=\"Urzędu Miasta Stołecznego Warszawy – Centrum Obsługi Podatnika \" aria-label=\"Link otwiera się w nowej karcie\">Urzędu Miasta Stołecznego Warszawy – Centrum Obsługi Podatnika </a><a href=\"https://warszawa19115.pl/-/oplata-skarbowa\" rel=\"noopener noreferrer\" target=\"_blank\" style=\"color: windowtext;\" title=\"\" aria-label=\"Link otwiera się w nowej karcie\"><img src=\"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAAQAA8DASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD1awbVLvw/a6xc+IPssc9qlzIBbR7IwyhiMkZwM96wfEPhY+JtKlnS2tYL6UL9j8yNIZrhgRvlkIGclQ2E7A5POAuxoWt+HV8KaRZahqumLLBawCSCe4jDRyIq8FSeCGHfoRVqTVtN1XxHo66dqFreNE0zyC3mWTYPLIydpOBkgV2qU4TbSta/TscjUJwSbvfzP//Z\" alt=\"undefined\" height=\"16\" width=\"15\"></a></p><p>W tytule przelewu wpisz „Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne – opłata skarbowa za pełnomocnictwo”.</p></body></html>",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Tak\" in tabs['Dane' in title].questions['oplata_skarbowa_pelnomocnictwo_1' in field.techName].field.repeatingSectionGrid['czy_zlozenie_pelnomocnictwa_wymaga_oplaty_skarbowej' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "9f617b9c-3b1c-4d3c-8089-b60ddfad1662",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_z_potwierdzeniem_przelewu",
+                  "title": "Plik z potwierdzeniem przelewu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Tak\" in tabs['Dane' in title].questions['oplata_skarbowa_pelnomocnictwo_1' in field.techName].field.repeatingSectionGrid['czy_zlozenie_pelnomocnictwa_wymaga_oplaty_skarbowej' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [
+              {
+                "type": "SHOW",
+                "query": "(\"Innej osoby\" in tabs['Dane' in title].questions['podmiot_wniosku' in field.techName].field.repeatingSectionGrid['wybierz_w_czyim_imieniu_wnioskujesz' in field.techName].field.__userAnswer)\r\n"
+              }
+            ],
+            "questionOrder": 33,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 37,
+          "rows": 3,
+          "cols": 3,
+          "field": {
+            "id": "97ec6b90-6d99-4691-800c-5e23bc8c498c",
             "type": "SECTION",
             "techName": "oplata_skarbowa",
             "title": "Opłata skarbowa",
@@ -27,18 +919,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "2bdf8efd-c928-44d1-9f05-218c2930b9be",
-                  "type": "TEXT_FIELD",
-                  "techName": "kwota_oplaty_skarbowej",
-                  "title": "Kwota opłaty skarbowej",
-                  "description": "",
+                  "id": "3b17a12e-82d2-46d4-b372-dde2e22d5732",
+                  "type": "TEXT_BLOCK",
+                  "techName": "oplata_skarbowa_info",
+                  "title": "",
+                  "description": "<html><head></head><body><p>82 zł opłata skarbowa</p></body></html>",
                   "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": true,
+                  "validation": [],
+                  "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "defaultValue": "82 zł",
                   "states": [],
                   "questionOrder": 0,
                   "tooltipMessage": ""
@@ -50,18 +939,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "462fdf9f-5d22-4cc7-90a3-627562becba1",
-                  "type": "TEXT_FIELD",
-                  "techName": "numer_konta",
-                  "title": "Numer konta",
+                  "id": "f1842fff-601f-4a58-ad78-ab62bb409002",
+                  "type": "FILE_UPLOADER",
+                  "techName": "plik_z_potwierdzeniem_oplaty",
+                  "title": "Plik z potwierdzeniem przelewu",
                   "description": "",
                   "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": true,
+                  "validation": [],
+                  "readOnly": false,
                   "repeatingSectionGrid": [],
-                  "defaultValue": "12 1223 1232 1233 2312 2342 2342",
                   "states": [],
                   "questionOrder": 1,
                   "tooltipMessage": ""
@@ -69,438 +955,25 @@
               }
             ],
             "states": [],
-            "questionOrder": 0,
+            "questionOrder": 37,
             "tooltipMessage": ""
           }
         }
       ]
     },
     {
-      "id": "a1ca0d7c-3843-4f8a-9363-bf374c4b0feb",
-      "title": "Dane wnioskodawcy",
-      "type": "MAIN",
-      "questions": [
-        {
-          "x": 0,
-          "y": 0,
-          "rows": 3,
-          "cols": 3,
-          "field": {
-            "id": "f03f75d0-b851-45be-83a7-188fca0bd1b7",
-            "type": "SECTION",
-            "techName": "informacje_ogolne",
-            "title": "Informacje ogólne",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "eb713a23-e7df-4a22-9574-31a430b530ce",
-                  "type": "TEXT_FIELD",
-                  "techName": "nr_sprawy",
-                  "title": "Nr sprawy",
-                  "description": "<html><head></head><body><p>Wypełniany przez organ</p></body></html>",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": true,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "2341ea2b-1e52-4ab7-9b95-8c94b54f1a74",
-                  "type": "DATEPICKER",
-                  "techName": "data_wniosku",
-                  "title": "Data wniosku",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 0,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 3,
-          "rows": 3,
-          "cols": 3,
-          "field": {
-            "id": "c90f707e-684d-4c87-807b-2ec35bfee7b1",
-            "type": "SECTION",
-            "techName": "organ",
-            "title": "Organ",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "3e6d0483-8ba2-48d7-9884-2b92a3b8495c",
-                  "type": "TEXT_FIELD",
-                  "techName": "nazwa_organu",
-                  "title": "Nazwa organu",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": true,
-                  "repeatingSectionGrid": [],
-                  "defaultValue": "Urząd Miejski Wrocławia\nWydział Środowiska",
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "3a9a0480-1f01-4171-9d8c-01832465665a",
-                  "type": "TEXT_FIELD",
-                  "techName": "adres_organu",
-                  "title": "Adres organu",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": true,
-                  "repeatingSectionGrid": [],
-                  "defaultValue": "pl. Nowy Targ 1-8, 50-141 Wrocław",
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 3,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 6,
-          "rows": 8,
-          "cols": 3,
-          "field": {
-            "id": "3ca265de-e0c9-4e8f-9975-8401b94477f5",
-            "type": "SECTION",
-            "techName": "dane_identyfikacyjne_wnioskodawcy",
-            "title": "Dane identyfikacyjne wnioskodawcy",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "5f5b2c85-a1bc-4216-bae1-7698cdc36be3",
-                  "type": "TEXT_FIELD",
-                  "techName": "imie_i_nazwisko",
-                  "title": "Imię i nazwisko",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "ca542e09-819e-47e8-9b48-30941c0c1d5b",
-                  "type": "TEXT_FIELD",
-                  "techName": "ulica",
-                  "title": "Ulica",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "defaultValue": "MLPZ.street",
-                  "defaultValueType": "EXTERNAL_SYSTEM",
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 2,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "86b76a0d-4b92-4296-afa6-4b4acbf9effd",
-                  "type": "TEXT_FIELD",
-                  "techName": "numer_domu",
-                  "title": "Numer domu",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "defaultValue": "MLPZ.building",
-                  "defaultValueType": "EXTERNAL_SYSTEM",
-                  "states": [],
-                  "questionOrder": 2,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 3,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "f5003a57-affb-49e1-8462-882448cc28f7",
-                  "type": "TEXT_FIELD",
-                  "techName": "numer_lokalu",
-                  "title": "Numer lokalu",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "defaultValue": "MLPZ.apartment",
-                  "defaultValueType": "EXTERNAL_SYSTEM",
-                  "states": [],
-                  "questionOrder": 3,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 4,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "4ccc0b10-5f8f-485a-b8e5-487cbae916e9",
-                  "type": "TEXT_FIELD",
-                  "techName": "miejscowosc",
-                  "title": "Miejscowość",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 4,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 5,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "37e198ae-5691-4d8d-a9f4-2bb6ff8bf623",
-                  "type": "TEXT_FIELD",
-                  "techName": "kod_pocztowy",
-                  "title": "Kod pocztowy",
-                  "description": "",
-                  "options": [],
-                  "validation": [
-                    "REQUIRED",
-                    "ZIP_CODE"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "defaultValue": "MLPZ.postCode",
-                  "defaultValueType": "EXTERNAL_SYSTEM",
-                  "states": [],
-                  "questionOrder": 5,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 6,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "9a09b073-a8ca-4855-94db-56d9ff6beb54",
-                  "type": "TEXT_FIELD",
-                  "techName": "telefon",
-                  "title": "Telefon",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "defaultValue": "MLPZ.phoneNumber",
-                  "defaultValueType": "EXTERNAL_SYSTEM",
-                  "states": [],
-                  "questionOrder": 6,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 6,
-            "tooltipMessage": ""
-          }
-        }
-      ]
-    },
-    {
-      "id": "32355b29-8925-410d-a035-b6cd6906bb15",
-      "title": "Przedmiot wniosku",
-      "type": "MAIN",
-      "questions": [
-        {
-          "x": 0,
-          "y": 0,
-          "rows": 3,
-          "cols": 3,
-          "field": {
-            "id": "76ffa80b-6f29-40cf-b26a-1725a35789ff",
-            "type": "SECTION",
-            "techName": "typ_wniosku",
-            "title": "Typ wniosku",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "46cca326-2391-48d2-95db-1df3c14fd0fb",
-                  "type": "RADIO",
-                  "techName": "wybierz_rodzaj_psa",
-                  "title": "Wybierz rodzaj psa",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "charta/chartów",
-                      "name": "charta/chartów",
-                      "techName": "charta_chartow"
-                    },
-                    {
-                      "id": "mieszanca charta/mieszanców chartów",
-                      "name": "mieszanca charta/mieszanców chartów",
-                      "techName": "mieszanca_charta_mieszancow_chartow"
-                    }
-                  ],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "6c30ea24-818e-4713-bdb9-f51739aa5d91",
-                  "type": "RADIO",
-                  "techName": "wybierz_cel_hodowli_utrzymywania",
-                  "title": "Wybierz cel hodowli/utrzymywania",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "hodowanie",
-                      "name": "hodowanie",
-                      "techName": "hodowanie"
-                    },
-                    {
-                      "id": "utrzymywanie",
-                      "name": "utrzymywanie",
-                      "techName": "utrzymywanie"
-                    }
-                  ],
-                  "validation": [
-                    "REQUIRED"
-                  ],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 0,
-            "tooltipMessage": ""
-          }
-        }
-      ]
-    },
-    {
-      "id": "00d02613-76e1-4bc4-8971-02f7746f9004",
+      "id": "78aed7ca-5b33-44a1-a069-1a9c42be65ec",
       "title": "Informacje o psie",
       "type": "MAIN",
       "questions": [
         {
           "x": 0,
           "y": 0,
-          "rows": 8,
+          "rows": 12,
           "cols": 3,
           "field": {
-            "id": "91d4c3ae-bcb9-4055-afb8-aa0f09b685c5",
-            "type": "REPEATING_SECTION",
+            "id": "0760ad6a-6a82-448b-bcc1-8ea75d4489f7",
+            "type": "SECTION",
             "techName": "dane_psa",
             "title": "Dane psa",
             "description": "<html><head></head><body></body></html>",
@@ -514,11 +987,11 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "cf03c161-74ff-4ba3-a1bb-5b291e107423",
-                  "type": "TEXTAREA",
-                  "techName": "pochodzenie_psa",
-                  "title": "Pochodzenie psa",
-                  "description": "<html><head></head><body><p>Metryka, numer rodowodu, imię, nazwisko i adres poprzedniego właściciela (opcjonalne)</p></body></html>",
+                  "id": "89672eda-1d2d-402a-8954-0a34974f8802",
+                  "type": "TEXT_FIELD",
+                  "techName": "pochodzenie_psa_metryka",
+                  "title": "Pochodzenie psa (metryka)",
+                  "description": "",
                   "options": [],
                   "validation": [],
                   "readOnly": false,
@@ -534,15 +1007,13 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "367fabf6-1de9-4a4e-b779-0297d1056774",
+                  "id": "7dea1ab8-7e39-4be4-83d4-92e00e501eda",
                   "type": "TEXT_FIELD",
-                  "techName": "rasa_psa",
-                  "title": "Rasa psa",
+                  "techName": "numer_rodowodu",
+                  "title": "Numer rodowodu",
                   "description": "",
                   "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
+                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -556,15 +1027,13 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "9a13e26c-cadb-4ce6-b792-8905b911ea3c",
-                  "type": "DATEPICKER",
-                  "techName": "data_urodzenia_psa",
-                  "title": "Data urodzenia psa",
+                  "id": "4e9ad514-49a9-4e20-9d5e-e42ccb668b3f",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_psa",
+                  "title": "Imię psa",
                   "description": "",
                   "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
+                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -578,13 +1047,15 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "ff395fc8-5266-4ab8-8737-b916cdac6fdb",
-                  "type": "DATEPICKER",
-                  "techName": "data_szczepienia_przeciwko_wsciekliznie",
-                  "title": "Data szczepienia przeciwko wściekliźnie",
+                  "id": "f03352a6-3a7a-4b65-abda-7dc181920647",
+                  "type": "TEXT_FIELD",
+                  "techName": "rasa_psa",
+                  "title": "Rasa psa",
                   "description": "",
                   "options": [],
-                  "validation": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -598,23 +1069,12 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "85d58db1-9804-4a24-8a70-9ae3047320cb",
-                  "type": "RADIO",
-                  "techName": "plec_psa",
-                  "title": "Płeć psa",
+                  "id": "c4df2cd0-96bc-429b-833b-74ba73cde7d0",
+                  "type": "DATEPICKER",
+                  "techName": "data_urodzenia_psa",
+                  "title": "Data urodzenia psa",
                   "description": "",
-                  "options": [
-                    {
-                      "id": "pies",
-                      "name": "pies",
-                      "techName": "pies"
-                    },
-                    {
-                      "id": "suka",
-                      "name": "suka",
-                      "techName": "suka"
-                    }
-                  ],
+                  "options": [],
                   "validation": [
                     "REQUIRED"
                   ],
@@ -631,31 +1091,13 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "5dffa2fd-44f0-4522-a9a8-d68b35a705ae",
-                  "type": "SELECT",
-                  "techName": "sposob_oznakowania_psa",
-                  "title": "Sposób oznakowania psa",
+                  "id": "f63b9a2d-fc41-4e8a-b145-e84b0d8c08e6",
+                  "type": "DATEPICKER",
+                  "techName": "data_szczepienia_przeciwko_wsciekliznie",
+                  "title": "Data szczepienia przeciwko wściekliźnie",
                   "description": "",
-                  "options": [
-                    {
-                      "id": "mikroprocesor",
-                      "name": "mikroprocesor",
-                      "techName": "mikroprocesor"
-                    },
-                    {
-                      "id": "tatuaż",
-                      "name": "tatuaż",
-                      "techName": "tatuaz"
-                    },
-                    {
-                      "id": "brak",
-                      "name": "brak",
-                      "techName": "brak"
-                    }
-                  ],
-                  "validation": [
-                    "REQUIRED"
-                  ],
+                  "options": [],
+                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -669,52 +1111,107 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "3fd4653c-f52e-4829-9aa5-c84651828ffb",
-                  "type": "TEXT_FIELD",
-                  "techName": "numer_identyfikacyjny_jesli_mikroprocesor_lub_tatuaz",
-                  "title": "Numer identyfikacyjny (jeśli mikroprocesor lub tatuaż)",
+                  "id": "71128b11-cd3a-45d4-815a-58e2a2b6d820",
+                  "type": "RADIO",
+                  "techName": "plec_psa",
+                  "title": "Płeć psa",
                   "description": "",
-                  "options": [],
-                  "validation": [],
+                  "options": [
+                    {
+                      "id": "Pies",
+                      "name": "Pies",
+                      "techName": "pies"
+                    },
+                    {
+                      "id": "Suka",
+                      "name": "Suka",
+                      "techName": "suka"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
                   "questionOrder": 6,
                   "tooltipMessage": ""
                 }
-              }
-            ],
-            "states": [],
-            "questionOrder": 0,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 8,
-          "rows": 3,
-          "cols": 3,
-          "field": {
-            "id": "d69fcd98-5573-4421-9ebb-45a822f2b8c7",
-            "type": "SECTION",
-            "techName": "miejsce_utrzymywania_psa",
-            "title": "Miejsce utrzymywania psa",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
+              },
               {
                 "x": 0,
-                "y": 0,
+                "y": 7,
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "1ef630cf-4935-4d9b-a9cb-a16cf2b4b72b",
-                  "type": "TEXTAREA",
+                  "id": "daf8252d-9254-4e2b-a586-7b138da461ab",
+                  "type": "RADIO",
+                  "techName": "sposob_oznakowania_psa",
+                  "title": "Sposób oznakowania psa",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Mikroprocesor",
+                      "name": "Mikroprocesor",
+                      "techName": "mikroprocesor"
+                    },
+                    {
+                      "id": "Tatuaż",
+                      "name": "Tatuaż",
+                      "techName": "tatuaz"
+                    },
+                    {
+                      "id": "Brak",
+                      "name": "Brak",
+                      "techName": "brak"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 7,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 8,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "4d2109b3-1a4b-49df-ac21-2a72095b55d2",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_identyfikacyjny_psa",
+                  "title": "Numer identyfikacyjny psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Mikroprocesor\" in tabs['Informacje o psie' in title].questions['dane_psa' in field.techName].field.repeatingSectionGrid['sposob_oznakowania_psa' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 8,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 9,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "c301ce71-b82a-4fe3-bcbe-41b3e8fa77b1",
+                  "type": "TEXT_FIELD",
                   "techName": "adres_miejsca_utrzymywania_psa",
                   "title": "Adres miejsca utrzymywania psa",
-                  "description": "<html><head></head><body><p>Ulica, numer domu, numer lokalu, miejscowość, kod pocztowy</p></body></html>",
+                  "description": "",
                   "options": [],
                   "validation": [
                     "REQUIRED"
@@ -722,17 +1219,17 @@
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
-                  "questionOrder": 0,
+                  "questionOrder": 9,
                   "tooltipMessage": ""
                 }
               },
               {
                 "x": 0,
-                "y": 1,
+                "y": 10,
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "f86ef772-2584-48e9-aeb1-b3c65fe4387c",
+                  "id": "39e99f01-428d-49e1-b69b-5ee359e82b78",
                   "type": "TEXTAREA",
                   "techName": "opis_miejsca_i_warunkow_utrzymywania_psa",
                   "title": "Opis miejsca i warunków utrzymywania psa",
@@ -744,33 +1241,26 @@
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
-                  "questionOrder": 1,
+                  "questionOrder": 10,
                   "tooltipMessage": ""
                 }
               }
             ],
             "states": [],
-            "questionOrder": 8,
+            "questionOrder": 0,
             "tooltipMessage": ""
           }
-        }
-      ]
-    },
-    {
-      "id": "72555dd1-59e3-451b-a68b-2cd23b4e98f3",
-      "title": "Oświadczenia",
-      "type": "MAIN",
-      "questions": [
+        },
         {
           "x": 0,
-          "y": 0,
-          "rows": 4,
+          "y": 12,
+          "rows": 11,
           "cols": 3,
           "field": {
-            "id": "fda45f16-67a2-484c-b963-a8de4200c593",
-            "type": "SECTION",
-            "techName": "zgoda_na_warunki",
-            "title": "Zgoda na warunki",
+            "id": "2502e1a3-b72b-4049-adf8-3d2b7d9f2c7a",
+            "type": "REPEATING_SECTION",
+            "techName": "dodatkowe_psy",
+            "title": "Dodatkowe psy",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -782,15 +1272,13 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "ab18cb09-e472-46f8-8050-46a80b078fbf",
-                  "type": "CHECKBOX",
-                  "techName": "oswiadczam_ze_psy_nie_beda_wykorzystywane_do_polowan",
-                  "title": "Oświadczam, że psy nie będą wykorzystywane do polowań",
+                  "id": "a7bec538-98c6-4945-bf2b-c9a07ca204fc",
+                  "type": "TEXT_FIELD",
+                  "techName": "pochodzenie_psa_metryka_2",
+                  "title": "Pochodzenie psa (metryka)",
                   "description": "",
                   "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
+                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -804,15 +1292,13 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b483905c-477c-412c-96a2-5cdb8d384340",
-                  "type": "CHECKBOX",
-                  "techName": "oswiadczam_ze_zaszczepiono_psa_przeciwko_wsciekliznie_zalacz",
-                  "title": "Oświadczam, że zaszczepiono psa przeciwko wściekliźnie (załącz kopie dla każdego psa)",
+                  "id": "49a86f01-2e1f-4d39-a841-776653247348",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_rodowodu_2",
+                  "title": "Numer rodowodu",
                   "description": "",
                   "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
+                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -826,10 +1312,30 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "0a177690-9240-4df6-af99-f5420c64650d",
-                  "type": "CHECKBOX",
-                  "techName": "oswiadczam_ze_zapewniam_warunki_utrzymywania_psa_zgodnie_z_r",
-                  "title": "Oświadczam, że zapewniam warunki utrzymywania psa zgodnie z rozporządzeniem Ministra Rolnictwa i Rozwoju Wsi z 2010 r.",
+                  "id": "bd015737-6b00-40c1-a853-44fbc60b48ce",
+                  "type": "TEXT_FIELD",
+                  "techName": "imie_psa_2",
+                  "title": "Imię psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 2,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 3,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "9ba09339-77e7-4e77-a58c-d3103ba4c2c6",
+                  "type": "TEXT_FIELD",
+                  "techName": "rasa_psa_2",
+                  "title": "Rasa psa",
                   "description": "",
                   "options": [],
                   "validation": [
@@ -837,6 +1343,287 @@
                   ],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 3,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 4,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "15becfaf-313f-41c0-862e-3720689016a8",
+                  "type": "DATEPICKER",
+                  "techName": "data_urodzenia_psa_2",
+                  "title": "Data urodzenia psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 4,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 5,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "5d26f9d5-a9bb-4cf7-b2a3-8cf27063a6ab",
+                  "type": "DATEPICKER",
+                  "techName": "data_szczepienia_przeciwko_wsciekliznie_2",
+                  "title": "Data szczepienia przeciwko wściekliźnie",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 5,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 6,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "3e54a204-dac6-4fc6-862f-4103e808bfc3",
+                  "type": "RADIO",
+                  "techName": "plec_psa_2",
+                  "title": "Płeć psa",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Pies",
+                      "name": "Pies",
+                      "techName": "pies"
+                    },
+                    {
+                      "id": "Suka",
+                      "name": "Suka",
+                      "techName": "suka"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 6,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 7,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "2b0846cb-79ba-416e-91a4-fc78a6290589",
+                  "type": "RADIO",
+                  "techName": "sposob_oznakowania_psa_2",
+                  "title": "Sposób oznakowania psa",
+                  "description": "",
+                  "options": [
+                    {
+                      "id": "Mikroprocesor",
+                      "name": "Mikroprocesor",
+                      "techName": "mikroprocesor"
+                    },
+                    {
+                      "id": "Tatuaż",
+                      "name": "Tatuaż",
+                      "techName": "tatuaz"
+                    },
+                    {
+                      "id": "Brak",
+                      "name": "Brak",
+                      "techName": "brak"
+                    }
+                  ],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 7,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 8,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "97bac14b-2c56-41de-8c76-a469702257ca",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_identyfikacyjny_psa_2",
+                  "title": "Numer identyfikacyjny psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [
+                    {
+                      "type": "SHOW",
+                      "query": "(\"Mikroprocesor\" in tabs['Informacje o psie' in title].questions['dodatkowe_psy' in field.techName].field.repeatingSectionGrid['sposob_oznakowania_psa_2' in field.techName].field.__userAnswer)"
+                    }
+                  ],
+                  "questionOrder": 8,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 9,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "c2c70b64-91c3-4ef6-bb8d-c16cb2811179",
+                  "type": "TEXT_FIELD",
+                  "techName": "adres_miejsca_utrzymywania_psa_2",
+                  "title": "Adres miejsca utrzymywania psa",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "states": [],
+                  "questionOrder": 9,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 12,
+            "tooltipMessage": ""
+          }
+        }
+      ]
+    },
+    {
+      "id": "df17cbb0-0933-4cd1-a97f-47edceceda86",
+      "title": "Oświadczenia",
+      "type": "MAIN",
+      "questions": [
+        {
+          "x": 0,
+          "y": 0,
+          "rows": 4,
+          "cols": 3,
+          "field": {
+            "id": "c01a236c-80f8-4411-83d7-5c93ca8910b6",
+            "type": "SECTION",
+            "techName": "oswiadczenia_wnioskodawcy",
+            "title": "Oświadczenia wnioskodawcy",
+            "description": "<html><head></head><body></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "9fad91b1-77b8-4ded-9ed4-34f413842f8c",
+                  "type": "CONSENT_SECTION",
+                  "techName": "oswiadczam_ze_psy_nie_beda_wykorzystywane_do_polowan",
+                  "title": "",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "consentSectionConfig": {
+                    "consents": [
+                      {
+                        "description": "<html><head></head><body><p>Oświadczam, że psy nie będą wykorzystywane do polowań</p></body></html>",
+                        "required": true
+                      }
+                    ],
+                    "files": []
+                  },
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "4c0270e3-f20a-47ab-8961-6699f8b33261",
+                  "type": "CONSENT_SECTION",
+                  "techName": "oswiadczam_ze_zaszczepiono_psa_psy_przeciwko_wsciekliznie",
+                  "title": "",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "consentSectionConfig": {
+                    "consents": [
+                      {
+                        "description": "<html><head></head><body><p>Oświadczam, że zaszczepiono psa/psy przeciwko wściekliźnie</p></body></html>",
+                        "required": true
+                      }
+                    ],
+                    "files": []
+                  },
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 2,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "1eddfcf3-6e9d-4182-a4c6-36cc7ae1f96a",
+                  "type": "CONSENT_SECTION",
+                  "techName": "oswiadczam_ze_zapewniam_warunki_utrzymywania_psa_zgodnie_z_r",
+                  "title": "",
+                  "description": "",
+                  "options": [],
+                  "validation": [
+                    "REQUIRED"
+                  ],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "consentSectionConfig": {
+                    "consents": [
+                      {
+                        "description": "<html><head></head><body><p>Oświadczam, że zapewniam warunki utrzymywania psa zgodnie z rozporządzeniem Ministra Rolnictwa i Rozwoju Wsi z 2010 r.</p></body></html>",
+                        "required": true
+                      }
+                    ],
+                    "files": []
+                  },
                   "states": [],
                   "questionOrder": 2,
                   "tooltipMessage": ""
@@ -851,13 +1638,13 @@
         {
           "x": 0,
           "y": 4,
-          "rows": 3,
+          "rows": 2,
           "cols": 3,
           "field": {
-            "id": "7023f5fb-d6fb-4469-a82d-283fa6b51595",
+            "id": "3ce0e741-ff2e-49fb-9649-5fca9d2d06c0",
             "type": "SECTION",
-            "techName": "zalaczniki",
-            "title": "Załączniki",
+            "techName": "dokumenty_potwierdzajace_szczepienia",
+            "title": "Dokumenty potwierdzające szczepienia",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -869,7 +1656,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "cb1230f5-418d-4306-a42b-f2903b991ed0",
+                  "id": "d1edd34f-b117-4123-8ff8-9ba5dc32eca5",
                   "type": "FILE_UPLOADER",
                   "techName": "kopia_zaswiadczenia_o_szczepieniu_przeciwko_wsciekliznie_dla",
                   "title": "Kopia zaświadczenia o szczepieniu przeciwko wściekliźnie dla każdego psa",
@@ -884,26 +1671,6 @@
                   "questionOrder": 0,
                   "tooltipMessage": ""
                 }
-              },
-              {
-                "x": 0,
-                "y": 1,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "96b33180-1d37-474a-9300-6b32cb928bc8",
-                  "type": "FILE_UPLOADER",
-                  "techName": "dokumenty_potwierdzajace_pochodzenie_psa_metryka_numer_rodow",
-                  "title": "Dokumenty potwierdzające pochodzenie psa (metryka, numer rodowodu)",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 1,
-                  "tooltipMessage": ""
-                }
               }
             ],
             "states": [],
@@ -914,20 +1681,85 @@
       ]
     },
     {
-      "id": "54316b91-eeef-4c1d-8973-5dffec5fdc3f",
-      "title": "Podpis wnioskodawcy",
+      "id": "cf9e31de-bd61-493c-960e-f4b21172b5c8",
+      "title": "Kontakt i zgody",
       "type": "MAIN",
       "questions": [
         {
           "x": 0,
           "y": 0,
+          "rows": 3,
+          "cols": 3,
+          "field": {
+            "id": "2942ad14-a48a-4b5e-80db-79cecb893862",
+            "type": "SECTION",
+            "techName": "dane_do_kontaktu",
+            "title": "Dane do kontaktu",
+            "description": "<html><head></head><body><p><span style=\"background-color: rgba(0, 0, 0, 0); color: rgb(57, 57, 57);\">Wpisanie danych do kontaktu może przyspieszyć załatwienie sprawy. Urzędnik będzie mógł skontaktować się z Tobą w przypadku pytań lub wątpliwości.</span></p><pre data-language=\"plain\"></pre><p><span style=\"color: rgb(57, 57, 57); background-color: rgb(255, 255, 255);\">Jeśli widzisz uzupełnione dane, sprawdź, czy są poprawne. Możesz je zmienić lub usunąć.</span></p></body></html>",
+            "options": [],
+            "validation": [],
+            "readOnly": false,
+            "repeatingSectionGrid": [
+              {
+                "x": 0,
+                "y": 0,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "837ea424-7a23-4c72-b6b5-704688162c8b",
+                  "type": "TEXT_FIELD",
+                  "techName": "numer_telefonu",
+                  "title": "Numer telefonu",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "MLPZ.phoneNumber",
+                  "defaultValueType": "EXTERNAL_SYSTEM",
+                  "states": [],
+                  "questionOrder": 0,
+                  "tooltipMessage": ""
+                }
+              },
+              {
+                "x": 0,
+                "y": 1,
+                "rows": 1,
+                "cols": 3,
+                "field": {
+                  "id": "5b7dae47-bc31-4b0c-b6af-898a66bad4e9",
+                  "type": "TEXT_FIELD",
+                  "techName": "adres_e_mail",
+                  "title": "Adres e-mail",
+                  "description": "",
+                  "options": [],
+                  "validation": [],
+                  "readOnly": false,
+                  "repeatingSectionGrid": [],
+                  "defaultValue": "MLPZ.email",
+                  "defaultValueType": "EXTERNAL_SYSTEM",
+                  "states": [],
+                  "questionOrder": 1,
+                  "tooltipMessage": ""
+                }
+              }
+            ],
+            "states": [],
+            "questionOrder": 0,
+            "tooltipMessage": ""
+          }
+        },
+        {
+          "x": 0,
+          "y": 3,
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "fb67f565-8615-48a6-8f17-e16352c14a04",
+            "id": "8666c579-048a-4d06-9611-923b507a5529",
             "type": "SECTION",
-            "techName": "potwierdzenie",
-            "title": "Potwierdzenie",
+            "techName": "zgoda_wyrazenie",
+            "title": "Zgoda",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -939,17 +1771,24 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "43abb8a3-f939-4f60-ab1f-856135c0d86a",
-                  "type": "TEXT_FIELD",
-                  "techName": "podpis_wnioskodawcy",
-                  "title": "Podpis wnioskodawcy",
-                  "description": "<html><head></head><body><p>Wypełnij i podpisz w wersji papierowej</p></body></html>",
+                  "id": "e0059cbe-d3e6-4251-b8c8-5e38146534db",
+                  "type": "CONSENT_SECTION",
+                  "techName": "zgoda",
+                  "title": "",
+                  "description": "",
                   "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
+                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
+                  "consentSectionConfig": {
+                    "consents": [
+                      {
+                        "description": "<html><head></head><body><p><span style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\">Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z </span><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"klauzulą informacyjną\" aria-label=\"Link otwiera się w nowej karcie\">klauzulą informacyjną</a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(52, 56, 63);\" title=\" \" aria-label=\"Link otwiera się w nowej karcie\"> </a><a href=\"klauzulą informacyjną \" rel=\"noopener noreferrer\" target=\"_blank\" style=\"background-color: rgb(255, 255, 255); color: rgb(0, 82, 165);\" title=\"\" aria-label=\"Link otwiera się w nowej karcie\"><img src=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAAAQCAMAAAD+iNU2AAAAYFBMVEUAAAAAVaoATaYAT6cAUagAVaQAUKUAUqQAU6cAUqQAU6YAU6UAUaUAU6YAU6YAUqUAUqQAUqUAUaYAUqUAUqUAU6UAUqUAUqUAUqYAU6UAUqUAUqUAUqUAUqUAUqX///9oA8deAAAAHnRSTlMAAxQdKSozNTc4WWZ0e35/mJudn6Wq4OLk7u/29/nu1D+OAAAAAWJLR0QfBQ0QvQAAAFtJREFUCNedzEcSgCAQRNE2iznroHD/Y0pU3Pp3r6ZrAF9DRIIQxnaBcl5NY6TIOI6uNlWa4JB+nG8MgfVVPfW2jOBsWQ3OmSHqxTlO8bHrj6/kdT8B7Smf9gI3hccHElQhuGIAAAAASUVORK5CYII=\"></a></p></body></html>",
+                        "required": true
+                      }
+                    ],
+                    "files": []
+                  },
                   "states": [],
                   "questionOrder": 0,
                   "tooltipMessage": ""
@@ -957,14 +1796,14 @@
               }
             ],
             "states": [],
-            "questionOrder": 0,
+            "questionOrder": 3,
             "tooltipMessage": ""
           }
         }
       ]
     },
     {
-      "id": "104cb17d-b82b-48c4-a28a-d3138d93fa27",
+      "id": "3cdc2d54-9828-434f-a4af-f4520cda35f4",
       "title": "Strona końcowa",
       "type": "FINISH",
       "questions": [
@@ -974,36 +1813,15 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "8210a39a-49e2-4e12-88e5-5a7f53cf8c58",
-            "type": "SECTION",
+            "id": "60bb3f9c-d461-4ce7-a050-ce9e91012435",
+            "type": "INFO_SECTION",
             "techName": "podglad_uzupelnionego_wniosku",
             "title": "Podgląd uzupełnionego wniosku",
-            "description": "<html><head></head><body></body></html>",
+            "description": "<html><head></head><body><p>Zanim wyślesz wniosek, sprawdź uzupełnione dane na podglądzie. Jeśli zobaczysz błędy, wróć do edycji.</p></body></html>",
             "options": [],
             "validation": [],
             "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "2784dd80-3596-468f-844a-9a4a029ca29b",
-                  "type": "TEXT_BLOCK",
-                  "techName": "podglad",
-                  "title": "",
-                  "description": "<html><head></head><body><p>{&#x27;RODO_Info&#x27;: {&#x27;type&#x27;: &#x27;TEXT_BLOCK&#x27;, &#x27;title&#x27;: &#x27;Klauzula informacyjna&#x27;, &#x27;content&#x27;: &#x27;INFORMACJE DOTYCZĄCE PRZETWARZANIA TWOICH DANYCH OSOBOWYCH\\n\\nNiniejszą informację otrzymuje Pani/Pan w związku z obowiązkami określonymi w art. 13 rozporządzenia Parlamentu Europejskiego i Rady (UE) 2016/679 z dnia 27 kwietnia 2016 r. w sprawie ochrony osób fizycznych w związku z przetwarzaniem danych osobowych.\\n\\nAdministrator danych:\\nAdministratorem Pani/Pana danych osobowych jest Prezydent Wrocławia. Możesz się z nami skontaktować w następujący sposób:\\n• listownie na adres: Prezydent Wrocławia, Urząd Miejski Wrocławia, pl. Nowy Targ 1-8, 50-141 Wrocław,\\n• za pośrednictwem poczty elektronicznej na adres: wsr@um.wroc.pl,\\n• telefonicznie: +48 71 799 67 00.\\n\\nCele przetwarzania danych:\\nPani/Pana dane osobowe będą przetwarzane w celu wydania zezwolenia na hodowanie/utrzymywanie psów oraz zaksięgowania i rozliczenia zapłaconej opłaty skarbowej.\\n\\nPodstawy prawne przetwarzania:\\nBędziemy przetwarzać Pani/Pana dane osobowe na podstawie art. 6 ust. 1 lit. c) RODO oraz ustawy Prawo łowieckie.\\n\\nObligatoryjność podania danych:\\nPodanie danych jest wymogiem prawnym.\\n\\nOkres retencji:\\nPani/Pana dane osobowe będą przechowywane przez okres 5 lat, następnie mogą zostać przekazane do Archiwum Państwowego.\\n\\nOdbiorcy danych:\\nOdbiorcami danych mogą być dostawcy usług IT oraz podmioty upoważnione na podstawie przepisów prawa.\\n\\nPrzysługujące prawa:\\nPrzysługują Pani/Panu prawa dostępu, sprostowania, ograniczenia przetwarzania oraz wniesienia skargi do Prezesa Urzędu Ochrony Danych Osobowych.\\n\\nInspektor Ochrony Danych:\\nInspektor Ochrony Danych: Sebastian Sobecki. Kontakt: al. M. Kromera 44, 51-163 Wrocław, iod@um.wroc.pl, 71 777 77 24.&#x27;}}</p><p>{&#x27;type&#x27;: &#x27;TEXT_BLOCK&#x27;, &#x27;content&#x27;: &#x27;Zanim złożysz wniosek, upewnij się, że wszystkie wymagane dane zostały uzupełnione i załączone. Pamiętaj o opłaceniu skarbowej opłaty w wysokości 82 zł na konto: 12 1223 1232 1233 2312 2342 2342.\\n\\n\\n{{RODO_Info}}&#x27;}</p></body></html>",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
+            "repeatingSectionGrid": [],
             "states": [],
             "questionOrder": 0,
             "tooltipMessage": ""
@@ -1015,34 +1833,24 @@
   "flow": {
     "links": [
       {
-        "id": "22cda6a1-c712-4603-a19c-18a12d5a0c28",
-        "source": "61c721bf-0a0c-4cf6-a638-bfc1c5442fa6",
-        "target": "a1ca0d7c-3843-4f8a-9363-bf374c4b0feb"
+        "id": "8db35692-7191-40c3-8766-b36663e9dcdd",
+        "source": "242834b2-4859-4382-9ec2-f7bce19c6187",
+        "target": "78aed7ca-5b33-44a1-a069-1a9c42be65ec"
       },
       {
-        "id": "5ee729b8-d883-4d52-bc9b-f99ff4f2870f",
-        "source": "a1ca0d7c-3843-4f8a-9363-bf374c4b0feb",
-        "target": "32355b29-8925-410d-a035-b6cd6906bb15"
+        "id": "fecb32e6-274b-4990-889d-51adacfd0962",
+        "source": "78aed7ca-5b33-44a1-a069-1a9c42be65ec",
+        "target": "df17cbb0-0933-4cd1-a97f-47edceceda86"
       },
       {
-        "id": "b12357f8-5e3e-43c5-a43d-81463e92cffa",
-        "source": "32355b29-8925-410d-a035-b6cd6906bb15",
-        "target": "00d02613-76e1-4bc4-8971-02f7746f9004"
+        "id": "a7022725-e06a-4444-b90a-af0dc8304cb5",
+        "source": "df17cbb0-0933-4cd1-a97f-47edceceda86",
+        "target": "cf9e31de-bd61-493c-960e-f4b21172b5c8"
       },
       {
-        "id": "2058bed7-2869-4874-9c4e-518e5761d1b5",
-        "source": "00d02613-76e1-4bc4-8971-02f7746f9004",
-        "target": "72555dd1-59e3-451b-a68b-2cd23b4e98f3"
-      },
-      {
-        "id": "e06ec060-7a55-4f09-b00c-73358ce299d6",
-        "source": "72555dd1-59e3-451b-a68b-2cd23b4e98f3",
-        "target": "54316b91-eeef-4c1d-8973-5dffec5fdc3f"
-      },
-      {
-        "id": "4d1f5cd0-7c2e-4ba9-91f9-91e1d0c36d18",
-        "source": "54316b91-eeef-4c1d-8973-5dffec5fdc3f",
-        "target": "104cb17d-b82b-48c4-a28a-d3138d93fa27"
+        "id": "27e9bfcb-3e85-497d-9910-4d8635bd093c",
+        "source": "cf9e31de-bd61-493c-960e-f4b21172b5c8",
+        "target": "3cdc2d54-9828-434f-a4af-f4520cda35f4"
       }
     ]
   }

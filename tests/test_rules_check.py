@@ -12,8 +12,10 @@ EX5 = json.loads(next(DATA.glob("5/*/konfiguracja_form_*.json")).read_text("utf-
 
 
 def fixed(form):
-    """Przykłady COI mają 2 znane odstępstwa od reguł (zob. raport F-05) - naprawiamy je tu jawnie."""
+    """Przykłady COI mają 3 znane odstępstwa od reguł (zob. raport F-05, F-17) - naprawiamy je tu jawnie."""
     form = copy.deepcopy(form)
+    fin = form["tabs"][-1]["questions"][0]["field"]  # F-17: SECTION + TEXT_BLOCK -> INFO_SECTION
+    fin.update(type="INFO_SECTION", description=fin["repeatingSectionGrid"][0]["field"]["description"], repeatingSectionGrid=[])
     for i, link in enumerate(form["flow"]["links"]):  # przykład 5: id przejść typu "a16ec" zamiast UUID
         if len(link["id"]) != 36:
             link["id"] = f"00000000-0000-4000-8000-{i:012d}"
@@ -29,8 +31,9 @@ def fixed(form):
 
 def test_examples_known_deviations():
     e1, e5 = check(EX1), check(EX5)
-    assert len(e1) == 3 and all("'validation' musi być listą" in e for e in e1)
-    assert len(e5) == 3 and all(e.startswith("flow.links[") and "nie jest UUID" in e for e in e5)
+    finish = "na stronie FINISH dozwolona wyłącznie INFO_SECTION"
+    assert len(e1) == 4 and all("'validation' musi być listą" in e or finish in e for e in e1)
+    assert len(e5) == 4 and all(e.startswith("flow.links[") and "nie jest UUID" in e or finish in e for e in e5)
 
 
 @pytest.mark.parametrize("form", [EX1, EX5])
@@ -51,6 +54,11 @@ def first_leaf(form):
 def test_no_finish():
     errs = broken(lambda f: f["tabs"].pop())
     assert any("type FINISH" in e for e in errs)
+
+
+def test_finish_only_info_section():
+    errs = broken(lambda f: f["tabs"][-1]["questions"].append(copy.deepcopy(f["tabs"][0]["questions"][0])))
+    assert any("dozwolona wyłącznie INFO_SECTION, jest SECTION" in e for e in errs)
 
 
 def test_single_tab():
@@ -89,7 +97,7 @@ def test_dictionary_on_text_field():
 
 def test_input_on_finish():
     def m(f):
-        f["tabs"][-1]["questions"][0]["field"]["repeatingSectionGrid"][0]["field"]["type"] = "TEXT_FIELD"
+        f["tabs"][-1]["questions"][0]["field"]["type"] = "TEXT_FIELD"
     assert any("FINISH niedozwolone pole wejściowe" in e for e in broken(m))
 
 

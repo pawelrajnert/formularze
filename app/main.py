@@ -8,7 +8,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.formparsers import MultiPartParser
 
 from app import config
-from app.pipeline import ConversionError, IngestError, convert_document
+from app.pipeline import ConversionError, IngestError, UnknownModel, convert_document, registry
 from app.security import check_credentials, create_token, require_auth, require_configured
 from app.validation import check_content, check_name, read_limited
 
@@ -55,15 +55,22 @@ def token(body: Credentials) -> dict:
     return {"access_token": create_token(body.username), "token_type": "bearer"}
 
 
+@app.get("/api/v1/models", dependencies=[Depends(require_auth)])
+def models() -> list[dict]:
+    return registry().public()
+
+
 @app.post("/api/v1/forms/convert", dependencies=[Depends(require_auth)])
-async def convert(file: UploadFile, debug: bool = False) -> dict:
+async def convert(file: UploadFile, debug: bool = False, model: str | None = None) -> dict:
     ext = check_name(file.filename)
     data = await read_limited(file, _max_bytes())
     check_content(data, ext)
     stem = file.filename.rsplit(".", 1)[0]
     try:
         # w wątku: OCR/LibreOffice/LLM blokują, a pętla zdarzeń ma obsługiwać inne żądania
-        result = await run_in_threadpool(convert_document, data, ext, debug, stem)
+        result = await run_in_threadpool(convert_document, data, ext, debug, stem, model)
+    except UnknownModel as e:
+        raise HTTPException(400, str(e)) from e
     except (IngestError, ConversionError) as e:
         raise HTTPException(422, str(e)) from e
     # 504 nieużywane: błąd/timeout LLM zawsze kończy się fallbackiem heurystycznym w pipeline
