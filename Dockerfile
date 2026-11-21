@@ -15,6 +15,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app ./app
 COPY web ./web
+COPY config ./config
 
 # HOME potrzebny LibreOffice na profil użytkownika
 RUN useradd --create-home --uid 1000 appuser
