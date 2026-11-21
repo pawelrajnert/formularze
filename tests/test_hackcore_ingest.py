@@ -185,7 +185,7 @@ def test_xlsx_shapes_and_comments():
         z.writestr("xl/drawings/drawing1.xml", '<xdr:wsDr xmlns:xdr="x" xmlns:a="y"><xdr:sp><xdr:txBody>'
                    '<a:p><a:r><a:t>1. Mapa &amp; wypis</a:t></a:r></a:p></xdr:txBody></xdr:sp></xdr:wsDr>')
     doc = load_document(buf.getvalue(), "f.xlsx")
-    assert doc.pages[-1] == "[Pola tekstowe i komentarze]\n1. Mapa & wypis\nPole obowiązkowe"
+    assert doc.pages[-1] == "[Pola tekstowe i komentarze]\nPole obowiązkowe\n1. Mapa & wypis"
 
 
 def test_xlsx_broken():
