@@ -13,6 +13,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY hackcore ./hackcore
 COPY app ./app
 COPY web ./web
 COPY config ./config

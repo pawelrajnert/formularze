@@ -8,8 +8,7 @@ from starlette.concurrency import run_in_threadpool
 from starlette.formparsers import MultiPartParser
 
 from app import config
-from app.ingest import IngestError
-from app.pipeline import ConversionError, convert_document
+from app.pipeline import ConversionError, IngestError, convert_document
 from app.security import check_credentials, create_token, require_auth, require_configured
 from app.validation import check_content, check_name, read_limited
 
