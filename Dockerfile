@@ -19,7 +19,7 @@ COPY web ./web
 COPY config ./config
 
 # HOME potrzebny LibreOffice na profil użytkownika
-RUN useradd --create-home --uid 1000 appuser
+RUN useradd --create-home --uid 1000 appuser && mkdir audit && chown appuser audit
 USER appuser
 
 EXPOSE 8000

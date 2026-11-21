@@ -13,6 +13,8 @@ services:
     env_file:
       - path: .env
         required: false
+    volumes:
+      - audit:/app/audit  # F-18: rekordy zatwierdzeń obok JSON-ów
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
       interval: 15s
@@ -29,3 +31,4 @@ services:
 
 volumes:
   ollama-models:
+  audit:

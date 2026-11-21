@@ -19,6 +19,8 @@ class Settings:
     jwt_secret: str = field(default_factory=lambda: _env("JWT_SECRET"))
     jwt_algorithm: str = field(default_factory=lambda: _env("JWT_ALGORITHM", "HS256"))
     jwt_expire_minutes: int = field(default_factory=lambda: int(_env("JWT_EXPIRE_MINUTES", "60")))
+    approval_required: bool = field(default_factory=lambda: _env("APPROVAL_REQUIRED", "false").lower() == "true")
+    audit_dir: str = field(default_factory=lambda: _env("AUDIT_DIR", "audit"))
 
 
 settings = Settings()
