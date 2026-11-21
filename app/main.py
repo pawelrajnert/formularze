@@ -1,0 +1,52 @@
+from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel
+from starlette.formparsers import MultiPartParser
+
+from app import config
+from app.pipeline import convert_document
+from app.security import check_credentials, create_token, require_auth, require_configured
+from app.validation import check_content, check_name, read_limited
+
+# pliki tylko w pamięci: Starlette domyślnie zrzuca upload > 1 MB do pliku tymczasowego
+MultiPartParser.spool_max_size = 1 << 40
+
+app = FastAPI(title="COI — cyfryzacja formularzy", version="0.1.0")
+
+
+def _max_bytes() -> int:
+    return config.settings.max_file_size_mb * 1024 * 1024
+
+
+@app.middleware("http")
+async def reject_big_bodies(request: Request, call_next):
+    # shortcut: tylko Content-Length; upload chunked bez nagłówka trafia do read_limited dopiero po sparsowaniu
+    if int(request.headers.get("content-length") or 0) > _max_bytes() + 64 * 1024:
+        return JSONResponse({"detail": "Plik za duży"}, status_code=413)
+    return await call_next(request)
+
+
+class Credentials(BaseModel):
+    username: str
+    password: str
+
+
+@app.get("/health")
+def health() -> dict:
+    return {"status": "ok"}
+
+
+@app.post("/api/v1/auth/token")
+def token(body: Credentials) -> dict:
+    require_configured()  # 503 zamiast tokenu z pustym sekretem/hasłem
+    if not check_credentials(body.username, body.password):
+        raise HTTPException(401, "Nieprawidłowy login lub hasło")
+    return {"access_token": create_token(body.username), "token_type": "bearer"}
+
+
+@app.post("/api/v1/forms/convert", dependencies=[Depends(require_auth)])
+async def convert(file: UploadFile, debug: bool = False) -> dict:
+    ext = check_name(file.filename)
+    data = await read_limited(file, _max_bytes())
+    check_content(data, ext)
+    return {"filename": file.filename, **convert_document(data, ext, debug)}

@@ -1,0 +1,6 @@
+fastapi[standard]==0.121.3
+python-multipart==0.0.20
+pytest==9.0.1
+jsonschema==4.26.0
+pyjwt==2.15.1
+filetype==1.2.0

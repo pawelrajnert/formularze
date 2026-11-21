@@ -1,0 +1,449 @@
+{
+  "title": "Wniosek o ustalenie numeru porządkowego nieruchomości",
+  "pages": [
+    {
+      "title": "Dane",
+      "sections": [
+        {
+          "title": "Organ, do którego jest składany wniosek",
+          "fields": [
+            {
+              "label": "Nazwa organu",
+              "type": "TEXT_FIELD",
+              "required": false,
+              "read_only": true,
+              "default": "Wójt Gminy Elbląg, ul. Browarna 85, 82-300 Elbląg"
+            }
+          ]
+        },
+        {
+          "title": "Podmiot wniosku",
+          "fields": [
+            {
+              "label": "Wybierz, w czyim imieniu wnioskujesz",
+              "type": "RADIO",
+              "required": true,
+              "options": [
+                "Swoim",
+                "Innej osoby",
+                "Osoby prawnej lub jednostki organizacyjnej"
+              ]
+            },
+            {
+              "label": "Wybierz, jako kto wnioskujesz",
+              "type": "RADIO",
+              "required": true,
+              "options": [
+                "Pełnomocnik",
+                "Reprezentant"
+              ],
+              "show_if": {
+                "field": "Wybierz, w czyim imieniu wnioskujesz",
+                "equals": "Osoby prawnej lub jednostki organizacyjnej"
+              }
+            }
+          ]
+        },
+        {
+          "title": "Twoje dane",
+          "fields": [
+            {
+              "label": "Imię",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Nazwisko",
+              "type": "TEXT_FIELD",
+              "required": true
+            }
+          ]
+        },
+        {
+          "title": "Adres zamieszkania",
+          "fields": [
+            {
+              "label": "Kraj",
+              "type": "SELECT",
+              "required": true,
+              "options": [
+                "Polska",
+                "Inny kraj"
+              ],
+              "default": "Polska"
+            },
+            {
+              "label": "Miejscowość",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Kod pocztowy",
+              "type": "TEXT_FIELD",
+              "required": true,
+              "validators": [
+                "ZIP_CODE"
+              ],
+              "show_if": {
+                "field": "Kraj",
+                "equals": "Polska"
+              }
+            },
+            {
+              "label": "Kod pocztowy (zagranica)",
+              "type": "TEXT_FIELD",
+              "required": true,
+              "show_if": {
+                "field": "Kraj",
+                "equals": "Inny kraj"
+              }
+            },
+            {
+              "label": "Ulica",
+              "type": "TEXT_FIELD",
+              "required": false
+            },
+            {
+              "label": "Numer budynku",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Numer lokalu",
+              "type": "TEXT_FIELD",
+              "required": false
+            }
+          ]
+        },
+        {
+          "title": "Dane podmiotu",
+          "fields": [
+            {
+              "label": "Nazwa",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "NIP",
+              "type": "TEXT_FIELD",
+              "required": false,
+              "validators": [
+                "NIP"
+              ]
+            },
+            {
+              "label": "REGON",
+              "type": "TEXT_FIELD",
+              "required": false,
+              "validators": [
+                "REGON"
+              ]
+            },
+            {
+              "label": "Numer KRS",
+              "type": "TEXT_FIELD",
+              "required": false
+            }
+          ],
+          "show_if": {
+            "field": "Wybierz, w czyim imieniu wnioskujesz",
+            "equals": "Osoby prawnej lub jednostki organizacyjnej"
+          }
+        },
+        {
+          "title": "Adres siedziby",
+          "fields": [
+            {
+              "label": "Kraj",
+              "type": "SELECT",
+              "required": true,
+              "options": [
+                "Polska",
+                "Inny kraj"
+              ],
+              "default": "Polska"
+            },
+            {
+              "label": "Miejscowość",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Kod pocztowy",
+              "type": "TEXT_FIELD",
+              "required": true,
+              "validators": [
+                "ZIP_CODE"
+              ],
+              "show_if": {
+                "field": "Kraj",
+                "equals": "Polska"
+              }
+            },
+            {
+              "label": "Kod pocztowy (zagranica)",
+              "type": "TEXT_FIELD",
+              "required": true,
+              "show_if": {
+                "field": "Kraj",
+                "equals": "Inny kraj"
+              }
+            },
+            {
+              "label": "Ulica",
+              "type": "TEXT_FIELD",
+              "required": false
+            },
+            {
+              "label": "Numer budynku",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Numer lokalu",
+              "type": "TEXT_FIELD",
+              "required": false
+            }
+          ],
+          "show_if": {
+            "field": "Wybierz, w czyim imieniu wnioskujesz",
+            "equals": "Osoby prawnej lub jednostki organizacyjnej"
+          }
+        },
+        {
+          "title": "Potwierdzenie, że jesteś reprezentantem",
+          "fields": [
+            {
+              "label": "Plik z odpisem danych",
+              "type": "FILE_UPLOADER",
+              "required": true,
+              "hint": "Dołącz aktualny odpis z KRS lub innego rejestru."
+            }
+          ],
+          "show_if": {
+            "field": "Wybierz, jako kto wnioskujesz",
+            "equals": "Reprezentant"
+          }
+        },
+        {
+          "title": "Dane innej osoby",
+          "fields": [
+            {
+              "label": "Imię",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Nazwisko",
+              "type": "TEXT_FIELD",
+              "required": true
+            }
+          ],
+          "show_if": {
+            "field": "Wybierz, w czyim imieniu wnioskujesz",
+            "equals": "Innej osoby"
+          }
+        },
+        {
+          "title": "Adres zamieszkania innej osoby",
+          "fields": [
+            {
+              "label": "Kraj",
+              "type": "SELECT",
+              "required": true,
+              "options": [
+                "Polska",
+                "Inny kraj"
+              ],
+              "default": "Polska"
+            },
+            {
+              "label": "Miejscowość",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Kod pocztowy",
+              "type": "TEXT_FIELD",
+              "required": true,
+              "validators": [
+                "ZIP_CODE"
+              ],
+              "show_if": {
+                "field": "Kraj",
+                "equals": "Polska"
+              }
+            },
+            {
+              "label": "Kod pocztowy (zagranica)",
+              "type": "TEXT_FIELD",
+              "required": true,
+              "show_if": {
+                "field": "Kraj",
+                "equals": "Inny kraj"
+              }
+            },
+            {
+              "label": "Ulica",
+              "type": "TEXT_FIELD",
+              "required": false
+            },
+            {
+              "label": "Numer budynku",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Numer lokalu",
+              "type": "TEXT_FIELD",
+              "required": false
+            }
+          ],
+          "show_if": {
+            "field": "Wybierz, w czyim imieniu wnioskujesz",
+            "equals": "Innej osoby"
+          }
+        },
+        {
+          "title": "Pełnomocnictwo",
+          "fields": [
+            {
+              "label": "Dokument z potwierdzeniem, podpisany elektronicznie",
+              "type": "FILE_UPLOADER",
+              "required": true
+            }
+          ],
+          "show_if": {
+            "field": "Wybierz, w czyim imieniu wnioskujesz",
+            "equals": "Innej osoby"
+          }
+        },
+        {
+          "title": "Opłata skarbowa",
+          "fields": [
+            {
+              "label": "Czy złożenie pełnomocnictwa wymaga opłaty skarbowej?",
+              "type": "RADIO",
+              "required": true,
+              "options": [
+                "Tak",
+                "Nie"
+              ]
+            },
+            {
+              "label": "Opłata skarbowa za pełnomocnictwo wynosi 17 zł. Przelej ją na konto urzędu i dołącz potwierdzenie przelewu.",
+              "type": "TEXT_BLOCK",
+              "required": false,
+              "show_if": {
+                "field": "Czy złożenie pełnomocnictwa wymaga opłaty skarbowej?",
+                "equals": "Tak"
+              }
+            },
+            {
+              "label": "Potwierdzenie przelewu",
+              "type": "FILE_UPLOADER",
+              "required": true,
+              "show_if": {
+                "field": "Czy złożenie pełnomocnictwa wymaga opłaty skarbowej?",
+                "equals": "Tak"
+              }
+            }
+          ],
+          "show_if": {
+            "field": "Wybierz, w czyim imieniu wnioskujesz",
+            "equals": "Innej osoby"
+          }
+        },
+        {
+          "title": "Pełnomocnictwo podmiotu",
+          "fields": [
+            {
+              "label": "Dokument pełnomocnictwa",
+              "type": "FILE_UPLOADER",
+              "required": true
+            },
+            {
+              "label": "Opłata skarbowa za pełnomocnictwo wynosi 17 zł. Przelej ją na konto urzędu i dołącz potwierdzenie przelewu.",
+              "type": "TEXT_BLOCK",
+              "required": false
+            },
+            {
+              "label": "Potwierdzenie przelewu",
+              "type": "FILE_UPLOADER",
+              "required": true
+            }
+          ],
+          "show_if": {
+            "field": "Wybierz, jako kto wnioskujesz",
+            "equals": "Pełnomocnik"
+          }
+        }
+      ]
+    },
+    {
+      "title": "Informacje o budynku",
+      "sections": [
+        {
+          "title": "Lokalizacja budynku",
+          "fields": [
+            {
+              "label": "Miejscowość",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Ulica",
+              "type": "TEXT_FIELD",
+              "required": false,
+              "hint": "Jeżeli budynek nie jest położony przy ulicy, pozostaw puste."
+            },
+            {
+              "label": "Numer ewidencyjny działki",
+              "type": "TEXT_FIELD",
+              "required": true
+            },
+            {
+              "label": "Obręb",
+              "type": "TEXT_FIELD",
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Kontakt z urzędem",
+      "sections": [
+        {
+          "title": "Dane do kontaktu",
+          "fields": [
+            {
+              "label": "Numer telefonu",
+              "type": "TEXT_FIELD",
+              "required": false
+            },
+            {
+              "label": "Adres e-mail",
+              "type": "TEXT_FIELD",
+              "required": false,
+              "validators": [
+                "EMAIL"
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Zgoda",
+          "fields": [
+            {
+              "label": "Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z klauzulą informacyjną (administrator: Gmina Elbląg, IOD: iod@gminaelblag.pl).",
+              "type": "CONSENT_SECTION",
+              "required": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finish_text": "Zanim wyślesz wniosek, sprawdź uzupełnione dane na podglądzie. Jeśli zobaczysz błędy, wróć do edycji."
+}
