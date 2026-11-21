@@ -1,0 +1,43 @@
+[
+ {
+  "x": 0,
+  "y": 0,
+  "rows": 2,
+  "cols": 3,
+  "field": {
+   "id": "a566bd26-dac2-4c86-af5a-288e0fe8d1fa",
+   "type": "SECTION",
+   "techName": "organ_do_ktorego_jest_skladany_wniosek",
+   "title": "Organ, do którego jest składany wniosek",
+   "description": "<html><head></head><body></body></html>",
+   "options": [],
+   "validation": [],
+   "readOnly": false,
+   "repeatingSectionGrid": [
+    {
+     "x": 0,
+     "y": 0,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "6c7b0d67-0390-4b9a-9d45-3adb8486f5e8",
+      "type": "TEXT_FIELD",
+      "techName": "nazwa_organu",
+      "title": "Nazwa organu",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": true,
+      "repeatingSectionGrid": [],
+      "defaultValue": "",
+      "states": [],
+      "questionOrder": 0,
+      "tooltipMessage": ""
+     }
+    }
+   ],
+   "questionOrder": 0,
+   "tooltipMessage": ""
+  }
+ }
+]

@@ -1,6 +1,7 @@
 """F-15: deterministyczne sprzątanie szkicu od LLM przed builderem (reguły w config/field_rules.yaml -> cleanup).
 
 Usuwa pola papierowe, oświadczenia zamienia na zgody, poprawia typy pól wyboru i kwot.
+F-14: usuwa też duplikaty sekcji standardowych (wnioskodawca, adres, pełnomocnik, kontakt, RODO, organ) - te są z szablonów.
 Zwraca kopię szkicu; każda zmiana trafia do `notes` (trace w /convert?debug=true).
 """
 import re
@@ -12,6 +13,7 @@ C = CFG["cleanup"]
 DROP = re.compile(C["drop"])
 CONSENT = re.compile(C["consent"])
 NUMBER = re.compile(C["number"])
+S = {k: re.compile(v) for k, v in CFG["standard"].items()}
 
 
 def tidy(draft: Draft, notes: list) -> Draft:
@@ -19,20 +21,40 @@ def tidy(draft: Draft, notes: list) -> Draft:
     for page in d.pages:
         kept_secs = []
         for sec in page.sections or []:
-            if DROP.search(norm(sec.title)):
+            st = norm(sec.title)
+            if DROP.search(st):
                 notes.append(f"usunięto sekcję {sec.title!r} (pole papierowe/instrukcja)")
                 continue
-            kept = []
+            if S["sections"].search(st):
+                _organ(d, sec.fields or [], st)
+                notes.append(f"usunięto sekcję {sec.title!r} (dubluje sekcję standardową)")
+                continue
+            applicant, kept = S["applicant"].search(st), []
             for f in sec.fields or []:
-                if DROP.search(norm(f.label)):
+                n = norm(f.label)
+                if DROP.search(n):
                     notes.append(f"usunięto pole {f.label!r} (pole papierowe/instrukcja)")
+                    continue
+                if S["fields"].search(n) or (applicant and S["applicant_fields"].search(n)):
+                    _organ(d, [f], st)
+                    notes.append(f"usunięto pole {f.label!r} (dubluje sekcję standardową)")
                     continue
                 _fix_type(f, sec.title, notes)
                 kept.append(f)
             sec.fields = kept
-            kept_secs.append(sec)
+            if kept:
+                kept_secs.append(sec)
         page.sections = kept_secs
+    d.pages = [p for p in d.pages if p.sections]
     return d
+
+
+def _organ(d: Draft, fields: list, sec_title: str) -> None:
+    """Stara wersja promptu wpisywała organ jako pole read_only -> przenosimy wartość do Draft.organ."""
+    if d.organ.strip():
+        return
+    d.organ = next((f.default.strip() for f in fields if f.default.strip()
+                    and S["organ"].search(f"{sec_title} {norm(f.label)}")), "")
 
 
 def _fix_type(f, sec_title: str, notes: list) -> None:

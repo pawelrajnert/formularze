@@ -60,8 +60,11 @@ def small(**over) -> dict:
 
 # --- prompt / kontrakt --------------------------------------------------------------------------------------
 def test_fewshot_copy_in_sync_with_fixture():
+    # F-14: few-shot = strona merytoryczna fixture'a (szkic starego promptu) + pola sterujące
     copy = json.loads((ROOT / "config/fewshot/form1_draft.json").read_text("utf-8"))
-    assert copy == fixture_dict()
+    fx = fixture_dict()
+    assert copy["title"] == fx["title"] and copy["organ"] and copy["applicant_kinds"]
+    assert copy["pages"] == [p for p in fx["pages"] if p["title"] == "Informacje o budynku"]
 
 
 def test_coerce_draft_fixes_bad_values():
@@ -232,7 +235,7 @@ def test_heuristic_on_real_forms(n):
     r = make_draft(doc_of(text), None)
     assert r.source == "heuristic"
     assert r.draft.title.split()[0] in ("Wniosek", "Zgłoszenie", "Deklaracja", "Oświadczenie")
-    assert len(fields(r.draft)) >= 6  # standardowe + co najmniej kilka pól z dokumentu
+    assert len(fields(r.draft)) >= 3  # same pola z dokumentu; standardowe dokłada builder (F-14)
     assert any("odpis" in x or "Podpis" in x for x in r.removed_paper_elements)
     assert not any(f.label.lower().startswith("podpis") for f in fields(r.draft))
     assert_valid(r)
@@ -242,7 +245,7 @@ def test_heuristic_on_real_forms(n):
 def test_heuristic_finds_known_fields_form1():
     pytest.importorskip("docx")
     labels = {f.label for f in fields(heuristic_draft(doc_of(_form_text(1)))[0])}
-    assert {"Nr ewidencyjny działki", "Imię", "Nazwisko", "Adres e-mail"} <= labels
+    assert "Nr ewidencyjny działki" in labels and not {"Imię", "Nazwisko", "Adres e-mail"} & labels  # F-14: z szablonów
 
 
 def test_heuristic_boxes_become_choice():

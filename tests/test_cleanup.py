@@ -15,11 +15,12 @@ def fields(form):
 
 def run(*sections, finish_text=""):
     d = Draft.model_validate({"title": "T", "finish_text": finish_text,
-                              "pages": [{"title": "Dane", "sections": list(sections)}]})
+                              "pages": [{"title": "Strona", "sections": list(sections)}]})
     notes = []
     form = build(d, notes)
     assert check(form) == []
-    return form, {f["title"] or f["techName"]: f for f in fields(form)}, notes
+    llm = {"tabs": form["tabs"][1:-2]}  # bez stron z szablonów (F-14)
+    return form, {f["title"] or f["techName"]: f for f in fields(llm)}, notes
 
 
 def fld(label, type="TEXT_FIELD", **kw):
@@ -34,7 +35,7 @@ def test_a_paper_fields_and_sections_dropped():
                                         fld("Instrukcja wypełnienia", "TEXT_BLOCK"),
                                         fld("Podstawa prawna", "TEXT_BLOCK"), fld("Podpis i pieczątka")]},
         {"title": "Wypełnia organ", "fields": [fld("Uwagi")]})
-    assert set(by) - {"podglad", "Podgląd uzupełnionego wniosku"} == {"Wniosek", "Nazwa"} and len(notes) == 8
+    assert set(by) == {"Wniosek", "Nazwa"} and len(notes) == 8
 
 
 def test_b_finish_always_standard():
@@ -46,7 +47,7 @@ def test_b_finish_always_standard():
 def test_c_statements_become_consents():
     _, by, _ = run({"title": "Oświadczenia", "fields": [
         fld("Oświadczam, że dane są prawdziwe", "CHECKBOX", required=True),
-        fld("Wyrażam zgodę na przetwarzanie danych", "RADIO", options=["Tak", "Nie"]),
+        fld("Wyrażam zgodę na oględziny nieruchomości", "RADIO", options=["Tak", "Nie"]),
         fld("Potwierdzenie", "CHECKBOX")]})
     consents = [f for f in by.values() if f["type"] == "CONSENT_SECTION"]
     assert len(consents) == 3 and all(f["options"] == [] for f in consents)
@@ -56,8 +57,8 @@ def test_d_read_only_only_with_value():
     _, by, _ = run({"title": "S", "fields": [
         fld("Powierzchnia (m2)", "NUMBER", read_only=True, required=True),
         fld("Liczba dni", "NUMBER", read_only=True, default="5"),
-        fld("Organ", read_only=True, default="Urząd Gminy X"), fld("Pusty", read_only=True)]})
-    assert [by[k]["readOnly"] for k in ("Powierzchnia (m2)", "Liczba dni", "Organ", "Pusty")] == [False, False, True, False]
+        fld("Jednostka", read_only=True, default="Koło PZW nr 5"), fld("Pusty", read_only=True)]})
+    assert [by[k]["readOnly"] for k in ("Powierzchnia (m2)", "Liczba dni", "Jednostka", "Pusty")] == [False, False, True, False]
 
 
 def test_e_show_if_by_option_or_unrequired():
@@ -65,10 +66,10 @@ def test_e_show_if_by_option_or_unrequired():
         {"title": "Zwrot", "fields": [fld("Sposób zwrotu", "RADIO", options=["Gotówką", "Na rachunek"])]},
         {"title": "Rachunek", "show_if": {"field": "Na rachunek", "equals": "Tak"},
          "fields": [fld("Numer rachunku", required=True)]},
-        {"title": "Pełnomocnik", "show_if": {"field": "Nie ma takiego", "equals": "x"},
-         "fields": [fld("Imię pełnomocnika", required=True)]})
+        {"title": "Współmałżonek", "show_if": {"field": "Nie ma takiego", "equals": "x"},
+         "fields": [fld("Imię małżonka", required=True)]})
     assert "'sposob_zwrotu' in field.techName" in by["Rachunek"]["states"][0]["query"]
-    assert by["Imię pełnomocnika"]["validation"] == [] and by["Pełnomocnik"]["states"] == []
+    assert by["Imię małżonka"]["validation"] == [] and by["Współmałżonek"]["states"] == []
     assert any("Nie ma takiego" in n for n in notes)
 
 
@@ -88,7 +89,7 @@ def test_f_choice_types_and_numbers():
 
 
 def test_f_select_with_dictionary_stays_select():
-    _, by, _ = run({"title": "Adres", "fields": [fld("Kraj", "SELECT", options=["Polska", "Niemcy"])]})
+    _, by, _ = run({"title": "Adres nieruchomości", "fields": [fld("Kraj", "SELECT", options=["Polska", "Niemcy"])]})
     assert by["Kraj"]["dictionaryName"] == "Kraje"
 
 
@@ -101,11 +102,14 @@ def test_g_text_block_content_from_default():
 
 
 def test_h_prefill_only_for_applicant():
-    _, by, _ = run(
+    form, by, _ = run(
         {"title": "Osoba odpowiedzialna", "fields": [fld("Numer telefonu"), fld("Imię", prefill="MLPZ.name")]},
         {"title": "Dane sportowca", "fields": [fld("Nazwisko", prefill="MLPZ.surname")]},
         {"title": "Adres zamieszkania / siedziby", "fields": [fld("Ulica")]},
         {"title": "Wnioskodawca", "fields": [fld("E-mail osoby odpowiedzialnej"), fld("Adres e-mail")]})
     assert all("defaultValueType" not in by[k] for k in ("Numer telefonu", "Imię", "Nazwisko", "E-mail osoby odpowiedzialnej"))
     assert by["E-mail osoby odpowiedzialnej"]["validation"] == ["EMAIL"]
-    assert by["Ulica"]["defaultValue"] == "MLPZ.street" and by["Adres e-mail"]["defaultValue"] == "MLPZ.email"
+    # F-14: adres i e-mail wnioskodawcy ma szablon; duplikaty od LLM wypadają albo nie dostają drugi raz tego samego prefill
+    assert "Adres e-mail" not in by and "defaultValueType" not in by["Ulica"]
+    tpl = {f["techName"]: f for f in fields({"tabs": [form["tabs"][0], form["tabs"][-2]]})}
+    assert tpl["ulica"]["defaultValue"] == "MLPZ.street" and tpl["adres_e_mail"]["defaultValue"] == "MLPZ.email"

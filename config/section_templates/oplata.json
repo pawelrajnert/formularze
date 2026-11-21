@@ -1,0 +1,63 @@
+[
+ {
+  "x": 0,
+  "y": 49,
+  "rows": 3,
+  "cols": 3,
+  "field": {
+   "id": "8b40e5c1-f9b3-4aa0-8ab6-a1c59e27058f",
+   "type": "SECTION",
+   "techName": "oplata_skarbowa",
+   "title": "Opłata skarbowa",
+   "description": "<html><head></head><body></body></html>",
+   "options": [],
+   "validation": [],
+   "readOnly": false,
+   "repeatingSectionGrid": [
+    {
+     "x": 0,
+     "y": 0,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "e330dc20-a248-448e-9ced-15e4605f7a38",
+      "type": "TEXT_BLOCK",
+      "techName": "oplata_skarbowa_info",
+      "title": "",
+      "description": "{{oplata}}",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "states": [],
+      "questionOrder": 0,
+      "tooltipMessage": ""
+     }
+    },
+    {
+     "x": 0,
+     "y": 1,
+     "rows": 1,
+     "cols": 3,
+     "field": {
+      "id": "30f17c51-350f-446b-bf86-f3a4087dcf8a",
+      "type": "FILE_UPLOADER",
+      "techName": "plik_z_potwierdzeniem_oplaty",
+      "title": "Plik z potwierdzeniem przelewu",
+      "description": "",
+      "options": [],
+      "validation": [],
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "states": [],
+      "questionOrder": 1,
+      "tooltipMessage": ""
+     }
+    }
+   ],
+   "states": [],
+   "questionOrder": 49,
+   "tooltipMessage": ""
+  }
+ }
+]
