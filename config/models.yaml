@@ -1,0 +1,181 @@
+# X-09: rejestr modeli LLM (model factory). Ładuje go hackcore.models.load_registry().
+#
+# Zasady (Discord COI, oficjalnie): tylko modele z OTWARTYMI wagami, które da się postawić na własnej
+# infrastrukturze; licencja z allowlisty Apache-2.0 / MIT (Gemma, Llama, CC-BY-NC odpadają).
+# Walidacja przy ładowaniu: licencja spoza allowlisty / open_weights != true / zdublowane id -> błąd startu.
+#
+# Wybór modelu:
+#   - LLM_MODEL_ID=<id z rejestru>   -> ten wpis (pierwszeństwo),
+#   - brak LLM_MODEL_ID              -> stare LLM_BASE_URL / LLM_API_KEY / LLM_MODEL (wsteczna zgodność),
+#   - ?model=<id> w /convert         -> nadpisuje oba (tylko id z rejestru; nieznane id = 400).
+#
+# Jak dodać model BEZ zmian w kodzie:
+#   1. Dopisz wpis poniżej (skopiuj podobny). Backend musi być OpenAI-compatible (Mistral API, Sherlock,
+#      Ollama, llama.cpp server, vLLM...) — LLMClient gada z każdym takim endpointem.
+#   2. Sprawdź licencję na karcie modelu (HF) i wpisz license + license_source (URL).
+#   3. Klucz API: wpisz NAZWĘ zmiennej env w api_key_env (lista = pierwsza niepusta), sam klucz tylko w .env.
+#      Ollama nie potrzebuje klucza (stały "ollama").
+#   4. base_url wprost albo base_url_env (nazwa zmiennej env; base_url jest wtedy wartością domyślną).
+#   5. Odpal: LLM_MODEL_ID=<id> albo ?model=<id>.
+#
+# Pola: id, backend (mistral-api | ollama | sherlock | openai-compatible), base_url / base_url_env, model
+# (nazwa u dostawcy), api_key_env, license, license_source, license_verified, open_weights, weights_url,
+# params_b, quantization, context, notes.
+
+default: ministral-14b-api   # obecny model zespołu (Mistral API)
+
+models:
+  # --- Ministral 3 (Mistral AI) ---
+  - id: ministral-14b-api
+    backend: mistral-api
+    base_url: https://api.mistral.ai/v1
+    model: ministral-14b-latest
+    api_key_env: [MISTRAL_API_KEY, LLM_API_KEY]
+    license: Apache-2.0
+    license_source: https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512
+    params_b: 14
+    quantization: null        # hostowany u dostawcy
+    context: 262144
+    notes: Obecny model zespołu. Darmowy plan Mistrala ma niski limit req/min (LLMClient czeka na 429).
+
+  - id: ministral-8b-api
+    backend: mistral-api
+    base_url: https://api.mistral.ai/v1
+    model: ministral-8b-latest
+    api_key_env: [MISTRAL_API_KEY, LLM_API_KEY]
+    license: Apache-2.0
+    license_source: https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512
+    params_b: 8
+    quantization: null
+    context: 262144
+    notes: Mniejszy brat 14B; ten sam klucz Mistral API.
+
+  - id: ministral-14b-ollama
+    backend: ollama
+    base_url_env: OLLAMA_BASE_URL
+    base_url: http://ollama:11434/v1
+    model: ministral-3:14b
+    license: Apache-2.0
+    license_source: https://ollama.com/library/ministral-3
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/mistralai/Ministral-3-14B-Instruct-2512
+    params_b: 14
+    quantization: Q4_K_M      # domyślny tag Ollamy, ok. 9.1 GB
+    context: 262144           # Ollama domyślnie używa dużo mniejszego okna (num_ctx)
+    notes: Lokalnie na CPU (profil local-llm). Wymaga Ollamy >= 0.13.1. Na 16 GB RAM ciasno.
+
+  - id: ministral-8b-ollama
+    backend: ollama
+    base_url_env: OLLAMA_BASE_URL
+    base_url: http://ollama:11434/v1
+    model: ministral-3:8b
+    license: Apache-2.0
+    license_source: https://ollama.com/library/ministral-3
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/mistralai/Ministral-3-8B-Instruct-2512
+    params_b: 8
+    quantization: Q4_K_M      # ok. 6 GB
+    context: 262144
+    notes: Rozsądny kandydat na obronę bez GPU (16 GB RAM).
+
+  # --- PLLuM (CYFRAGOVPL, partner COI) ---
+  - id: pllum-12b-sherlock
+    backend: sherlock
+    base_url: https://api-sherlock.cloudferro.com/openai/v1
+    model: CYFRAGOVPL/PLLuM-12B-instruct
+    api_key_env: SHERLOCK_API_KEY
+    license: Apache-2.0
+    license_source: https://huggingface.co/CYFRAGOVPL/PLLuM-12B-instruct
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/CYFRAGOVPL/PLLuM-12B-instruct
+    params_b: 12
+    quantization: null
+    context: 131072           # baza Mistral-Nemo-Base-2407
+    notes: X-07 (wstrzymane). Sherlock ma generację 2412 (nie -2512). Wsparcie json_schema niepotwierdzone.
+
+  - id: pllum-12b-ollama
+    backend: ollama
+    base_url_env: OLLAMA_BASE_URL
+    base_url: http://ollama:11434/v1
+    model: hf.co/mradermacher/PLLuM-12B-instruct-2512-GGUF:Q4_K_M
+    license: Apache-2.0
+    license_source: https://huggingface.co/CYFRAGOVPL/PLLuM-12B-instruct-2512
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/mradermacher/PLLuM-12B-instruct-2512-GGUF
+    params_b: 12
+    quantization: Q4_K_M      # ok. 7 GB
+    context: 131072
+    notes: Generacja 2512 (GGUF społeczności mradermacher, Apache-2.0).
+
+  # --- Bielik (SpeakLeash) ---
+  - id: bielik-11b-sherlock
+    backend: sherlock
+    base_url: https://api-sherlock.cloudferro.com/openai/v1
+    model: speakleash/Bielik-11B-v3.0-Instruct
+    api_key_env: SHERLOCK_API_KEY
+    license: Apache-2.0
+    license_source: https://huggingface.co/speakleash/Bielik-11B-v3.0-Instruct
+    license_verified: true
+    open_weights: true        # repo HF "gated" (akceptacja warunków), licencja Apache-2.0
+    weights_url: https://huggingface.co/speakleash/Bielik-11B-v3.0-Instruct
+    params_b: 11
+    quantization: null
+    context: null             # niezweryfikowane
+    notes: Polski model; ten sam klucz Sherlock co PLLuM.
+
+  # --- Qwen3 (Alibaba) ---
+  - id: qwen3-4b-ollama
+    backend: ollama
+    base_url_env: OLLAMA_BASE_URL
+    base_url: http://ollama:11434/v1
+    model: qwen3:4b
+    license: Apache-2.0
+    license_source: https://huggingface.co/Qwen/Qwen3-4B
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/Qwen/Qwen3-4B
+    params_b: 4
+    quantization: Q4_K_M
+    context: 32768
+    notes: Tryb "thinking" domyślnie włączony — może wydłużać odpowiedź / psuć JSON (wyłączenie /no_think).
+
+  - id: qwen3-8b-ollama
+    backend: ollama
+    base_url_env: OLLAMA_BASE_URL
+    base_url: http://ollama:11434/v1
+    model: qwen3:8b
+    license: Apache-2.0
+    license_source: https://huggingface.co/Qwen/Qwen3-8B
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/Qwen/Qwen3-8B
+    params_b: 8.2
+    quantization: Q4_K_M
+    context: 32768
+    notes: Jak 4B, tryb thinking.
+
+  # --- gpt-oss (OpenAI, otwarte wagi) ---
+  - id: gpt-oss-20b-ollama
+    backend: ollama
+    base_url_env: OLLAMA_BASE_URL
+    base_url: http://ollama:11434/v1
+    model: gpt-oss:20b
+    license: Apache-2.0
+    license_source: https://huggingface.co/openai/gpt-oss-20b
+    license_verified: true
+    open_weights: true
+    weights_url: https://huggingface.co/openai/gpt-oss-20b
+    params_b: 21              # MoE, 3.6B aktywnych
+    quantization: MXFP4       # ok. 14 GB — na 16 GB RAM na granicy
+    context: 131072
+    notes: Model reasoningowy; na CPU wolny mimo MoE.
