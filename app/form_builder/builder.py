@@ -10,6 +10,7 @@ import uuid
 from html import escape
 from pathlib import Path
 
+from app.form_builder.cleanup import tidy
 from app.form_builder.draft import Draft
 from app.form_builder.enrich import dictionary, enrich
 
@@ -54,6 +55,8 @@ class _Builder:
         self.local: dict[tuple[str, str], str] = {}  # (techName sekcji, label) -> ścieżka; ma pierwszeństwo
         self.prefilled: set[str] = set()  # klucze danych inicjalnych już użyte (tylko pierwsze pole = wnioskodawca)
         self.negate: dict[str, tuple[str, str]] = {}  # ścieżka pola słownikowego -> (opcja domyślna, druga opcja ze szkicu)
+        self.by_option: dict[str, str] = {}  # opcja -> ścieżka pierwszego pola wyboru z tą opcją
+        self.notes: list[str] = []  # co builder poprawił / pominął (trace)
         self.sec = None  # bieżąca sekcja szkicu
 
     def tech(self, label: str, fallback: str) -> str:
@@ -70,14 +73,21 @@ class _Builder:
         out = {
             "id": _uid(), "type": t, "techName": self.tech(f.label, t.lower()),
             "title": "" if text_only else f.label,
-            "description": _html(f.label) if t == "TEXT_BLOCK" else (_html(f.hint) if f.hint else ""),
+            # LLM wkłada treść bloku do default, a label bywa tylko tytułem -> oba do description
+            "description": _html(f"{f.label}\n{f.default}") if t == "TEXT_BLOCK" else (_html(f.hint) if f.hint else ""),
             "options": [{"id": o, "name": o, "techName": slug(o) or f"opcja_{i}"} for i, o in enumerate(f.options)] if t in CHOICE else [],
-            "validation": (["REQUIRED"] if f.required else []) + [v for v in f.validators if v != "REQUIRED"],
-            "readOnly": f.read_only, "repeatingSectionGrid": [],
+            "validation": [] if t == "TEXT_BLOCK" else (["REQUIRED"] if f.required else []) + [v for v in f.validators if v != "REQUIRED"],
+            "readOnly": f.read_only and t != "TEXT_BLOCK", "repeatingSectionGrid": [],
         }
-        if f.default:
+        if f.default and not text_only:
             out["defaultValue"] = [f.default] if t in CHOICE else f.default  # reguły: "defaultValue": [] dla list
         enrich(out, f, self.prefilled, self.sec.title, self.sec.repeating)
+        # readOnly bez wartości = pole nie do wypełnienia (blokuje wysyłkę); NUMBER tylko z danych inicjalnych
+        prefilled = out.get("defaultValueType") == "EXTERNAL_SYSTEM"
+        if out["readOnly"] and not (prefilled or (out.get("defaultValue") and out["type"] != "NUMBER")):
+            out["readOnly"] = False
+        if out["type"] == "SELECT" and len(out["options"]) > 15:
+            out["searchEnabled"] = True
         if t == "CONSENT_SECTION":
             out["consentSectionConfig"] = {"consents": [{"description": _html(f.label), "required": f.required}], "files": []}
         out |= {"states": [], "questionOrder": order, "tooltipMessage": ""}
@@ -95,9 +105,13 @@ class _Builder:
                 self.paths[f.label] = path
                 if t in CHOICE:
                     self.choice.add(f.label)
+            if t in CHOICE:
+                for o in f.options:  # show_if bywa na opcję zamiast labela pola
+                    self.by_option.setdefault(o, path)
         return out
 
     def build(self, draft: Draft) -> dict:
+        draft = tidy(draft, self.notes)
         tabs = []
         for page in draft.pages:
             questions, y = [], 0
@@ -129,8 +143,12 @@ class _Builder:
         if not tabs:
             raise ValueError("szkic nie zawiera żadnego pola - nie da się zbudować formularza")
         for target, cond, sec_tech in self.pending:
-            path = self.local.get((sec_tech, cond.field)) or self.paths.get(cond.field)
-            if not path:  # nieznany label sterujący -> pole zawsze widoczne
+            path = (self.local.get((sec_tech, cond.field)) or self.paths.get(cond.field)
+                    or self.by_option.get(cond.equals) or self.by_option.get(cond.field))
+            if not path:  # nieznany label sterujący -> pole zawsze widoczne, więc nie może być wymagane
+                for x in [target] + [q["field"] for q in target["repeatingSectionGrid"]]:
+                    x["validation"] = [v for v in x["validation"] if v != "REQUIRED"]
+                self.notes.append(f"show_if: nie znaleziono pola {cond.field!r} dla {target['title']!r}, warunek pominięty, zdjęto REQUIRED")
                 continue
             neg = self.negate.get(path)
             if neg and cond.equals == neg[1]:
@@ -140,7 +158,7 @@ class _Builder:
             target["states"].append({"type": "SHOW", "query": query})
         finish = {
             "id": _uid(), "type": "TEXT_BLOCK", "techName": self.tech("podglad", "podglad"), "title": "",
-            "description": _html(draft.finish_text or FINISH_TEXT), "options": [], "validation": [],
+            "description": _html(FINISH_TEXT), "options": [], "validation": [],
             "readOnly": False, "repeatingSectionGrid": [], "states": [], "questionOrder": 0, "tooltipMessage": "",
         }
         finish_sec = {
@@ -154,8 +172,13 @@ class _Builder:
         return {"title": draft.title, "tabs": tabs, "flow": {"links": links}}
 
 
-def build(draft: Draft) -> dict:
-    return _Builder().build(draft)
+def build(draft: Draft, notes: list | None = None) -> dict:
+    """`notes` (opcjonalnie) dostaje listę poprawek sprzątania i pominiętych warunków."""
+    b = _Builder()
+    form = b.build(draft)
+    if notes is not None:
+        notes += b.notes
+    return form
 
 
 if __name__ == "__main__":

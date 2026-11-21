@@ -19,7 +19,17 @@ registry_sources: [PESEL, PESEL_ADDRESS]
 
 # prefill z reguł tylko dla danych wnioskodawcy: pomijamy sekcje o innych osobach i sekcje powtarzalne,
 # a każdy klucz dostaje tylko pierwsze pasujące pole w formularzu
-prefill_skip_sections: "pelnomocni|innej osoby|inna osoba|wspol|malzon|dziec|zmarl|spadko|reprezent|podmiot|siedzib"
+# "Adres zamieszkania / siedziby" to adres wnioskodawcy -> lookbehind, żeby go nie pominąć
+prefill_skip_sections: "pelnomocni|innej osoby|inna osoba|wspol|malzon|dziec|zmarl|spadko|reprezent|podmiot|(?<!zamieszkania )siedzib|korespondenc|sportowc|kandydat|podopieczn|odpowiedzialn|wykonawc"
+
+# F-15: sprzątanie szkicu LLM (app/form_builder/cleanup.py), regexy na znormalizowanym labelu / tytule sekcji
+cleanup:
+  # pola papierowe: podpis i data nadaje system, "wypełnia organ" i instrukcje nie należą do e-formularza
+  drop: "^(czytelny |wlasnoreczny )?podpis|^data (i )?podpis|pieczat|data (zlozenia|sporzadzenia|wypelnienia)|miejscowosc i data|wypelnia (organ|urzad|pracownik)|^(nr|numer) sprawy|instrukcj|podstawa prawna|(wielkimi|drukowanymi) literami"
+  # oświadczenia i zgody -> CONSENT_SECTION (standard zabrania checkboxów na zgody)
+  consent: "^(oswiadczam|wyrazam zgode|zgoda na|zapoznal(em|am)|potwierdzam|akceptuje|jestem swiadom)"
+  # kwoty i miary -> NUMBER
+  number: "\\b(kwota|kwoty|wysokosc|suma|razem|liczba|ilosc|powierzchnia|dlugosc|szerokosc)\\b"
 
 rules:
   # --- słowniki (convert: TEXT_FIELD -> SELECT dozwolone; false = tylko gdy szkic już dał SELECT)
@@ -29,12 +39,15 @@ rules:
   - {match: "^miejscowosc$", dictionary: TERYT_4G_DOWODOWY, convert: false}
   - {match: "kierunkow|prefiks", dictionary: Numery kierunkowe}
   # --- walidatory (+ dane inicjalne)
-  - {match: "\\bpesel\\b", validators: [PESEL], prefill: PESEL.pesel}
+  # prefill tylko przy zakotwiczonym labelu ("E-mail osoby odpowiedzialnej" to nie wnioskodawca), walidator zawsze
+  - {match: "^(numer )?pesel$", validators: [PESEL], prefill: PESEL.pesel}
+  - {match: "\\bpesel\\b", validators: [PESEL]}
   - {match: "\\bnip\\b", validators: [NIP]}
   - {match: "\\bregon\\b", validators: [REGON]}
   - {match: "e doreczen|doreczen elektronicznych", validators: [ADE]}
   - {match: "\\bepuap\\b", validators: [EPUAP]}
-  - {match: "\\be ?mail\\b|poczty elektronicznej", validators: [EMAIL], prefill: MLPZ.email}
+  - {match: "^(adres )?(e ?mail|poczty elektronicznej)$", validators: [EMAIL], prefill: MLPZ.email}
+  - {match: "\\be ?mail\\b|poczty elektronicznej", validators: [EMAIL]}
   - {match: "^kod pocztowy$", validators: [ZIP_CODE], prefill: MLPZ.postCode}
   - {match: "dowodu osobistego|seria i numer dowodu", validators: [SERIAL_NUMBER_ID_CARD]}
   # --- dane inicjalne (readOnly jak w przykładach: imię/nazwisko tak, adres/kontakt edytowalne)
@@ -46,7 +59,7 @@ rules:
   - {match: "^miejsce urodzenia$", prefill: PESEL.birthPlace}
   - {match: "^imie ojca$", prefill: PESEL.fatherName}
   - {match: "^imie matki$", prefill: PESEL.motherName}
-  - {match: "^(numer |nr )?telefonu?\\b", prefill: MLPZ.phoneNumber}
+  - {match: "^(numer |nr )?telefonu?( kontaktowy| kontaktowego| komorkowy| komorkowego)?$", prefill: MLPZ.phoneNumber}
   - {match: "^ulica$", prefill: MLPZ.street}
   - {match: "^(numer|nr) (budynku|domu)$", prefill: MLPZ.building}
   - {match: "^(numer|nr) (lokalu|mieszkania)$", prefill: MLPZ.apartment}

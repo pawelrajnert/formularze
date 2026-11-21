@@ -14,13 +14,13 @@ class ConversionError(Exception):
 def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "") -> dict:
     text = extract_text(data, ext)
     s = config.settings
-    draft, reason, errs = None, "", []
+    draft, reason, errs, notes = None, "", [], []
     if not (s.llm_base_url and s.llm_api_key and s.llm_model):
         reason = "brak konfiguracji LLM"
     else:
         try:
             draft = llm_draft(text)
-            form = build(draft)
+            form = build(draft, notes)
             errs = check(form)  # w trace zostają błędy szkicu LLM, nawet po fallbacku
             if errs:
                 reason, draft = f"walidacja odrzuciła szkic LLM ({len(errs)} błędów)", None
@@ -28,11 +28,11 @@ def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "") -
             reason, draft = f"LLM: {type(e).__name__}: {e}"[:300], None
     source = "llm" if draft else "heuristic"
     if draft is None:
-        draft = heuristic_draft(text, title_hint)
-        form = build(draft)
+        draft, notes = heuristic_draft(text, title_hint), []
+        form = build(draft, notes)
         if h_errs := check(form):
             raise ConversionError(f"Formularz nie przeszedł walidacji: {'; '.join(h_errs[:5])}")
     if not debug:
         return {"form": form}
     return {"form": form, "draft": draft.model_dump(), "trace": {
-        "source": source, "reason": reason, "text_chars": len(text), "rules_errors": errs}}
+        "source": source, "reason": reason, "text_chars": len(text), "rules_errors": errs, "cleanup": notes}}

@@ -1,6 +1,7 @@
 """F-08: wzbogacenie zbudowanego pola wg config/field_rules.yaml: słownik, dane inicjalne, walidatory.
 
 Jawne ustawienia ze szkicu (validators, dictionary, prefill, default) wygrywają; reguły tylko uzupełniają.
+Wyjątek: prefill (jawny też) tylko w sekcjach wnioskodawcy i tylko raz na klucz.
 """
 import re
 import unicodedata
@@ -50,10 +51,10 @@ def enrich(out: dict, f, used: set, section: str, repeating: bool) -> None:
         return
     if out["type"] == "TEXT_FIELD":
         out["validation"] += [v for v in r.get("validators", []) if v not in out["validation"]]
-    key = f.prefill
-    if not key and r.get("prefill") and r["prefill"] not in used and not (
-            f.default or repeating or SKIP_SECTIONS.search(norm(section))):
-        key = r["prefill"]
+    # jawny prefill ze szkicu też tylko dla wnioskodawcy (LLM wpisywał MLPZ/PESEL w dane sportowca, osoby odpowiedzialnej)
+    key = f.prefill or ("" if f.default else r.get("prefill", ""))
+    if key in used or repeating or SKIP_SECTIONS.search(norm(section)):
+        key = ""
     src = key.split(".")[0]
     if key and src in CFG["sources"] and out["type"] in ("TEXT_FIELD", "DATEPICKER"):
         used.add(key)
