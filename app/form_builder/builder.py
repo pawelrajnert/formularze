@@ -121,7 +121,7 @@ class _Builder:
             "validation": [] if t == "TEXT_BLOCK" else (["REQUIRED"] if f.required else []) + [v for v in f.validators if v != "REQUIRED"],
             "readOnly": f.read_only and t != "TEXT_BLOCK", "repeatingSectionGrid": [],
         }
-        if f.default and not text_only:
+        if f.default and not text_only and t != "NUMBER":  # reguły techniczne: NUMBER nie ma defaultValue
             out["defaultValue"] = [f.default] if t in CHOICE else f.default  # reguły: "defaultValue": [] dla list
         enrich(out, f)
         # readOnly bez wartości = pole nie do wypełnienia (blokuje wysyłkę); NUMBER tylko z danych inicjalnych
