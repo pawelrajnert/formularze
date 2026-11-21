@@ -91,3 +91,35 @@ def test_contract_imports():
     from hackcore.document import source_format
     assert source_format("x.JPE") == "jpg" and source_format("a.DOC") == "doc"
     assert callable(load_document)
+
+
+# --- X-11: okno limitu zapytań + ucięta odpowiedź --------------------------------------------------------------
+def test_rate_window_waits_exactly_until_oldest_request_expires():
+    from hackcore.llm import RateWindow
+    w = RateWindow()
+    w.record(100.0)
+    w.record(110.0)
+    assert w.wait_before(115.0) == 0.0          # limit jeszcze nieznany -> bez proaktywnego czekania
+    w.learn({"x-ratelimit-limit-req-minute": "2"})
+    assert w.wait_before(115.0) == pytest.approx(45.5)   # 100 + 60 + 0.5 - 115
+    assert w.wait_before(161.0) == 0.0          # najstarsze wypadło z okna
+    assert w.wait_after_429(120.0, fallback=31) == pytest.approx(50.5)  # 100 już wypadło -> 110 + 60.5 - 120
+
+
+def test_rate_window_429_without_history_uses_fallback():
+    from hackcore.llm import RateWindow
+    assert RateWindow().wait_after_429(0.0, fallback=31) == 31
+
+
+def test_rate_window_shared_per_endpoint_and_key():
+    a, b = LLMClient("http://w/v1", "k1", "m1"), LLMClient("http://w/v1/", "k1", "m2")
+    assert a.window is b.window                 # różne modele, ten sam klucz -> ten sam limit
+    assert LLMClient("http://w/v1", "k2", "m1").window is not a.window
+
+
+def test_truncated_output_not_retried():
+    from hackcore.llm import TruncatedOutput
+    c, calls = _client([TruncatedOutput("ucięte"), '{"items": []}'])
+    with pytest.raises(LLMError, match="ucięta|ucięte"):
+        c.complete_model("s", "u", Box)
+    assert len(calls) == 1                      # bez ponowienia (temperature=0 dałoby to samo)
