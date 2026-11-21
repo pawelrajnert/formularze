@@ -6,13 +6,15 @@ Zwraca kopię szkicu; każda zmiana trafia do `notes` (trace w /convert?debug=tr
 """
 import re
 
-from app.form_builder.draft import Draft
+from app.form_builder.draft import Draft, DraftField, DraftSection
 from app.form_builder.enrich import CFG, dictionary, norm
 
 C = CFG["cleanup"]
 DROP = re.compile(C["drop"])
 CONSENT = re.compile(C["consent"])
 NUMBER = re.compile(C["number"])
+ADDRESS, ADDRESS_HINT = re.compile(C["address"]), re.compile(C["address_hint"])
+ADDRESS_PARTS = [("Ulica", True), ("Numer budynku", True), ("Numer lokalu", False), ("Kod pocztowy", True), ("Miejscowość", True)]
 S = {k: re.compile(v) for k, v in CFG["standard"].items()}
 
 
@@ -44,6 +46,7 @@ def tidy(draft: Draft, notes: list) -> Draft:
             sec.fields = kept
             if kept:
                 kept_secs.append(sec)
+            kept_secs += _split_addresses(sec, notes)
         page.sections = kept_secs
     d.pages = [p for p in d.pages if p.sections]
     return d
@@ -77,3 +80,22 @@ def _fix_type(f, sec_title: str, notes: list) -> None:
         f.default = ""  # "0 zł" itp. -> pole do wpisania
     if f.type != before:
         notes.append(f"{f.label!r}: {before} -> {f.type}")
+
+
+def _split_addresses(sec: DraftSection, notes: list) -> list[DraftSection]:
+    """Adres w jednym polu -> osobna sekcja z grupą pól (tytuł = label, ten sam show_if) wstawiana za `sec`.
+    Gdy adres był jedynym polem sekcji, grupa zastępuje go w miejscu."""
+    out = []
+    for f in list(sec.fields):
+        if f.type not in ("TEXT_FIELD", "TEXTAREA") or not (ADDRESS.search(norm(f.label)) or ADDRESS_HINT.search(norm(f.hint))):
+            continue
+        parts = [DraftField(label=label, type="TEXT_FIELD", required=f.required and req) for label, req in ADDRESS_PARTS]
+        notes.append(f"pole zbiorcze {f.label!r} rozbite na grupę adresową")
+        if len(sec.fields) == 1:
+            sec.fields = parts
+            if f.show_if and not sec.show_if:
+                sec.show_if = f.show_if
+            break
+        sec.fields.remove(f)
+        out.append(DraftSection(title=f.label, repeating=sec.repeating, fields=parts, show_if=f.show_if or sec.show_if))
+    return out

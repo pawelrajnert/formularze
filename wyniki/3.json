@@ -2,7 +2,7 @@
   "title": "Wniosek o wydanie zaświadczenia o użytkach rolnych i gospodarstwie rolnym",
   "tabs": [
     {
-      "id": "312500f8-ce43-4cd9-9759-abb413aa2949",
+      "id": "58647834-55cb-4179-a7c8-928b0f59baa2",
       "title": "Dane",
       "type": "MAIN",
       "questions": [
@@ -12,7 +12,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "504d13df-b954-431d-9ea6-e983a81aa04c",
+            "id": "d6f11a94-79d6-470f-bf29-43edd7af4ee9",
             "type": "SECTION",
             "techName": "organ_do_ktorego_jest_skladany_wniosek",
             "title": "Organ, do którego jest składany wniosek",
@@ -27,7 +27,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "9b59cbb9-a9ed-469f-a9e6-9d9f7bed0b49",
+                  "id": "480e4f3d-981f-4a0c-89df-6f12771003ca",
                   "type": "TEXT_FIELD",
                   "techName": "nazwa_organu",
                   "title": "Nazwa organu",
@@ -54,7 +54,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "15664a68-9bf5-4008-9871-7d8f5cf8e53b",
+            "id": "f82c7df1-5ce6-4a24-9e05-400299a43537",
             "type": "SECTION",
             "techName": "podmiot_wniosku",
             "title": "Podmiot wniosku",
@@ -69,7 +69,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "05056006-f638-4c3b-9295-e3e5a9cdd4a7",
+                  "id": "aad4e6a1-be60-4e76-909b-ab009f352112",
                   "type": "RADIO",
                   "techName": "wybierz_w_czyim_imieniu_wnioskujesz",
                   "title": "Wybierz, w czyim imieniu wnioskujesz",
@@ -106,7 +106,7 @@
           "rows": 4,
           "cols": 3,
           "field": {
-            "id": "0a4717ec-eb76-453f-9bd5-014f65ed1e55",
+            "id": "75f66bc2-adce-4f84-beb6-c6e93dede856",
             "type": "SECTION",
             "techName": "twoje_dane",
             "title": "Twoje dane",
@@ -121,7 +121,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "40519d07-cbb8-4f5e-943b-a202ec040d9f",
+                  "id": "023b8a68-3e7c-4b89-9eed-f1d5c10ff758",
                   "type": "TEXT_FIELD",
                   "techName": "nazwisko",
                   "title": "Nazwisko",
@@ -143,7 +143,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "4d448b73-a2b5-4a22-baf8-542cd988e4ef",
+                  "id": "28a8e32d-cf23-45a8-9083-f8aa821adc14",
                   "type": "TEXT_FIELD",
                   "techName": "imie",
                   "title": "Imię",
@@ -165,7 +165,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "9bf38219-1696-4f81-801e-68874413e3ba",
+                  "id": "cc9ae451-99d2-42aa-9573-d48bc36fcca9",
                   "type": "TEXT_FIELD",
                   "techName": "numer_pesel",
                   "title": "Numer PESEL",
@@ -193,7 +193,7 @@
           "rows": 10,
           "cols": 3,
           "field": {
-            "id": "320e7ebc-dcb6-481c-b58f-e427f7803f37",
+            "id": "d228383a-712f-43c5-a710-8c76d7aa52e9",
             "type": "SECTION",
             "techName": "adres_zamieszkania",
             "title": "Adres zamieszkania",
@@ -208,7 +208,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b0914304-362a-4ca8-8967-3d59833db40e",
+                  "id": "3abf2d48-89c3-4323-8688-e45256237bed",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy",
                   "title": "Kod pocztowy",
@@ -235,7 +235,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "54202242-ea0e-4dff-9a43-9769f3579998",
+                  "id": "d4a7d998-53c4-41dd-8bc0-9311434a93e8",
                   "type": "TEXT_FIELD",
                   "techName": "ulica",
                   "title": "Ulica",
@@ -262,7 +262,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "6149def2-2f96-4d43-bfd1-75239d6a3ac1",
+                  "id": "7ce948bf-4032-490e-b652-cd7d89308a84",
                   "type": "SELECT",
                   "techName": "wojewodztwo",
                   "title": "TERYT_4G_DOWODOWY",
@@ -291,7 +291,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "564de17f-144e-41d0-85dc-e9018689aa4e",
+                  "id": "80c7c797-9b44-4980-a9a8-f71ec992f8b5",
                   "type": "TEXT_FIELD",
                   "techName": "numer_budynku",
                   "title": "Numer budynku",
@@ -313,7 +313,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "3d7c543e-8b98-4a6f-b3ae-6df4a33c1fb3",
+                  "id": "44c793b3-fe91-43ee-942c-0487a071c198",
                   "type": "TEXT_FIELD",
                   "techName": "ulica_zagranica",
                   "title": "Ulica",
@@ -338,7 +338,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "52f045e1-974e-41b8-a767-c8621715bb30",
+                  "id": "6e1fa2e2-f5a9-4532-9e87-97f976e963b2",
                   "type": "TEXT_FIELD",
                   "techName": "miejscowosc_zagranica",
                   "title": "Miejscowość",
@@ -363,7 +363,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "a6a6f124-705a-4eda-a6fc-5ced81fe65bf",
+                  "id": "29c90289-9d11-4e73-9efa-3d42bc13d561",
                   "type": "SELECT",
                   "techName": "kraj",
                   "title": "Kraj",
@@ -389,7 +389,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "42e55169-a5e1-43f3-83ea-be6659a414af",
+                  "id": "db6b5140-4ec6-498a-84ea-f779db31ce28",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy_zagranica",
                   "title": "Kod pocztowy",
@@ -414,7 +414,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "8f104903-00ce-4be0-a39c-9fb9a99b7ca0",
+                  "id": "2aa17d94-14b6-4d79-9ca7-ee987fb7caea",
                   "type": "TEXT_FIELD",
                   "techName": "numer_lokalu",
                   "title": "Numer lokalu",
@@ -442,7 +442,7 @@
           "rows": 3,
           "cols": 3,
           "field": {
-            "id": "eec563e9-4c63-4037-977d-fa7e55f58716",
+            "id": "7b963440-2fa1-44fd-849d-c8b729ee1fe9",
             "type": "SECTION",
             "techName": "dane_innej_osoby",
             "title": "Dane innej osoby",
@@ -457,7 +457,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "7e9a6aad-6ecd-49e5-893f-2091addd72da",
+                  "id": "69e8ed07-2c6a-4042-a31c-b249b4bfd626",
                   "type": "TEXT_FIELD",
                   "techName": "nazwisko_inna_osoba",
                   "title": "Nazwisko",
@@ -477,7 +477,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "4d9f56fb-d57a-4232-8248-4354c2d21ba8",
+                  "id": "53fe6d42-cf32-40d2-a4e6-f469080129ad",
                   "type": "TEXT_FIELD",
                   "techName": "imie_inna_osoba",
                   "title": "Imię",
@@ -508,7 +508,7 @@
           "rows": 10,
           "cols": 3,
           "field": {
-            "id": "28a26d46-6338-48cd-a331-5117872de7c0",
+            "id": "5c2151c6-c8a1-4732-aa22-0acba1ca5216",
             "type": "SECTION",
             "techName": "adres_zamieszkania_osoby_ktorej_jestes_pelnomocnikiem",
             "title": "Adres zamieszkania innej osoby",
@@ -523,7 +523,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "563cd2a7-2ca4-4a93-9bcb-935481cda218",
+                  "id": "47519704-bf93-497c-8405-f978f6d92fdd",
                   "type": "TEXT_FIELD",
                   "techName": "numer_budynku_inna_osoba",
                   "title": "Numer budynku",
@@ -543,7 +543,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "4b55bd82-2a33-4b17-bde2-6f1a1bdf75ba",
+                  "id": "2d98b4e0-9270-43ce-bbbd-00043a2080ec",
                   "type": "TEXT_FIELD",
                   "techName": "ulica_inna_osoba_zagranica",
                   "title": "Ulica",
@@ -568,7 +568,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "c77c2b97-35a3-4057-b1f9-4d79c8fcfdec",
+                  "id": "836f4a7c-fb69-4d81-9805-9cb56281adf1",
                   "type": "TEXT_FIELD",
                   "techName": "numer_lokalu_inna_osoba",
                   "title": "Numer lokalu",
@@ -588,7 +588,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "02cce4e2-9705-4adf-b02a-b8a73ae2dbef",
+                  "id": "b939cf6b-d23a-47bb-bce1-244d21189237",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy_inna_osoba_zagranica",
                   "title": "Kod pocztowy",
@@ -613,7 +613,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "bea6a24c-c1b1-4446-a8fd-6792193c6d1b",
+                  "id": "feb6180e-c985-4aaf-8581-827cffa6e08c",
                   "type": "SELECT",
                   "techName": "kraj_inna_osoba",
                   "title": "Kraj",
@@ -638,7 +638,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "31d6aec5-4a39-4c38-8e1d-e6882fb31131",
+                  "id": "91ec5490-f02a-4a78-9a35-6fe41323f54b",
                   "type": "SELECT",
                   "techName": "wojewodztwo_inna_osoba",
                   "title": "TERYT_4G_DOWODOWY",
@@ -665,7 +665,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "e3c6ac4b-06cb-43f6-8e3d-067750c1e413",
+                  "id": "ee9e25ab-350f-4f43-b828-ba297173ba25",
                   "type": "TEXT_FIELD",
                   "techName": "kod_pocztowy_inna_osoba",
                   "title": "Kod pocztowy",
@@ -690,7 +690,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b6ba6391-9eea-480e-a2aa-034d5ad67f0f",
+                  "id": "b2f09b22-04ca-4220-a624-3a566b1a3227",
                   "type": "TEXT_FIELD",
                   "techName": "miejscowosc_inna_osoba_zagranica",
                   "title": "Miejscowość",
@@ -715,7 +715,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "06a323e0-ba17-4743-bbe8-1f513b4fbc68",
+                  "id": "272b70d4-4a17-4912-8072-68b6131cec5f",
                   "type": "TEXT_FIELD",
                   "techName": "ulica_inna_osoba",
                   "title": "Ulica",
@@ -751,7 +751,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "8a5e370e-82f9-46ff-bedb-73fad48aeba8",
+            "id": "ab126ba8-f8af-4c5f-af47-3f9ae5084dc3",
             "type": "SECTION",
             "techName": "pelnomocnictwo",
             "title": "Pełnomocnictwo",
@@ -766,7 +766,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "467a0cd0-920f-43d6-a94e-e718b721da32",
+                  "id": "85c1862e-1b02-4adf-b2df-0bf17c1a9eb5",
                   "type": "FILE_UPLOADER",
                   "techName": "plik_dokumentu_z_pelnomocnictwem",
                   "title": "Plik dokumentu z pełnomocnictwem",
@@ -797,7 +797,7 @@
           "rows": 4,
           "cols": 3,
           "field": {
-            "id": "36d02422-e158-4c8c-b649-35a2d3754363",
+            "id": "07fee88e-0c42-4cf8-8e91-7e3b77d1a57f",
             "type": "SECTION",
             "techName": "oplata_skarbowa_pelnomocnictwo_1",
             "title": "Opłata skarbowa",
@@ -812,7 +812,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "29659c6b-74bd-45bc-aace-5366c679384b",
+                  "id": "9335b573-c00a-4e74-9b84-7f01cd3a2e6c",
                   "type": "RADIO",
                   "techName": "czy_zlozenie_pelnomocnictwa_wymaga_oplaty_skarbowej",
                   "title": "Czy złożenie pełnomocnictwa wymaga opłaty skarbowej?",
@@ -843,7 +843,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "da083247-3f67-4f48-a5ee-f2c960167109",
+                  "id": "e5976b2e-aec1-4b1d-bbed-ed09e2b34e2e",
                   "type": "TEXT_BLOCK",
                   "techName": "oplata_info_1",
                   "title": "",
@@ -868,7 +868,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "2932d38b-ca5b-4107-a8f2-3fe516303c0f",
+                  "id": "e435fc70-193c-4494-aaba-89d77bccf8be",
                   "type": "FILE_UPLOADER",
                   "techName": "plik_z_potwierdzeniem_przelewu",
                   "title": "Plik z potwierdzeniem przelewu",
@@ -904,7 +904,7 @@
           "rows": 3,
           "cols": 3,
           "field": {
-            "id": "664a45c2-3d45-4c39-b33b-1ec9cb9f6d87",
+            "id": "87d08b6e-ab2b-4da8-a006-48fb41ee274e",
             "type": "SECTION",
             "techName": "oplata_skarbowa",
             "title": "Opłata skarbowa",
@@ -919,11 +919,11 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "80e4c6e6-32c0-43c7-a26e-25d34b159a8b",
+                  "id": "576066ae-47b4-432d-93d7-90f32fb4a2b4",
                   "type": "TEXT_BLOCK",
                   "techName": "oplata_skarbowa_info",
                   "title": "",
-                  "description": "<html><head></head><body><p>17 zł od każdego egzemplarza zaświadczenia (opłata skarbowa, uiszczona przed złożeniem wniosku)</p></body></html>",
+                  "description": "<html><head></head><body><p>17 zł od każdego egzemplarza zaświadczenia (opłata skarbowa)</p></body></html>",
                   "options": [],
                   "validation": [],
                   "readOnly": false,
@@ -939,7 +939,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "1bae3da3-0b32-4c4c-a127-7ef0cfcfc2a7",
+                  "id": "3829b488-cf1a-4b72-bcd8-1294cab5b3b9",
                   "type": "FILE_UPLOADER",
                   "techName": "plik_z_potwierdzeniem_oplaty",
                   "title": "Plik z potwierdzeniem przelewu",
@@ -962,7 +962,7 @@
       ]
     },
     {
-      "id": "680e36d8-f1f3-4ce5-9f67-439f5b580d89",
+      "id": "7425bb56-e4d9-4d16-8a25-c19e0814270b",
       "title": "Informacje o użytkach rolnych i gospodarstwie",
       "type": "MAIN",
       "questions": [
@@ -972,7 +972,7 @@
           "rows": 4,
           "cols": 3,
           "field": {
-            "id": "2531041f-1dd9-4e7e-9c21-06a6a48ec4e0",
+            "id": "6df9ca92-faf7-46ac-988b-f024bd50fe69",
             "type": "SECTION",
             "techName": "posiadane_uzytki_rolne",
             "title": "Posiadane użytki rolne",
@@ -987,7 +987,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "34aa9605-83ae-4599-8197-4d64659d0411",
+                  "id": "60493afc-2cfa-417d-a989-df506ce76c92",
                   "type": "RADIO",
                   "techName": "posiadam_uzytki_rolne",
                   "title": "Posiadam użytki rolne",
@@ -1018,7 +1018,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "42629f75-efe0-409a-8a9d-7c2e2c45579a",
+                  "id": "32a70608-863c-4ef9-a450-3750b9ba43b2",
                   "type": "NUMBER",
                   "techName": "ilosc_posiadanych_uzytkow_rolnych_ha_fizyczne",
                   "title": "Ilość posiadanych użytków rolnych (ha fizyczne)",
@@ -1043,7 +1043,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "8596a2e4-3769-47a2-8e88-f51a89836085",
+                  "id": "623bc14b-24b9-4a9f-a847-6a14740f1825",
                   "type": "NUMBER",
                   "techName": "ilosc_posiadanych_uzytkow_rolnych_ha_przeliczeniowe",
                   "title": "Ilość posiadanych użytków rolnych (ha przeliczeniowe)",
@@ -1074,7 +1074,7 @@
           "rows": 4,
           "cols": 3,
           "field": {
-            "id": "963b043f-bea5-4e27-b33c-d4025d02b398",
+            "id": "ace8c9a1-7ed1-4224-8df1-15b06c5330ab",
             "type": "SECTION",
             "techName": "dzierzawione_uzytki_rolne",
             "title": "Dzierżawione użytki rolne",
@@ -1089,7 +1089,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "77c6d211-373e-4ee2-9a1c-735e2a4e5d38",
+                  "id": "fc99a4e2-a3d3-42fd-8ea7-cfad03822a20",
                   "type": "RADIO",
                   "techName": "dzierzawie_uzytki_rolne",
                   "title": "Dzierżawię użytki rolne",
@@ -1120,7 +1120,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "bd614e83-7ae7-4c3a-b0f5-d739362bac9d",
+                  "id": "9187c653-44cd-4ca2-8e1a-b8c1ce5bcb61",
                   "type": "NUMBER",
                   "techName": "ilosc_dzierzawionych_uzytkow_rolnych_ha_fizyczne",
                   "title": "Ilość dzierżawionych użytków rolnych (ha fizyczne)",
@@ -1145,7 +1145,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "ef39da68-5d21-4217-82b4-ce6c2c229980",
+                  "id": "caa61706-4367-4298-86cf-9e117b16a824",
                   "type": "NUMBER",
                   "techName": "ilosc_dzierzawionych_uzytkow_rolnych_ha_przeliczeniowe",
                   "title": "Ilość dzierżawionych użytków rolnych (ha przeliczeniowe)",
@@ -1176,7 +1176,7 @@
           "rows": 4,
           "cols": 3,
           "field": {
-            "id": "b200502d-09e8-4a96-92e5-5db3c66f3d46",
+            "id": "7399e6f6-c757-4936-9606-231599ca2008",
             "type": "SECTION",
             "techName": "gospodarstwo_rolne",
             "title": "Gospodarstwo rolne",
@@ -1191,7 +1191,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "283266d7-9d2e-4197-8e74-709556a101f1",
+                  "id": "3208d259-c6d9-4ac9-a5da-b7df54e3b2b4",
                   "type": "RADIO",
                   "techName": "posiadam_gospodarstwo_rolne",
                   "title": "Posiadam gospodarstwo rolne",
@@ -1222,7 +1222,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "b8988dda-70cb-416b-bb33-a268c88f0904",
+                  "id": "0fd1dd65-82eb-4814-b0b2-d27737795ea6",
                   "type": "DATEPICKER",
                   "techName": "okres_posiadania_gospodarstwa_rolnego_od",
                   "title": "Okres posiadania gospodarstwa rolnego (od)",
@@ -1247,7 +1247,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "416ab2ee-b23d-4a40-8b88-79a2eab6c754",
+                  "id": "369cdfbd-fc00-441a-9bbe-0fc68c994e6f",
                   "type": "DATEPICKER",
                   "techName": "okres_posiadania_gospodarstwa_rolnego_do",
                   "title": "Okres posiadania gospodarstwa rolnego (do)",
@@ -1278,10 +1278,10 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "e299a3b5-eae5-49cf-a660-4254461e9d00",
+            "id": "b8dbfd36-b6ce-4a9c-aed2-15f6b9cd1e56",
             "type": "SECTION",
-            "techName": "brak_uzytkow_gospodarstwa",
-            "title": "Brak użytków/gospodarstwa",
+            "techName": "inne_informacje",
+            "title": "Inne informacje",
             "description": "<html><head></head><body></body></html>",
             "options": [],
             "validation": [],
@@ -1293,23 +1293,12 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "f07d1ee5-b1d8-4a6e-ac93-c198bb452095",
-                  "type": "RADIO",
-                  "techName": "nie_posiadam_uzytkow_rolnych_ani_gospodarstwa_rolnego_na_ter",
-                  "title": "Nie posiadam użytków rolnych ani gospodarstwa rolnego na terenie Gminy Młynary",
-                  "description": "",
-                  "options": [
-                    {
-                      "id": "Tak",
-                      "name": "Tak",
-                      "techName": "tak"
-                    },
-                    {
-                      "id": "Nie",
-                      "name": "Nie",
-                      "techName": "nie"
-                    }
-                  ],
+                  "id": "6f16db3f-4b3a-4c84-83c3-900052358206",
+                  "type": "TEXTAREA",
+                  "techName": "inne_informacje_2",
+                  "title": "Inne informacje",
+                  "description": "<html><head></head><body><p>Jeśli zaświadczenie dotyczy innych informacji niż wymienione powyżej.</p></body></html>",
+                  "options": [],
                   "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
@@ -1330,53 +1319,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "14bae577-770c-42bb-b445-f00f7e7d6d6f",
-            "type": "SECTION",
-            "techName": "inne_informacje",
-            "title": "Inne informacje",
-            "description": "<html><head></head><body></body></html>",
-            "options": [],
-            "validation": [],
-            "readOnly": false,
-            "repeatingSectionGrid": [
-              {
-                "x": 0,
-                "y": 0,
-                "rows": 1,
-                "cols": 3,
-                "field": {
-                  "id": "e98cfa92-102f-4dc5-a277-a7ae108567ef",
-                  "type": "TEXTAREA",
-                  "techName": "inne_informacje_jesli_dotyczy",
-                  "title": "Inne informacje (jeśli dotyczy)",
-                  "description": "",
-                  "options": [],
-                  "validation": [],
-                  "readOnly": false,
-                  "repeatingSectionGrid": [],
-                  "states": [
-                    {
-                      "type": "SHOW",
-                      "query": "(\"Nie\" in tabs['Informacje o użytkach rolnych i gospodarstwie' in title].questions['brak_uzytkow_gospodarstwa' in field.techName].field.repeatingSectionGrid['nie_posiadam_uzytkow_rolnych_ani_gospodarstwa_rolnego_na_ter' in field.techName].field.__userAnswer)"
-                    }
-                  ],
-                  "questionOrder": 0,
-                  "tooltipMessage": ""
-                }
-              }
-            ],
-            "states": [],
-            "questionOrder": 14,
-            "tooltipMessage": ""
-          }
-        },
-        {
-          "x": 0,
-          "y": 16,
-          "rows": 2,
-          "cols": 3,
-          "field": {
-            "id": "bf0dc2fd-4a59-43cc-bbbc-154afaaa2265",
+            "id": "0328ff80-2054-4b4f-b50f-1d42f3858d56",
             "type": "SECTION",
             "techName": "cel_zaswiadczenia",
             "title": "Cel zaświadczenia",
@@ -1391,15 +1334,13 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "6198fa01-1f5c-4bfa-bfab-63004f9ef885",
+                  "id": "64c36c18-025e-445a-8cba-ae28cada06d7",
                   "type": "TEXT_FIELD",
-                  "techName": "cel_wydania_zaswiadczenia",
-                  "title": "Cel wydania zaświadczenia",
-                  "description": "<html><head></head><body><p>Podaj, gdzie i w jakim celu będzie użyte zaświadczenie (np. &#x27;przedłożenie w banku w celu uzyskania kredytu&#x27;).</p></body></html>",
+                  "techName": "cel_zaswiadczenia_2",
+                  "title": "Cel zaświadczenia",
+                  "description": "<html><head></head><body><p>Podaj, gdzie i w jakim celu będzie potrzebne zaświadczenie.</p></body></html>",
                   "options": [],
-                  "validation": [
-                    "REQUIRED"
-                  ],
+                  "validation": [],
                   "readOnly": false,
                   "repeatingSectionGrid": [],
                   "states": [],
@@ -1409,14 +1350,14 @@
               }
             ],
             "states": [],
-            "questionOrder": 16,
+            "questionOrder": 14,
             "tooltipMessage": ""
           }
         }
       ]
     },
     {
-      "id": "1ceb6636-1a3e-4d66-b701-a637bc7dd470",
+      "id": "ca790437-08dc-40e8-b9e1-b7a1289391c3",
       "title": "Kontakt i zgody",
       "type": "MAIN",
       "questions": [
@@ -1426,7 +1367,7 @@
           "rows": 3,
           "cols": 3,
           "field": {
-            "id": "c89b6195-3457-4035-9c9d-b0595a969452",
+            "id": "e91d9d10-e866-4bb3-888c-330705e17a50",
             "type": "SECTION",
             "techName": "dane_do_kontaktu",
             "title": "Dane do kontaktu",
@@ -1441,7 +1382,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "a6677ddc-84ea-4f1b-8665-8bb19386fbab",
+                  "id": "5506c439-1ac1-4b8c-8cf2-55ac7e30dd4b",
                   "type": "TEXT_FIELD",
                   "techName": "numer_telefonu",
                   "title": "Numer telefonu",
@@ -1463,7 +1404,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "997d1d65-8840-4cbc-a95f-c08f938da271",
+                  "id": "85641873-3cff-4646-aa87-e484b43d2bf1",
                   "type": "TEXT_FIELD",
                   "techName": "adres_e_mail",
                   "title": "Adres e-mail",
@@ -1491,7 +1432,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "664b12ad-1d51-4a56-85ac-43c608e99c30",
+            "id": "ad6879f4-eeb6-4377-acb6-ef4535077231",
             "type": "SECTION",
             "techName": "zgoda_wyrazenie",
             "title": "Zgoda",
@@ -1506,7 +1447,7 @@
                 "rows": 1,
                 "cols": 3,
                 "field": {
-                  "id": "e524a7d6-b5fb-482a-81a8-172a15ff32f1",
+                  "id": "c2980c98-16ea-495c-a805-234fad1c2f63",
                   "type": "CONSENT_SECTION",
                   "techName": "zgoda",
                   "title": "",
@@ -1538,7 +1479,7 @@
       ]
     },
     {
-      "id": "5804223b-ac84-45a1-b1cf-3ca5a7a99479",
+      "id": "bde3b9bb-c624-44d4-abce-76595431523a",
       "title": "Strona końcowa",
       "type": "FINISH",
       "questions": [
@@ -1548,7 +1489,7 @@
           "rows": 2,
           "cols": 3,
           "field": {
-            "id": "5a3b9be3-8113-4237-a6c9-9b7b26c4fbbd",
+            "id": "7f4f6cd6-0fbb-4c80-b860-1f705396f36c",
             "type": "INFO_SECTION",
             "techName": "podglad_uzupelnionego_wniosku",
             "title": "Podgląd uzupełnionego wniosku",
@@ -1568,19 +1509,19 @@
   "flow": {
     "links": [
       {
-        "id": "a62a0666-1a6b-4176-93df-4f60f8f6ae4e",
-        "source": "312500f8-ce43-4cd9-9759-abb413aa2949",
-        "target": "680e36d8-f1f3-4ce5-9f67-439f5b580d89"
+        "id": "f5580a9f-fa4a-4313-96bd-4c687a45ab81",
+        "source": "58647834-55cb-4179-a7c8-928b0f59baa2",
+        "target": "7425bb56-e4d9-4d16-8a25-c19e0814270b"
       },
       {
-        "id": "c14a5d4c-032c-413a-bab6-ea04482513e4",
-        "source": "680e36d8-f1f3-4ce5-9f67-439f5b580d89",
-        "target": "1ceb6636-1a3e-4d66-b701-a637bc7dd470"
+        "id": "2068d3c9-42ce-4505-9dbc-e23cbdc23e63",
+        "source": "7425bb56-e4d9-4d16-8a25-c19e0814270b",
+        "target": "ca790437-08dc-40e8-b9e1-b7a1289391c3"
       },
       {
-        "id": "32cf33df-bad9-47a3-a524-d954e201be41",
-        "source": "1ceb6636-1a3e-4d66-b701-a637bc7dd470",
-        "target": "5804223b-ac84-45a1-b1cf-3ca5a7a99479"
+        "id": "05817d59-bad1-4393-90a6-7fa457a93692",
+        "source": "ca790437-08dc-40e8-b9e1-b7a1289391c3",
+        "target": "bde3b9bb-c624-44d4-abce-76595431523a"
       }
     ]
   }

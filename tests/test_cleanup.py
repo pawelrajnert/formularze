@@ -110,6 +110,34 @@ def test_h_prefill_only_for_applicant():
     assert all("defaultValueType" not in by[k] for k in ("Numer telefonu", "Imię", "Nazwisko", "E-mail osoby odpowiedzialnej"))
     assert by["E-mail osoby odpowiedzialnej"]["validation"] == ["EMAIL"]
     # F-14: adres i e-mail wnioskodawcy ma szablon; duplikaty od LLM wypadają albo nie dostają drugi raz tego samego prefill
-    assert "Adres e-mail" not in by and "defaultValueType" not in by["Ulica"]
+    assert "Adres e-mail" not in by and "Ulica" not in by  # sekcja „Adres zamieszkania / siedziby” to duplikat szablonu
     tpl = {f["techName"]: f for f in fields({"tabs": [form["tabs"][0], form["tabs"][-2]]})}
     assert tpl["ulica"]["defaultValue"] == "MLPZ.street" and tpl["adres_e_mail"]["defaultValue"] == "MLPZ.email"
+
+
+def test_v2_address_field_split_into_group():
+    """Przegląd v2 (6, 7, 8, 9): adres w jednym polu -> sekcja z Ulica/Numer budynku/... i tym samym show_if."""
+    form, by, notes = run(
+        {"title": "Dane psa", "fields": [fld("Rasa", options=["Chart", "Inny"], type="RADIO"),
+                                         fld("Adres miejsca utrzymywania psa", required=True,
+                                             show_if={"field": "Rasa", "equals": "Chart"}),
+                                         fld("Adres e-mail właściciela"), fld("Adres siedziby klubu - Ulica"),
+                                         fld("Adres skrzynki ePUAP")]},
+        {"title": "Osoba odpowiedzialna", "fields": [fld("Dane", hint="ulica, nr domu, kod pocztowy, miejscowość")]})
+    sec = by["Adres miejsca utrzymywania psa"]
+    assert sec["type"] == "SECTION" and sec["states"]
+    assert {"Adres e-mail właściciela", "Adres siedziby klubu - Ulica", "Adres skrzynki ePUAP"} <= set(by)  # nie rozbijane
+    assert [q["field"]["title"] for q in sec["repeatingSectionGrid"]] == ["Ulica", "Numer budynku", "Numer lokalu", "Kod pocztowy", "Miejscowość"]
+    assert [q["field"]["validation"] for q in sec["repeatingSectionGrid"]][2:4] == [[], ["REQUIRED", "ZIP_CODE"]]
+    osoba = by["Osoba odpowiedzialna"]["repeatingSectionGrid"]  # jedyne pole -> grupa w miejscu
+    assert len(osoba) == 5 and sum("grupę adresową" in n for n in notes) == 2
+
+
+def test_v2_applicant_duplicates_dropped_consents_kept():
+    """Przegląd v2: formularz 8 dublował dane składającego; „Zgody i oświadczenia” (4, 9) nie mogą wypaść."""
+    _, by, _ = run({"title": "Dane identyfikacyjne", "fields": [fld("Imię / Nazwa pełna"), fld("PESEL")]},
+                   {"title": "Adres zamieszkania/siedziby", "fields": [fld("Ulica")]},
+                   {"title": "Zgody i oświadczenia", "fields": [fld("Oświadczam, że zapoznałem się z regulaminem", "CHECKBOX")]},
+                   {"title": "Lokal", "fields": [fld("Powierzchnia")]})
+    assert "Dane identyfikacyjne" not in by and "Adres zamieszkania/siedziby" not in by
+    assert by["oswiadczam_ze_zapoznalem_sie_z_regulaminem"]["type"] == "CONSENT_SECTION" and "Zgody i oświadczenia" in by

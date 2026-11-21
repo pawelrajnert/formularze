@@ -59,7 +59,6 @@ class _Builder:
         self.pending: list[tuple[dict, object, str]] = []  # (pole/sekcja, show_if, sekcja pola) do rozwiązania na końcu
         self.choice: set[str] = set()  # labele, pod którymi zapisano już pole wyboru
         self.local: dict[tuple[str, str], str] = {}  # (techName sekcji, label) -> ścieżka; ma pierwszeństwo
-        self.prefilled: set[str] = set()  # klucze danych inicjalnych już użyte (tylko pierwsze pole = wnioskodawca)
         self.negate: dict[str, tuple[str, str]] = {}  # ścieżka pola słownikowego -> (opcja domyślna, druga opcja ze szkicu)
         self.by_option: dict[str, str] = {}  # opcja -> ścieżka pierwszego pola wyboru z tą opcją
         self.notes: list[str] = []  # co builder poprawił / pominął (trace)
@@ -79,8 +78,6 @@ class _Builder:
         for f in templates.walk(qs):
             f["id"] = _uid()
             renamed[f["techName"]] = f["techName"] = self.tech(f["techName"], f["type"].lower())
-            if f.get("defaultValueType") == "EXTERNAL_SYSTEM":
-                self.prefilled.add(f["defaultValue"])  # dane wnioskodawcy już są -> LLM-owe pola ich nie dublują
         for f in templates.walk(qs):
             for s in f["states"]:
                 s["query"] = re.sub(r"'([a-z0-9_]+)' in field\.techName",
@@ -125,7 +122,7 @@ class _Builder:
         }
         if f.default and not text_only:
             out["defaultValue"] = [f.default] if t in CHOICE else f.default  # reguły: "defaultValue": [] dla list
-        enrich(out, f, self.prefilled, self.sec.title, self.sec.repeating)
+        enrich(out, f)
         # readOnly bez wartości = pole nie do wypełnienia (blokuje wysyłkę); NUMBER tylko z danych inicjalnych
         prefilled = out.get("defaultValueType") == "EXTERNAL_SYSTEM"
         if out["readOnly"] and not (prefilled or (out.get("defaultValue") and out["type"] != "NUMBER")):
@@ -192,8 +189,12 @@ class _Builder:
                 tabs.append({"id": _uid(), "title": page.title, "type": "MAIN", "questions": questions})
         tabs.append({"id": _uid(), "title": KONTAKT, "type": "MAIN", "questions": kontakt})
         for target, cond, sec_tech in self.pending:
-            path = (self.local.get((sec_tech, cond.field)) or self.paths.get(cond.field)
-                    or self.by_option.get(cond.equals) or self.by_option.get(cond.field))
+            # warunek nie może wskazywać na samo pole ani na pole z tej samej sekcji-celu (wtedy nigdy się nie pokaże)
+            own = f"[{_js(target['techName'])} in field.techName]"
+            # po samej opcji tylko, gdy coś znaczy: „Tak”/„Nie” ma pół formularza
+            by_opt = self.by_option.get(cond.equals) if norm(cond.equals) not in ("tak", "nie") else None
+            path = next((p for p in (self.local.get((sec_tech, cond.field)), self.paths.get(cond.field),
+                                     by_opt, self.by_option.get(cond.field)) if p and own not in p), None)
             if not path:  # nieznany label sterujący -> pole zawsze widoczne, więc nie może być wymagane
                 for x in [target] + [q["field"] for q in target["repeatingSectionGrid"]]:
                     x["validation"] = [v for v in x["validation"] if v != "REQUIRED"]

@@ -1,7 +1,8 @@
-"""F-08: wzbogacenie zbudowanego pola wg config/field_rules.yaml: słownik, dane inicjalne, walidatory.
+"""F-08: wzbogacenie zbudowanego pola wg config/field_rules.yaml: słownik i walidatory.
 
-Jawne ustawienia ze szkicu (validators, dictionary, prefill, default) wygrywają; reguły tylko uzupełniają.
-Wyjątek: prefill (jawny też) tylko w sekcjach wnioskodawcy i tylko raz na klucz.
+Jawne ustawienia ze szkicu (validators, dictionary, default) wygrywają; reguły tylko uzupełniają.
+Dane inicjalne (prefill) tylko z szablonów F-14, nie z pól szkicu: LLM-owy prefill trafiał w dane innych osób
+(sportowiec, kandydat), a readOnly blokował ich wpisanie (przegląd v2, formularz 9).
 """
 import re
 import unicodedata
@@ -11,7 +12,6 @@ import yaml
 
 CFG = yaml.safe_load((Path(__file__).resolve().parents[2] / "config" / "field_rules.yaml").read_text("utf-8"))
 RULES = [(re.compile(r["match"]), r) for r in CFG["rules"]]
-SKIP_SECTIONS = re.compile(CFG["prefill_skip_sections"])
 CHOICE = {"SELECT", "RADIO", "CHECKBOX"}
 
 
@@ -36,8 +36,8 @@ def dictionary(f) -> str:
     return ""
 
 
-def enrich(out: dict, f, used: set, section: str, repeating: bool) -> None:
-    """Modyfikuje `out` w miejscu. `used` - klucze prefill już przypisane w formularzu."""
+def enrich(out: dict, f) -> None:
+    """Modyfikuje `out` w miejscu."""
     r = rule(f.label)
     d = dictionary(f)
     if d and out["type"] in CHOICE | {"TEXT_FIELD"}:
@@ -51,12 +51,3 @@ def enrich(out: dict, f, used: set, section: str, repeating: bool) -> None:
         return
     if out["type"] == "TEXT_FIELD":
         out["validation"] += [v for v in r.get("validators", []) if v not in out["validation"]]
-    # jawny prefill ze szkicu też tylko dla wnioskodawcy (LLM wpisywał MLPZ/PESEL w dane sportowca, osoby odpowiedzialnej)
-    key = f.prefill or ("" if f.default else r.get("prefill", ""))
-    if key in used or repeating or SKIP_SECTIONS.search(norm(section)):
-        key = ""
-    src = key.split(".")[0]
-    if key and src in CFG["sources"] and out["type"] in ("TEXT_FIELD", "DATEPICKER"):
-        used.add(key)
-        out |= {"defaultValue": key, "defaultValueType": "EXTERNAL_SYSTEM",
-                "readOnly": out["readOnly"] or r.get("read_only", False) or src in CFG["registry_sources"]}

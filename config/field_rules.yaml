@@ -13,28 +13,23 @@ dictionaries:
   # analogicznie do "Słownik Kraje" -> dictionaryName "Kraje"
   Numery kierunkowe: {multiLevelTree: false, searchEnabled: true}
 
-# źródła danych inicjalnych (PDF, tabela "Dostępne źródła danych"); rejestry wymuszają readOnly
-sources: [PESEL, PESEL_ADDRESS, MLPZ]
-registry_sources: [PESEL, PESEL_ADDRESS]
-
-# prefill z reguł tylko dla danych wnioskodawcy: pomijamy sekcje o innych osobach i sekcje powtarzalne,
-# a każdy klucz dostaje tylko pierwsze pasujące pole w formularzu
-# "Adres zamieszkania / siedziby" to adres wnioskodawcy -> lookbehind, żeby go nie pominąć
-prefill_skip_sections: "pelnomocni|innej osoby|inna osoba|wspol|malzon|dziec|zmarl|spadko|reprezent|podmiot|(?<!zamieszkania )siedzib|korespondenc|sportowc|kandydat|podopieczn|odpowiedzialn|wykonawc"
-
 # F-15: sprzątanie szkicu LLM (app/form_builder/cleanup.py), regexy na znormalizowanym labelu / tytule sekcji
 cleanup:
   # pola papierowe: podpis i data nadaje system, "wypełnia organ" i instrukcje nie należą do e-formularza
   drop: "^(czytelny |wlasnoreczny )?podpis|^data (i )?podpis|pieczat|data (zlozenia|sporzadzenia|wypelnienia)|miejscowosc i data|wypelnia (organ|urzad|pracownik)|^(nr|numer) sprawy|instrukcj|podstawa prawna|(wielkimi|drukowanymi) literami"
   # oświadczenia i zgody -> CONSENT_SECTION (standard zabrania checkboxów na zgody)
   consent: "^(oswiadczam|wyrazam zgode|zgoda na|zapoznal(em|am)|potwierdzam|akceptuje|jestem swiadom)"
+  # adres w jednym polu -> grupa pól adresowych (przegląd v2: 6, 7, 8, 9); e-mail/ePUAP/e-Doręczenia to nie adres pocztowy,
+  # a „Adres siedziby - Ulica” to już część rozbitego adresu
+  address: "^adres\\b(?!.*\\b(e ?mail|poczty|doreczen|skrytk\\w*|skrzynk\\w*|epuap|elektroniczn\\w*|strony|www|ulica|numer|nr|kod|miejscowosc|kraj|wojewodztwo|powiat|gmina|poczta|lokalu|budynku|opis)\\b)"
+  address_hint: "\\bulica\\b.*\\b(kod|miejscowosc)\\b"
   # kwoty i miary -> NUMBER
   number: "\\b(kwota|kwoty|wysokosc|suma|razem|liczba|ilosc|powierzchnia|dlugosc|szerokosc)\\b"
 
 # F-14: duplikaty sekcji standardowych (builder wstawia je z config/section_templates) - pola LLM out, wpis w trace
 standard:
-  # całe sekcje po tytule: organ, podmiot wniosku, twoje dane, adres zamieszkania/siedziby, firma, inna osoba, pełnomocnik, opłata, kontakt, zgody
-  sections: "^(organ|urzad|adresat)\\b|do ktorego (jest )?sklada|^podmiot wniosku|^twoje dane|^adres (zamieszkania|siedziby)( wnioskodawcy| innej osoby)?$|^dane (podmiotu|innej osoby|do kontaktu|kontaktowe)$|^kontakt|jestes reprezentantem|pelnomocn|^oplata skarbowa|^zgod|\\brodo\\b|klauzul"
+  # całe sekcje po tytule: organ, podmiot wniosku, twoje dane, adres zamieszkania/siedziby, firma, inna osoba, pełnomocnik, opłata, kontakt, RODO
+  sections: "^(organ|urzad|adresat)\\b|do ktorego (jest )?sklada|^podmiot wniosku|^twoje dane|^adres (zamieszkania|siedziby)( siedziby| zamieszkania)?( wnioskodawcy| innej osoby| skladajacego\\b.*)?$|^dane identyfikacyjne( wnioskodawcy| skladajacego\\b.*)?$|^dane skladajacego\\b|^dane (podmiotu|innej osoby|do kontaktu|kontaktowe)$|^kontakt|jestes reprezentantem|pelnomocn|^oplata skarbowa|\\brodo\\b|klauzul"
   # sekcje z danymi wnioskodawcy pomieszanymi z merytorycznymi - tu tylko pola z `applicant_fields`
   applicant: "wnioskodawc|^dane osobowe|^adres( zamieszkania)?$"
   # całe labele: "E-mail osoby odpowiedzialnej" w sekcji wnioskodawcy zostaje
@@ -51,28 +46,12 @@ rules:
   # miejscowość bywa zagraniczna (Kraj = Inny kraj) -> słownik tylko, gdy szkic sam dał listę wyboru
   - {match: "^miejscowosc$", dictionary: TERYT_4G_DOWODOWY, convert: false}
   - {match: "kierunkow|prefiks", dictionary: Numery kierunkowe}
-  # --- walidatory (+ dane inicjalne)
-  # prefill tylko przy zakotwiczonym labelu ("E-mail osoby odpowiedzialnej" to nie wnioskodawca), walidator zawsze
-  - {match: "^(numer )?pesel$", validators: [PESEL], prefill: PESEL.pesel}
+  # --- walidatory (dane inicjalne tylko w szablonach F-14)
   - {match: "\\bpesel\\b", validators: [PESEL]}
   - {match: "\\bnip\\b", validators: [NIP]}
   - {match: "\\bregon\\b", validators: [REGON]}
   - {match: "e doreczen|doreczen elektronicznych", validators: [ADE]}
   - {match: "\\bepuap\\b", validators: [EPUAP]}
-  - {match: "^(adres )?(e ?mail|poczty elektronicznej)$", validators: [EMAIL], prefill: MLPZ.email}
   - {match: "\\be ?mail\\b|poczty elektronicznej", validators: [EMAIL]}
-  - {match: "^kod pocztowy$", validators: [ZIP_CODE], prefill: MLPZ.postCode}
+  - {match: "^kod pocztowy$", validators: [ZIP_CODE]}
   - {match: "dowodu osobistego|seria i numer dowodu", validators: [SERIAL_NUMBER_ID_CARD]}
-  # --- dane inicjalne (readOnly jak w przykładach: imię/nazwisko tak, adres/kontakt edytowalne)
-  - {match: "^imie$", prefill: MLPZ.name, read_only: true}
-  - {match: "^drugie imie$", prefill: MLPZ.secondName, read_only: true}
-  - {match: "^nazwisko$", prefill: MLPZ.surname, read_only: true}
-  - {match: "^nazwisko rodowe$", prefill: PESEL.familyName}
-  - {match: "^data urodzenia$", prefill: PESEL.birthDate}
-  - {match: "^miejsce urodzenia$", prefill: PESEL.birthPlace}
-  - {match: "^imie ojca$", prefill: PESEL.fatherName}
-  - {match: "^imie matki$", prefill: PESEL.motherName}
-  - {match: "^(numer |nr )?telefonu?( kontaktowy| kontaktowego| komorkowy| komorkowego)?$", prefill: MLPZ.phoneNumber}
-  - {match: "^ulica$", prefill: MLPZ.street}
-  - {match: "^(numer|nr) (budynku|domu)$", prefill: MLPZ.building}
-  - {match: "^(numer|nr) (lokalu|mieszkania)$", prefill: MLPZ.apartment}

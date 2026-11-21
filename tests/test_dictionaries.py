@@ -39,13 +39,12 @@ def test_required_defaults_to_false():
     assert DraftField.model_validate({"label": "A", "type": "TEXT_FIELD"}).required is False
 
 
-def test_pesel_gets_validator_and_prefill():
+def test_pesel_gets_validator_no_prefill():
     f = form_of(tf("Numer PESEL"))["Numer PESEL"]
-    assert f["validation"] == ["PESEL"]
-    # PESEL.pesel ma już szablon „Twoje dane” (F-14) -> drugi raz nie
-    assert "defaultValueType" not in f
-    f = form_of(tf("Data urodzenia", type="DATEPICKER"))["Data urodzenia"]
-    assert (f["defaultValue"], f["defaultValueType"], f["readOnly"]) == ("PESEL.birthDate", "EXTERNAL_SYSTEM", True)
+    assert f["validation"] == ["PESEL"] and "defaultValueType" not in f
+    # F-12 v2: dane inicjalne tylko z szablonu „Twoje dane”; „Data urodzenia” od LLM bywa sportowca -> do wpisania
+    f = form_of(tf("Data urodzenia", type="DATEPICKER", prefill="PESEL.birthDate", read_only=True))["Data urodzenia"]
+    assert "defaultValueType" not in f and f["readOnly"] is False
 
 
 def test_kraj_becomes_dictionary_select():
@@ -72,7 +71,7 @@ def test_explicit_draft_settings_win():
     assert by["Imię"]["defaultValue"] == "Jan" and "defaultValueType" not in by["Imię"]
     assert by["PESEL"]["validation"] == ["NIP", "PESEL"]
     assert by["Kraj"]["type"] == "RADIO" and "dictionaryName" not in by["Kraj"] and len(by["Kraj"]["options"]) == 2
-    assert by["Kontakt"]["defaultValue"] == "MLPZ.secondName" and by["Kontakt"]["readOnly"] is False
+    assert "defaultValue" not in by["Kontakt"]  # jawny prefill szkicu ignorowany (F-12 v2)
     assert by["Skąd jesteś"]["dictionaryName"] == "Kraje"
 
 

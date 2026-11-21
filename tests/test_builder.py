@@ -64,6 +64,19 @@ def test_unknown_show_if_label_is_skipped():
     assert check(form) == [] and form["tabs"][1]["questions"][0]["field"]["repeatingSectionGrid"][0]["field"]["states"] == []
 
 
+def test_show_if_never_points_at_itself():
+    """Przegląd v2, formularz 8: upload „Załącznik A” zależał od samego siebie -> zawsze ukryty."""
+    d = mini({"title": "Wybór", "fields": [{"label": "Załącznik A", "type": "RADIO", "options": ["Tak", "Nie"]}]},
+             {"title": "Pliki", "fields": [{"label": "Załącznik A", "type": "FILE_UPLOADER",
+                                            "show_if": {"field": "Załącznik A", "equals": "Tak"}}]},
+             {"title": "Sekcja B", "show_if": {"field": "Załącznik B", "equals": "Tak"}, "fields": [
+                 {"label": "Załącznik B", "type": "RADIO", "options": ["Tak", "Nie"]}]})
+    by = {f["techName"]: f for f in fields(build(d), LLM)}
+    up = next(f for f in by.values() if f["type"] == "FILE_UPLOADER")
+    assert "'wybor' in field.techName]" in up["states"][0]["query"]
+    assert by["sekcja_b"]["states"] == []  # jedyny kandydat leży w samej sekcji -> warunek pominięty
+
+
 def test_tech_name_collision_and_slug():
     assert slug("Źródło łąki, część 1!") == "zrodlo_laki_czesc_1"
     f = lambda: {"label": "Imię", "type": "TEXT_FIELD", "required": True}
