@@ -265,3 +265,27 @@ def test_heuristic_table_repeating_section():
     rep = [s for p in d.pages for s in p.sections if s.repeating]
     assert rep and [f.label for f in rep[0].fields] == ["Imię i nazwisko", "PESEL"]
     assert rep[0].fields[1].validators == ["PESEL"]
+
+
+# --- F-16 (P7): załącznik jako RADIO Tak/Nie -> FILE_UPLOADER -------------------------------------------------
+def test_attachment_yes_no_becomes_upload_and_drops_dependent_show_if():
+    from app.form_builder.draft_llm import attachments_as_uploads
+    d = Draft.model_validate({"title": "Deklaracja o wysokości opłaty", "pages": [{"title": "Załączniki", "sections": [
+        {"title": "Załączniki", "fields": [
+            {"label": "Załącznik A (część nieruchomości bez mieszkańców)", "type": "RADIO", "options": ["Tak", "Nie"]},
+            {"label": "Kwota z załącznika A", "type": "NUMBER", "show_if": {"field": "Załącznik A (część nieruchomości bez mieszkańców)", "equals": "Tak"}},
+            {"label": "Czy nieruchomość jest zamieszkana?", "type": "RADIO", "options": ["Tak", "Nie"]},
+        ]}]}]})
+    warnings: list[str] = []
+    fields = attachments_as_uploads(d, warnings).pages[0].sections[0].fields
+    assert (fields[0].type, fields[0].options) == ("FILE_UPLOADER", [])
+    assert fields[1].show_if is None          # FILE_UPLOADER nie steruje widocznością
+    assert fields[2].type == "RADIO"          # zwykłe pytanie Tak/Nie zostaje
+    assert warnings and "Załącznik A" in warnings[0]
+    assert check(build(d)) == []
+
+
+def test_prompt_has_f16_rules():
+    s = system_prompt()
+    for phrase in ("Czego dotyczy wniosek", "NIE wymyślaj", "Imię kandydata", "nigdy RADIO", "od 45 do 60 m²"):
+        assert phrase in s
