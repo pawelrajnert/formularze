@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FormDefinition",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "tabs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "questions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "x": {
+                  "type": "number"
+                },
+                "y": {
+                  "type": "number"
+                },
+                "rows": {
+                  "type": "number"
+                },
+                "cols": {
+                  "type": "number"
+                },
+                "field": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "techName": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "techName": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "validation": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "dictionaryName": {
+                      "type": "string"
+                    },
+                    "readOnly": {
+                      "type": "boolean"
+                    },
+                    "repetingSectionGrid": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "defaultValue": {
+                      "type": "string"
+                    },
+                    "defaultValueType": {
+                      "type": "string"
+                    },
+                    "consentSectionConfig": {
+                      "type": "object",
+                      "properties": {
+                        "consents": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "description": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        },
+                        "required": {
+                          "type": "boolean"
+                        },
+                        "files": {
+                          "type": "array",
+                          "items": {}
+                        }
+                      }
+                    },
+                    "states": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          },
+                          "query": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    },
+                    "questionOrder": {
+                      "type": "number"
+                    },
+                    "tooltipMessage": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "flow": {
+      "type": "object",
+      "properties": {
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "target": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
