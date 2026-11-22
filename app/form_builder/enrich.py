@@ -13,6 +13,7 @@ import yaml
 CFG = yaml.safe_load((Path(__file__).resolve().parents[2] / "config" / "field_rules.yaml").read_text("utf-8"))
 RULES = [(re.compile(r["match"]), r) for r in CFG["rules"]]
 CHOICE = {"SELECT", "RADIO", "CHECKBOX"}
+LLM_VALIDATORS = {v: re.compile(rx) for v, rx in CFG["llm_validators"].items()}
 
 
 def norm(text: str) -> str:
@@ -38,6 +39,8 @@ def dictionary(f) -> str:
 
 def enrich(out: dict, f) -> None:
     """Modyfikuje `out` w miejscu."""
+    n = norm(f.label)
+    out["validation"] = [v for v in out["validation"] if v not in LLM_VALIDATORS or LLM_VALIDATORS[v].search(n)]
     r = rule(f.label)
     d = dictionary(f)
     if d and out["type"] in CHOICE | {"TEXT_FIELD"}:

@@ -204,3 +204,50 @@ def test_unsupported_fields_flagged_generic_ones_not():
     f = d.pages[0].sections[0].fields
     assert [x.required for x in f] == [True, True, True, False]
     assert len(notes) == 1 and "VIN" in notes[0]
+
+
+def test_v5_llm_validator_needs_matching_label():
+    """Przegląd v5, form. 2: EPUAP od LLM na numerze rachunku blokował wysyłkę; eDoręczeń dostaje ADE."""
+    _, by, _ = run({"title": "Zwrot", "fields": [fld("Numer rachunku bankowego", validators=["EPUAP"]),
+                                                 fld("Adres skrytki ePUAP", validators=["EPUAP"]),
+                                                 fld("Adres do eDoręczeń")]})
+    assert by["Numer rachunku bankowego"]["validation"] == []
+    assert by["Adres skrytki ePUAP"]["validation"] == ["EPUAP"]
+    assert by["Adres do eDoręczeń"]["validation"] == ["ADE"]
+
+
+def test_v5_contact_consent_and_proxy_id_kept():
+    """Przegląd v5: zgoda na e-mail w „Dane do kontaktu” (8), zgoda szczególna i dowód pełnomocnika (9) zostają."""
+    _, by, _ = run(
+        {"title": "Dane do kontaktu", "fields": [fld("Telefon"), fld("Adres e-mail"),
+                                                  fld("Wyrażam zgodę na otrzymywanie korespondencji na adres e-mail", "CHECKBOX")]},
+        {"title": "Zgody", "fields": [fld("Wyrażam zgodę na przetwarzanie moich danych osobowych przez Komisję", "CHECKBOX"),
+                                      fld("Zgadzam się na przetwarzanie moich danych osobowych", "CHECKBOX")]},
+        {"title": "Reprezentacja", "fields": [fld("Seria i numer dowodu osobistego pełnomocnika"), fld("Imię pełnomocnika")]})
+    assert "Telefon" not in by and "Adres e-mail" not in by and "Imię pełnomocnika" not in by
+    consents = [k for k, f in by.items() if f["type"] == "CONSENT_SECTION"]
+    assert any("korespondencji" in c for c in consents) and any(c.endswith("_przez") for c in consents)
+    assert len(consents) == 2  # ogólna zgoda RODO jest w szablonie
+    assert "Seria i numer dowodu osobistego pełnomocnika" in by
+
+
+def test_v5_address_in_repeating_section_split_in_place():
+    """Przegląd v5, form. 7: adres w wierszu psa nie może trafić do osobnej sekcji powtarzalnej."""
+    form, by, _ = run({"title": "Psy", "repeating": True, "fields": [fld("Imię psa"), fld("Adres poprzedniego właściciela")]})
+    secs = [q["field"] for t in form["tabs"] for q in t["questions"] if q["field"]["type"] == "REPEATING_SECTION"]
+    assert len(secs) == 1
+    titles = [q["field"]["title"] for q in secs[0]["repeatingSectionGrid"]]
+    assert titles[0] == "Imię psa" and "Ulica (Adres poprzedniego właściciela)" in titles
+    assert by["Kraj (Adres poprzedniego właściciela)"].get("dictionaryName") == "Kraje"
+
+
+def test_v5_invented_bank_name_removed():
+    from app.form_builder.cleanup import unsupported_fields
+    d = Draft.model_validate({"title": "T", "pages": [{"title": "S", "sections": [{"title": "Przelew", "fields": [
+        fld("Numer rachunku"), fld("Nazwa banku")]}]}]})
+    notes = []
+    unsupported_fields(d, "Zwrot przelewem na rachunek w banku nr ...", notes)
+    assert [f.label for f in d.pages[0].sections[0].fields] == ["Numer rachunku"]
+    d2 = Draft.model_validate({"title": "T", "pages": [{"title": "S", "sections": [{"title": "Przelew", "fields": [fld("Nazwa banku")]}]}]})
+    unsupported_fields(d2, "Nazwa banku: ....", [])
+    assert len(d2.pages[0].sections[0].fields) == 1

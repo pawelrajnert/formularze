@@ -69,7 +69,7 @@ def test_explicit_draft_settings_win():
                  tf("Kontakt", prefill="MLPZ.secondName"), tf("Kraj pochodzenia", dictionary=""),
                  tf("Skąd jesteś", dictionary="Kraje"))
     assert by["Imię"]["defaultValue"] == "Jan" and "defaultValueType" not in by["Imię"]
-    assert by["PESEL"]["validation"] == ["NIP", "PESEL"]
+    assert by["PESEL"]["validation"] == ["PESEL"]  # NIP od LLM bez „nip” w etykiecie odpada (przegląd v5)
     assert by["Kraj"]["type"] == "RADIO" and "dictionaryName" not in by["Kraj"] and len(by["Kraj"]["options"]) == 2
     assert "defaultValue" not in by["Kontakt"]  # jawny prefill szkicu ignorowany (F-12 v2)
     assert by["Skąd jesteś"]["dictionaryName"] == "Kraje"

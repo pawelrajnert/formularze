@@ -143,6 +143,9 @@ def load_docx(data: bytes, max_pages: int | None = None) -> Document:
     d = docx.Document(io.BytesIO(data))
     lines: list[str] = []
     tables: list[list[list[str]]] = []
+    # D-01: nagłówek (tytuł, „Załącznik nr …”) przed treścią, stopka (przypisy) po niej; powtórzone sekcje liczone raz
+    heads, feet = _header_footer_lines(d)
+    lines.extend(heads)
     for el in _block_items(d.element.body):
         if el.tag == f"{W}p":
             if t := _para_text(el):
@@ -154,7 +157,22 @@ def load_docx(data: bytes, max_pages: int | None = None) -> Document:
                 tables.append(rows)
                 tables.extend(nested)
                 lines.extend(line for r in rows if (line := _row_line(r)))
+    lines.extend(feet)
     return Document.from_pages(["\n".join(lines)], "docx", tables=tables)
+
+
+def _header_footer_lines(d) -> tuple[list[str], list[str]]:
+    heads: list[str] = []
+    feet: list[str] = []
+    for sec in d.sections:
+        for part, out in ((sec.first_page_header, heads), (sec.header, heads), (sec.even_page_header, heads),
+                          (sec.first_page_footer, feet), (sec.footer, feet), (sec.even_page_footer, feet)):
+            if part.is_linked_to_previous:
+                continue
+            for el in _block_items(part._element):
+                texts = [_para_text(el)] if el.tag == f"{W}p" else [_row_line(r) for r in _table_rows(el)]
+                out.extend(t for t in texts if t and t not in heads and t not in feet)
+    return heads, feet
 
 
 # ---------------------------------------------------------------- XLSX

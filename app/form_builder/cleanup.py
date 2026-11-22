@@ -87,13 +87,20 @@ def _fix_type(f, sec_title: str, notes: list) -> None:
 
 def _split_addresses(sec: DraftSection, notes: list) -> list[DraftSection]:
     """Adres w jednym polu -> osobna sekcja z grupą pól (tytuł = label, ten sam show_if) wstawiana za `sec`.
-    Gdy adres był jedynym polem sekcji, grupa zastępuje go w miejscu."""
+    Gdy adres był jedynym polem sekcji, grupa zastępuje go w miejscu. W sekcji powtarzalnej też w miejscu, z dopiskiem
+    „(label)”, bo osobna sekcja powtarzalna odkleja adres od wiersza (przegląd v5, form. 7: adres poprzedniego właściciela)."""
     out = []
     for f in list(sec.fields):
         if f.type not in ("TEXT_FIELD", "TEXTAREA") or not (ADDRESS.search(norm(f.label)) or ADDRESS_HINT.search(norm(f.hint))):
             continue
         parts = [DraftField(label=label, type="TEXT_FIELD", required=f.required and req) for label, req in ADDRESS_PARTS]
         notes.append(f"pole zbiorcze {f.label!r} rozbite na grupę adresową")
+        if sec.repeating and len(sec.fields) > 1:
+            for p in parts:
+                p.label, p.show_if = f"{p.label} ({f.label})", f.show_if
+            i = sec.fields.index(f)
+            sec.fields[i:i + 1] = parts
+            continue
         if len(sec.fields) == 1:
             sec.fields = parts
             if f.show_if and not sec.show_if:
@@ -136,13 +143,20 @@ _INPUTS = {"TEXT_FIELD", "TEXTAREA", "NUMBER", "DATEPICKER", "SELECT", "RADIO", 
 def unsupported_fields(draft: Draft, source_text: str, notes: list) -> None:
     """R-08 (D-01, przegląd v4): pole, którego istotnych słów (bez słownictwa ogólnego _GENERIC) w większości nie ma
     w dokumencie, mogło zostać dopisane przez AI -> traci REQUIRED i trafia do „do sprawdzenia” (nie usuwamy).
-    Nie złapie pola złożonego ze słów, które w dokumencie są (np. „Nazwa banku” przy „rachunek w banku”) — to wymagałoby
-    drugiego zapytania do LLM."""
+    Nie złapie pola złożonego ze słów, które w dokumencie są — to wymagałoby drugiego zapytania do LLM; wyjątek: „Nazwa banku”.
+    shortcut: „Nazwa banku” na sztywno, bo to jedyne powtarzalne zmyślenie z przeglądów; przy kolejnych -> lista w field_rules.yaml."""
     src = _stems(source_text)
     if not src:  # pusty / nieczytelny dokument — nie ma z czym porównać
         return
+    src_norm = norm(source_text)
     for page in draft.pages:
         for sec in page.sections or []:
+            # znane zmyślenie 14B (form. 2, przeglądy v4–v5): „Nazwa banku” przy samym „rachunku w banku” -> usuwamy
+            for f in [f for f in sec.fields or [] if norm(f.label).startswith("nazwa banku") and "nazwa banku" not in src_norm]:
+                sec.fields.remove(f)
+                notes.append(f"usunięto pole {f.label!r} (nie ma go w dokumencie)")
+            if not sec.fields:
+                continue
             for f in sec.fields or []:
                 if f.type not in _INPUTS:
                     continue

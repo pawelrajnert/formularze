@@ -123,7 +123,7 @@ def test_legacy_draft_standard_blocks_filtered():
     assert [t["title"] for t in form["tabs"]] == ["Dane", "Informacje o budynku", "Kontakt i zgody", "Strona końcowa"]
     dane = {f["techName"]: f for f in fields(form["tabs"][0]["questions"])}
     assert dane["nazwa_organu"]["defaultValue"].startswith("Wójt Gminy Elbląg")  # organ przeniesiony z pola LLM
-    assert sum("dubluje sekcję standardową" in n for n in notes) == 14
+    assert sum("dubluje sekcję standardową" in n for n in notes) == 15  # „Kontakt” czyszczony pole po polu (przegląd v5)
 
 
 def test_dedupe_fields_in_mixed_sections():

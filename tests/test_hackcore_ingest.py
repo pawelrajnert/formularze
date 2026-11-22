@@ -143,6 +143,19 @@ def test_docx_textboxes_not_duplicated():
     assert doc.text.count("Wniosek o zwrot opłaty skarbowej") == 1
 
 
+def test_docx_header_and_footer():
+    """D-01: nagłówek przed treścią, stopka po niej, tekst powtórzony w kilku sekcjach raz."""
+    import docx
+    d = docx.Document()
+    d.sections[0].header.paragraphs[0].text = "Załącznik nr 2 do uchwały"
+    d.sections[0].footer.paragraphs[0].text = "* niepotrzebne skreślić"
+    d.add_paragraph("Wniosek o coś")
+    buf = io.BytesIO()
+    d.save(buf)
+    lines = load_document(buf.getvalue(), "x.docx").text.splitlines()
+    assert lines == ["Załącznik nr 2 do uchwały", "Wniosek o coś", "* niepotrzebne skreślić"]
+
+
 def test_docx_broken():
     with pytest.raises(IngestError):
         load_document(b"PK\x03\x04 uszkodzony", "x.docx")
