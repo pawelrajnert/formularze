@@ -287,5 +287,7 @@ def test_attachment_yes_no_becomes_upload_and_drops_dependent_show_if():
 
 def test_prompt_has_f16_rules():
     s = system_prompt()
-    for phrase in ("Czego dotyczy wniosek", "NIE wymyślaj", "Imię kandydata", "nigdy RADIO", "od 45 do 60 m²"):
+    for phrase in ("Czego dotyczy wniosek", "NIE wymyślaj", "Imię kandydata", "nigdy RADIO", "od 45 do 60 m²",
+                   # F-16+++ (v4): warianty w treści, osoba trzecia = upload, negatywny przykład, warunkowe „dodatkowe”
+                   "Tytuł z wariantem NIE zastępuje", "nigdy CONSENT_SECTION wnioskodawcy", "BŁĄD:", "Czy … więcej niż jeden"):
         assert phrase in s
