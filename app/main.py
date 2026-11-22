@@ -9,6 +9,7 @@ from starlette.formparsers import MultiPartParser
 
 from app import approval, config
 from app.pipeline import ConversionError, IngestError, UnknownModel, convert_document, registry
+from app.safeguards import safeguards
 from app.security import check_credentials, create_token, rate_limit, require_auth, require_configured
 from app.validation import check_content, check_name, read_limited
 
@@ -69,6 +70,12 @@ def token(body: Credentials) -> dict:
 @app.get("/api/v1/models", dependencies=[Depends(require_auth)])
 def models() -> list[dict]:
     return registry().public()
+
+
+@app.get("/api/v1/security", dependencies=[Depends(require_auth)])
+def security() -> list[dict]:
+    """R-08: zabezpieczenia i ochrona danych ze stanem z bieżącej konfiguracji (bez sekretów)."""
+    return safeguards()
 
 
 @app.post("/api/v1/forms/approve")

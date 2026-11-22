@@ -103,6 +103,19 @@ a { color:var(--pri); }
 .dict { border:1px solid var(--line); border-radius:6px; padding:8px 12px; margin:8px 0; }
 .dict h3 { font-size:1rem; margin:0 0 4px; }
 .dict ul { margin:4px 0; padding-left:20px; }
+/* R-08: zabezpieczenia i ochrona danych */
+#sec > summary { cursor:pointer; font-weight:700; font-size:1.1rem; }
+#sec-sum { font-weight:400; font-size:.95rem; color:var(--muted); margin-left:8px; }
+#sec-list { list-style:none; margin:12px 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:8px; }
+#sec-list li { border:1px solid var(--line); border-left:4px solid var(--ok); border-radius:0 6px 6px 0; padding:8px 12px; }
+#sec-list li.off { border-left-color:#8a6d00; background:var(--warn-bg); }
+#sec-list li > b { display:block; }
+#sec-list .st { font-weight:700; color:var(--ok); margin-right:6px; }
+#sec-list li.off .st { color:#6b5500; }
+#sec-list p { margin:2px 0; font-size:.92rem; }
+#sec-list code { background:#fff; border:1px solid #8a6d00; border-radius:3px; padding:0 4px; }
+#sec-list .ev { color:var(--muted); font-size:.82rem; }
+@media (max-width:400px) { #sec-list { grid-template-columns:minmax(0,1fr); } }
 </style>
 </head>
 <body>
@@ -120,6 +133,12 @@ a { color:var(--pri); }
       <div id="login-msg" role="alert"></div>
     </form>
   </section>
+
+  <details id="sec" class="card" hidden>
+    <summary>Bezpieczeństwo i ochrona danych <span id="sec-sum"></span></summary>
+    <p class="hint">Stan z bieżącej konfiguracji serwera. Pozycje wyłączone można włączyć zmienną środowiskową (np. w <code>.env</code>) i restartem usługi.</p>
+    <ul id="sec-list"></ul>
+  </details>
 
   <section id="upload" class="card" hidden aria-labelledby="up-h">
     <h2 id="up-h">Dokument do konwersji</h2>
@@ -194,7 +213,29 @@ const $ = (id) => document.getElementById(id);
 let token = sessionStorage.getItem("coi_token") || "";
 let file = null, result = null;
 
-function show(id) { ["login", "upload"].forEach((s) => ($(s).hidden = s !== id)); }
+function show(id) { ["login", "upload"].forEach((s) => ($(s).hidden = s !== id)); $("sec").hidden = id !== "upload"; if (id === "upload") loadSecurity(); }
+
+// R-08: karta „Bezpieczeństwo i ochrona danych” — dane z GET /security, wstawiane tylko przez textContent
+async function loadSecurity() {
+  try {
+    const r = await fetch(API + "/security", { headers: authHeaders() });
+    if (!r.ok) { $("sec").hidden = true; return; }
+    const items = await r.json();
+    const mk = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
+    const on = items.filter((x) => x.stan === "włączone").length;
+    $("sec-sum").textContent = "— włączone " + on + " z " + items.length + (on < items.length ? ", wyłączone: " + (items.length - on) : "");
+    $("sec-list").replaceChildren(...items.map((x) => {
+      const isOn = x.stan === "włączone";
+      const li = mk("li", { className: isOn ? "" : "off" },
+        mk("b", {}, mk("span", { className: "st", textContent: isOn ? "✓" : "○ wyłączone" }), x.nazwa),
+        mk("p", { textContent: x.opis }));
+      if (!isOn && x.jak_wlaczyc) li.append(mk("p", {}, "Wyłączone w tej konfiguracji — włącz: ", mk("code", { textContent: x.jak_wlaczyc })));
+      li.append(mk("p", { className: "ev", textContent: "Dowód: " + x.dowod }));
+      return li;
+    }));
+    $("sec").hidden = false;
+  } catch { $("sec").hidden = true; }
+}
 function authHeaders() { return token ? { Authorization: "Bearer " + token } : {}; }
 function setMsg(el, text, cls = "err") { el.className = text ? "msg " + cls : ""; el.textContent = text; }
 
