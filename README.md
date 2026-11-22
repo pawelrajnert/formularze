@@ -24,6 +24,10 @@ plik ──► walidacja (nazwa, rozszerzenie, MIME z treści, rozmiar)         
 
 Szkic LLM (`app/form_builder/draft.py`, model pydantic `Draft`) jest celowo mały: strony → sekcje (`repeating`, `show_if`) → pola (`label`, `type`, `required`, `options`, `validators`, `hint`, `default`, `read_only`, `show_if`, `dictionary`, `prefill`). Mniejszy model popełnia wtedy mniej błędów strukturalnych, a reguły techniczne pilnuje kod.
 
+## Film (demo, 2:12)
+
+[`video1.mp4`](video1.mp4) — nagranie prawdziwego działania aplikacji (bez montażu wyników; czekanie na AI przyspieszone ×6 i oznaczone na ekranie): bezpieczeństwo i ochrona danych (także funkcje wyłączone w tej konfiguracji), konwersja wniosku DOCX, strona „Dane” ze standardu COI, drzewo wyborów („Osoba odpowiedzialna: inna osoba”, rodzaj wniosku stypendium / nagroda / wyróżnienie), „Co zmieniliśmy względem papieru”, propozycje nowych słowników i JSON do importu. Całość na zwykłym CPU, bez GPU.
+
 ## Szybki start (Docker)
 
 ```bash
