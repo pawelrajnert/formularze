@@ -1,0 +1,368 @@
+{
+  "opis": "Propozycje nowych słowników współdzielonych (F-10), wyznaczone automatycznie z list wyboru w formularzach. Do akceptacji przez urzędnika; po akceptacji pole dostaje dictionaryName.",
+  "zrodla": [
+    {
+      "formularz": "1",
+      "plik": "data/1/1. Wniosek o ustalenie numeru porządkowego nieruchomości/konfiguracja_form_wniosekOUstalenieNumeruPorządkowegoNieruchomości (1).json",
+      "tytul": "Wniosek o ustalenie numeru porządkowego nieruchomości"
+    },
+    {
+      "formularz": "2",
+      "plik": "wyniki/2.json",
+      "tytul": "Wniosek o zwrot opłaty skarbowej"
+    },
+    {
+      "formularz": "3",
+      "plik": "wyniki/3.json",
+      "tytul": "Wniosek o wydanie zaświadczenia o użytkach rolnych i gospodarstwie rolnym"
+    },
+    {
+      "formularz": "4",
+      "plik": "wyniki/4.json",
+      "tytul": "Wniosek o wynajem lub użyczenie świetlicy wiejskiej"
+    },
+    {
+      "formularz": "5",
+      "plik": "data/5/5. Wniosek o stwierdzenie nadpłaty podatku/konfiguracja_form_wniosekOStwierdzenieNadpłatyPodatkuHacknation (2).json",
+      "tytul": "Wniosek o stwierdzenie nadpłaty podatku"
+    },
+    {
+      "formularz": "6",
+      "plik": "wyniki/6.json",
+      "tytul": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego w celu prowadzenia robót"
+    },
+    {
+      "formularz": "7",
+      "plik": "wyniki/7.json",
+      "tytul": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne"
+    },
+    {
+      "formularz": "8",
+      "plik": "wyniki/8.json",
+      "tytul": "Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi"
+    },
+    {
+      "formularz": "9",
+      "plik": "wyniki/9.json",
+      "tytul": "Wniosek o przyznanie stypendium/nagrody/wyróżnienia sportowego Rady Miasta Zgierza"
+    }
+  ],
+  "proponowaneSlowniki": [
+    {
+      "nazwa": "SPOSOB_ZWROTU_OPLATY",
+      "etykieta": "Wybierz sposób zwrotu opłaty",
+      "opis": "Zamknięta lista 3 pozycji dla pola „Wybierz sposób zwrotu opłaty”.",
+      "zastosowanie": "Pola typu RADIO w formularzach: Wniosek o zwrot opłaty skarbowej; Wniosek o stwierdzenie nadpłaty podatku. Podpięcie: field.dictionaryName = nazwa słownika zamiast listy options.",
+      "struktura": {
+        "multiLevelTree": false,
+        "searchEnabled": false,
+        "pozycja": [
+          "kod",
+          "nazwa"
+        ]
+      },
+      "pozycje": [
+        {
+          "kod": "GOTOWKA_W_KASIE_ORGANU",
+          "nazwa": "Gotówką w kasie organu"
+        },
+        {
+          "kod": "PRZELEWEM_NA_RACHUNEK_BANKOWY",
+          "nazwa": "Przelewem na rachunek bankowy"
+        },
+        {
+          "kod": "ZALICZYC_NA_POCZET_PRZYSZLEGO",
+          "nazwa": "Zaliczyć na poczet przyszłego zobowiązania podatkowego"
+        }
+      ],
+      "wystapienia": [
+        {
+          "formularz": "2",
+          "tytulFormularza": "Wniosek o zwrot opłaty skarbowej",
+          "techName": "wybierz_sposob_zwrotu_oplaty",
+          "tytulPola": "Wybierz sposób zwrotu opłaty",
+          "typ": "RADIO"
+        },
+        {
+          "formularz": "5",
+          "tytulFormularza": "Wniosek o stwierdzenie nadpłaty podatku",
+          "techName": "wybierz_co_mamy_zrobic_z_nadplata",
+          "tytulPola": "Wybierz, co mamy zrobić z nadpłatą",
+          "typ": "RADIO"
+        }
+      ],
+      "uzasadnienie": "ta sama lista wyboru występuje w 2 formularzach (2, 5); warianty zapisu różnią się między polami - słownik ujednolici wartości",
+      "pewnosc": "wysoka"
+    },
+    {
+      "nazwa": "SPOSOB_OZNAKOWANIA_PSA",
+      "etykieta": "Sposób oznakowania psa",
+      "opis": "Zamknięta lista 3 pozycji dla pola „Sposób oznakowania psa”.",
+      "zastosowanie": "Pola typu RADIO w formularzach: Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne. Podpięcie: field.dictionaryName = nazwa słownika zamiast listy options.",
+      "struktura": {
+        "multiLevelTree": false,
+        "searchEnabled": false,
+        "pozycja": [
+          "kod",
+          "nazwa"
+        ]
+      },
+      "pozycje": [
+        {
+          "kod": "MIKROPROCESOR",
+          "nazwa": "mikroprocesor"
+        },
+        {
+          "kod": "TATUAZ",
+          "nazwa": "tatuaż"
+        },
+        {
+          "kod": "BRAK",
+          "nazwa": "brak"
+        }
+      ],
+      "wystapienia": [
+        {
+          "formularz": "7",
+          "tytulFormularza": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
+          "techName": "sposob_oznakowania_psa",
+          "tytulPola": "Sposób oznakowania psa",
+          "typ": "RADIO"
+        },
+        {
+          "formularz": "7",
+          "tytulFormularza": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
+          "techName": "sposob_oznakowania_psa_2",
+          "tytulPola": "Sposób oznakowania psa",
+          "typ": "RADIO"
+        }
+      ],
+      "uzasadnienie": "lista powtarza się w 2 polach jednego formularza (sekcja powtarzalna)",
+      "pewnosc": "srednia"
+    },
+    {
+      "nazwa": "DYSCYPLINY_SPORTOWE",
+      "etykieta": "Dyscypliny sportowe (wybierz wszystkie, które dotyczą)",
+      "opis": "Zamknięta lista 20 pozycji dla pola „Dyscypliny sportowe (wybierz wszystkie, które dotyczą)”.",
+      "zastosowanie": "Pola typu CHECKBOX w formularzach: Wniosek o przyznanie stypendium/nagrody/wyróżnienia sportowego Rady Miasta Zgierza. Podpięcie: field.dictionaryName = nazwa słownika zamiast listy options.",
+      "struktura": {
+        "multiLevelTree": false,
+        "searchEnabled": true,
+        "pozycja": [
+          "kod",
+          "nazwa"
+        ]
+      },
+      "pozycje": [
+        {
+          "kod": "GIMNASTYKA_ARTYSTYCZNA",
+          "nazwa": "gimnastyka artystyczna"
+        },
+        {
+          "kod": "HOKEJ",
+          "nazwa": "hokej"
+        },
+        {
+          "kod": "KARATE",
+          "nazwa": "karate"
+        },
+        {
+          "kod": "KOLARSTWO",
+          "nazwa": "kolarstwo"
+        },
+        {
+          "kod": "KOSZYKOWKA",
+          "nazwa": "koszykówka"
+        },
+        {
+          "kod": "LEKKOATLETYKA",
+          "nazwa": "lekkoatletyka"
+        },
+        {
+          "kod": "LUCZNICTWO",
+          "nazwa": "łucznictwo"
+        },
+        {
+          "kod": "LYZWIARSTWO",
+          "nazwa": "łyżwiarstwo"
+        },
+        {
+          "kod": "NARCIARSTWO_KLASYCZNE",
+          "nazwa": "narciarstwo klasyczne"
+        },
+        {
+          "kod": "PILKA_NOZNA",
+          "nazwa": "piłka nożna"
+        },
+        {
+          "kod": "PILKA_RECZNA",
+          "nazwa": "piłka ręczna"
+        },
+        {
+          "kod": "PILKA_SIATKOWA",
+          "nazwa": "piłka siatkowa"
+        },
+        {
+          "kod": "PILKA_WODNA",
+          "nazwa": "piłka wodna"
+        },
+        {
+          "kod": "SPORT_MOTOCYKLOWY",
+          "nazwa": "sport motocyklowy"
+        },
+        {
+          "kod": "SPORTY_WALKI",
+          "nazwa": "sporty walki"
+        },
+        {
+          "kod": "SPORTY_WODNE",
+          "nazwa": "sporty wodne"
+        },
+        {
+          "kod": "TENIS_STOLOWY",
+          "nazwa": "tenis stołowy"
+        },
+        {
+          "kod": "TENIS_ZIEMNY",
+          "nazwa": "tenis ziemny"
+        },
+        {
+          "kod": "UNIHOKEJ",
+          "nazwa": "unihokej"
+        },
+        {
+          "kod": "ZAPASY",
+          "nazwa": "zapasy"
+        }
+      ],
+      "wystapienia": [
+        {
+          "formularz": "9",
+          "tytulFormularza": "Wniosek o przyznanie stypendium/nagrody/wyróżnienia sportowego Rady Miasta Zgierza",
+          "techName": "dyscypliny_sportowe_wybierz_wszystkie_ktore_dotycza",
+          "tytulPola": "Dyscypliny sportowe (wybierz wszystkie, które dotyczą)",
+          "typ": "CHECKBOX"
+        }
+      ],
+      "uzasadnienie": "długa zamknięta lista (20 pozycji) - łatwiej ją utrzymywać centralnie niż w każdym polu",
+      "pewnosc": "srednia"
+    },
+    {
+      "nazwa": "RODZAJ_PODMIOTU_SKLADAJACEGO_DEKLARACJE",
+      "etykieta": "Rodzaj podmiotu składającego deklarację",
+      "opis": "Zamknięta lista 6 pozycji dla pola „Rodzaj podmiotu składającego deklarację”.",
+      "zastosowanie": "Pola typu RADIO w formularzach: Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi. Podpięcie: field.dictionaryName = nazwa słownika zamiast listy options.",
+      "struktura": {
+        "multiLevelTree": false,
+        "searchEnabled": false,
+        "pozycja": [
+          "kod",
+          "nazwa"
+        ]
+      },
+      "pozycje": [
+        {
+          "kod": "WLASCICIEL_WSPOLWLASCICIEL",
+          "nazwa": "Właściciel/współwłaściciel"
+        },
+        {
+          "kod": "WSPOLWLASCICIEL_WSPOLNOSC_MAJATKOWA",
+          "nazwa": "Współwłaściciel (wspólność majątkowa)"
+        },
+        {
+          "kod": "NAJEMCA_DZIERZAWCA",
+          "nazwa": "Najemca/dzierżawca"
+        },
+        {
+          "kod": "WSPOLNOTA_MIESZKANIOWA",
+          "nazwa": "Wspólnota mieszkaniowa"
+        },
+        {
+          "kod": "SPOLDZIELNIA_MIESZKANIOWA",
+          "nazwa": "Spółdzielnia mieszkaniowa"
+        },
+        {
+          "kod": "INNY_PODMIOT_POSIADAJACY_NIERUCHOMOSC_W",
+          "nazwa": "Inny podmiot posiadający nieruchomość w zarządzie lub użytkowaniu"
+        }
+      ],
+      "wystapienia": [
+        {
+          "formularz": "8",
+          "tytulFormularza": "Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi",
+          "techName": "rodzaj_podmiotu_skladajacego_deklaracje",
+          "tytulPola": "Rodzaj podmiotu składającego deklarację",
+          "typ": "RADIO"
+        }
+      ],
+      "uzasadnienie": "długa zamknięta lista (6 pozycji) - łatwiej ją utrzymywać centralnie niż w każdym polu",
+      "pewnosc": "srednia"
+    }
+  ],
+  "pozostaleListy": [
+    {
+      "tytulPola": "Typ zajęcia",
+      "formularze": [
+        "6"
+      ],
+      "liczbaPozycji": 4,
+      "powod": "pojedyncza krótka lista - do oceny przez urzędnika"
+    },
+    {
+      "tytulPola": "Typ wykonawcy",
+      "formularze": [
+        "6"
+      ],
+      "liczbaPozycji": 2,
+      "powod": "za mało pozycji"
+    },
+    {
+      "tytulPola": "Płeć psa",
+      "formularze": [
+        "7"
+      ],
+      "liczbaPozycji": 2,
+      "powod": "za mało pozycji"
+    },
+    {
+      "tytulPola": "Powód złożenia deklaracji",
+      "formularze": [
+        "8"
+      ],
+      "liczbaPozycji": 3,
+      "powod": "pojedyncza krótka lista - do oceny przez urzędnika"
+    },
+    {
+      "tytulPola": "Rodzaj nieruchomości",
+      "formularze": [
+        "8"
+      ],
+      "liczbaPozycji": 2,
+      "powod": "za mało pozycji"
+    },
+    {
+      "tytulPola": "Typ reprezentanta",
+      "formularze": [
+        "9"
+      ],
+      "liczbaPozycji": 2,
+      "powod": "za mało pozycji"
+    },
+    {
+      "tytulPola": "Preferowany sposób korespondencji",
+      "formularze": [
+        "9"
+      ],
+      "liczbaPozycji": 4,
+      "powod": "pojedyncza krótka lista - do oceny przez urzędnika"
+    },
+    {
+      "tytulPola": "Typ dyscypliny",
+      "formularze": [
+        "9"
+      ],
+      "liczbaPozycji": 3,
+      "powod": "pojedyncza krótka lista - do oceny przez urzędnika"
+    }
+  ]
+}
