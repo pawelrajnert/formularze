@@ -4,15 +4,15 @@
 
 | | |
 |---|---|
-| ✅ **69/69** plików (wszystkie formaty z danych COI) → poprawny JSON | walidator reguł COI + **oryginalny** `importowanyPlikJsonSchemat` na każdym poziomie ([raport](#4-wyniki-i-metryki)) |
-| 🎯 **92% kompletności pól, F1 85%** względem ręcznego ground truth | [metryki + zrzut raportu](#42-jakość-treści--porównanie-z-ground-truth) |
-| ⏱️ **mediana 28 s** na dokument (DOCX/PDF ~15 s, skan z OCR ~30 s) | na zwykłym **CPU, bez GPU** |
-| 🧠 **Ministral 3 14B** (otwarte wagi, Apache-2.0) | wybrany na podstawie [benchmarku](#6-model-ai--który-i-dlaczego) |
-| 🔒 **OWASP Top 10 + OWASP LLM Top 10** opisane z dowodami w testach | [docs/OWASP.md](docs/OWASP.md) |
+| **69/69** plików (wszystkie formaty z danych COI) → poprawny JSON | walidator reguł COI + **oryginalny** `importowanyPlikJsonSchemat` na każdym poziomie ([raport](#4-wyniki-i-metryki)) |
+| **92% kompletności pól, F1 85%** względem ręcznego ground truth | [metryki + zrzut raportu](#42-jakość-treści--porównanie-z-ground-truth) |
+| **mediana 28 s** na dokument (DOCX/PDF ~15 s, skan z OCR ~30 s) | na zwykłym **CPU, bez GPU** |
+| **Ministral 3 14B** (otwarte wagi, Apache-2.0) | wybrany na podstawie [benchmarku](#6-model-ai--który-i-dlaczego) |
+| **OWASP Top 10 + OWASP LLM Top 10** opisane z dowodami w testach | [docs/OWASP.md](docs/OWASP.md) |
 
 ![Wynik konwersji: baner, krokomierz z drzewem wariantów i JSON](docs/img/ui-wynik.png)
 
-🎬 **Film (2:05):** [`video1.mp4`](video1.mp4) — prawdziwe działanie aplikacji, bez montażu wyników.
+**Film (2:05):** [`video1.mp4`](video1.mp4) — prawdziwe działanie aplikacji, bez montażu wyników.
 
 ---
 
@@ -84,7 +84,7 @@ Wszystkie pliki z danych COI (`data/1–9`, 9 formatów) wysłane **na żywo prz
 
 Pełny raport z tabelą dla każdego pliku: [docs/TEST_JURY.md](docs/TEST_JURY.md). Odtworzenie: `python -m scripts.jury_test --url http://localhost:8000`.
 
-<details><summary>📸 Zrzut raportu (dowód) — 69 plików, czas, model, reguły i schemat dla każdego</summary>
+<details><summary>Zrzut raportu (dowód) — 69 plików, czas, model, reguły i schemat dla każdego</summary>
 
 ![Raport testu jak jury](docs/img/test-jury.png)
 
@@ -139,7 +139,7 @@ Benchmark na 9 formularzach COI (`python -m scripts.bench_models`, wyniki `bench
 
 | Model | Poprawny wynik | Czas (mediana / max) | Zależności (drzewo) | Zgodność etykiet |
 |---|---|---|---|---|
-| **Ministral 3 14B** ✅ wybrany | **9/9** | 7,4 s / 48 s | **81** | **0,74** |
+| **Ministral 3 14B** (wybrany) | **9/9** | 7,4 s / 48 s | **81** | **0,74** |
 | Ministral 3 8B (zapasowy) | 9/9 | 8,2 s / 34 s | 39 | 0,56 |
 | Ministral 3 3B | 8/9 | 5,7 s / 34 s | 24 | 0,28 |
 | Qwen3 4B lokalnie na CPU | 1/1 | **1221 s** | — | — |
@@ -152,7 +152,7 @@ Polskie modele (PLLuM, Bielik) są w rejestrze `config/models.yaml` — przełą
 
 ## 7. Bezpieczeństwo, OWASP, AI Act, RODO
 
-- **OWASP Top 10:2021 i OWASP Top 10 for LLM Applications 2025** — każdy punkt z zabezpieczeniem, dowodem w kodzie/teście i uczciwym statusem (✅ / ⚠️ / ➖): **[docs/OWASP.md](docs/OWASP.md)**.
+- **OWASP Top 10:2021 i OWASP Top 10 for LLM Applications 2025** — każdy punkt z zabezpieczeniem, dowodem w kodzie/teście i uczciwym statusem (spełnione / częściowo / nie dotyczy): **[docs/OWASP.md](docs/OWASP.md)**.
 - Najważniejsze zabezpieczenia: JWT, limit zapytań, walidacja pliku po **treści** (nie po rozszerzeniu), blokada makr i zip-bomb, pliki tylko w pamięci, ochrona przed prompt injection (dokument zawsze jako „dane”, nigdy jako polecenia), allowlista linków i escape HTML w wyniku, logi bez treści dokumentu, Docker bez roota.
 - **Widoczne w aplikacji:** karta „Bezpieczeństwo i ochrona danych” pokazuje stan każdego zabezpieczenia z bieżącej konfiguracji.
 - **Wyłączone w konfiguracji demo (dla jury), do włączenia jedną zmienną:** maskowanie danych osobowych przed AI + oznaczanie treści AI — `COMPLIANCE_ENABLED=true`; zatwierdzenie urzędnika z rekordem audytu — `APPROVAL_REQUIRED=true`.
