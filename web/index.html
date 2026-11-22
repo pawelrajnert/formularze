@@ -264,7 +264,7 @@ a { color:var(--pri); }
     <div id="trace" class="card trace" aria-label="Przebieg konwersji"></div>
     <div class="grid">
       <section class="card" aria-labelledby="pv-h">
-        <h2 id="pv-h">Podgląd formularza</h2>
+        <h2 id="pv-h">Podgląd formularza (przykład)</h2>
         <div id="preview"></div>
       </section>
       <section class="card" aria-labelledby="json-h">
@@ -539,7 +539,6 @@ function showResult() {
   const ai = tr.source === "llm", ok = !errs.length, toCheck = ((tr.changes || {}).check || []).length;
   const secs = tr.timings ? Math.max(1, Math.round(tr.timings.razem_s)) : null;
   const banner = el("div", { className: "msg " + (!ok ? "err" : ai ? "ok" : "warn"), style: "flex-basis:100%;margin-top:0" });
-  const parts = [ok ? "zgodny z wymaganiami COI" : "nie przeszedł kontroli zgodności", secs ? "przygotowany w " + secs + " s" : ""].filter(Boolean);
   const title = el("strong", { textContent: !ok ? "✗ Formularz wymaga poprawek" : ai ? "Formularz gotowy" : "⚠ Formularz gotowy w trybie awaryjnym" });
   if (ok && ai) {  // R-15 P3 (#15): ptaszek rysuje się raz
     const ns = "http://www.w3.org/2000/svg", svg = document.createElementNS(ns, "svg"), path = document.createElementNS(ns, "path");
@@ -548,7 +547,10 @@ function showResult() {
     path.setAttribute("stroke-width", "2.5"); path.setAttribute("stroke-linecap", "round"); path.setAttribute("stroke-linejoin", "round");
     svg.append(path); title.prepend(svg);
   }
-  banner.append(title, " · " + parts.join(" · "));
+  banner.append(title, " · ", ok ? "zgodny z wymaganiami COI" : "nie przeszedł kontroli zgodności");
+  if (secs) {
+    banner.append(" · przygotowany w ", el("strong", { textContent: secs + " s" }));
+  }
   // R-15 P2 (#8): przyklejony pasek akcji — stan + następny krok + wyjście
   $("act-st").textContent = (!ok ? "✗ Wymaga poprawek" : ai ? "✓ Gotowe · zgodny z wymaganiami COI" : "⚠ Gotowe w trybie awaryjnym") + (toCheck ? " · do sprawdzenia: " + toCheck : "");
   $("act-st").style.color = !ok ? "var(--err)" : ai ? "var(--ok)" : "var(--fg)";
