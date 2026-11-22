@@ -194,7 +194,9 @@ Pomiar (5 różnych formularzy pod rząd, darmowy klucz): **0 s czekania na limi
 
 Ollama nie wystawia portu na hosta i jest dostępna tylko w sieci compose. Modele trzymamy w wolumenie `ollama-models`.
 
-Czas: przez API Ministral 14B potrzebuje 3–20 s na typowy formularz (formularz 8 z 84 polami: ok. 50 s, skan JPG formularza 9 z OCR: ok. 55 s). **Na CPU bez GPU wersja lokalna jest niepraktyczna**: zmierzyliśmy 20 min na najprostszy formularz już dla modelu 4B (Docker, 12 rdzeni, 8 GB). Wdrożenie lokalne w urzędzie = serwer z GPU (np. 1× karta 24 GB dla Ministral 3 14B w Q4) z Ollamą albo vLLM — wtedy czas jest zbliżony do API, bez limitów zapytań, a dane nie opuszczają urzędu.
+**Cała usługa działa na zwykłym CPU, bez GPU** (wymóg: maszyna na obronie nie ma GPU). Aplikacja, OCR (Tesseract), LibreOffice, builder i walidator liczą się na CPU, a model językowy z otwartymi wagami wołamy przez API (dozwolone regulaminem). Czas przez API: Ministral 14B potrzebuje 3–20 s na typowy formularz (formularz 8 z 84 polami: ok. 50 s, skan JPG formularza 9 z OCR: ok. 55 s); test na 69 plikach wszystkich formatów: mediana 28 s.
+
+**Wersja w pełni lokalna (bez internetu) też działa na CPU** — profil `local-llm` (Ollama w kontenerze, bez GPU), ten sam kod i ten sam JSON. Jest wyraźnie wolniejsza: na laptopie (Docker, 12 rdzeni, 8 GB RAM) zmierzyliśmy ok. 20 min na najprostszy formularz dla modelu 4B, więc na CPU zalecamy mniejszy model z tej samej rodziny (`ministral-3:3b` / `ministral-3:8b`) i przetwarzanie w tle. Opcjonalnie, jeśli urząd ma serwer z kartą graficzną, ten sam model w Ollamie/vLLM odpowiada tak szybko jak API — GPU nie jest jednak wymagane.
 
 **Bez LLM:** gdy brakuje konfiguracji, LLM jest niedostępny albo jego szkic nie przechodzi walidatora, formularz powstaje ze szkicu heurystycznego. Ten wynik też przechodzi przez builder i walidator, więc zwykle dostajemy poprawny JSON. 422 pojawia się tylko wtedy, gdy nie da się odczytać tekstu albo nawet szkic heurystyczny nie przejdzie walidacji.
 
@@ -385,7 +387,7 @@ data/                materiały COI (formularze 1–9)
 
 ## Znane ograniczenia
 
-- **Darmowe API Mistral:** limit 2 zapytania na minutę na model i klucz. Okno limitu, model zapasowy (8B), pula kluczy i cache sprawiają, że 5 konwersji pod rząd nie czeka (zmierzone), ale przy większym ruchu zapytania czekają albo trafiają do słabszego modelu zapasowego. Produkcyjnie: płatny plan albo model u siebie na GPU.
+- **Darmowe API Mistral:** limit 2 zapytania na minutę na model i klucz. Okno limitu, model zapasowy (8B), pula kluczy i cache sprawiają, że 5 konwersji pod rząd nie czeka (zmierzone), ale przy większym ruchu zapytania czekają albo trafiają do słabszego modelu zapasowego. Produkcyjnie: płatny plan API albo model u siebie (Ollama na CPU — wolniej; opcjonalnie szybciej na serwerze z kartą graficzną).
 - **Długie dokumenty** idą do LLM w najwyżej 2 częściach po 18 000 znaków (reszta pominięta z ostrzeżeniem w `trace.warnings`).
 - **Pola zmyślone przez AI ze słów obecnych w dokumencie** (np. „Nazwa banku” przy „rachunek w banku”) nie są wykrywane automatycznie — tylko pola ze słowami spoza dokumentu trafiają do „do sprawdzenia”.
 - **Szkic heurystyczny** ma wyraźnie gorszą jakość od LLM: tylko pola tekstowe, jedna strona, najwyżej 60 pól.
