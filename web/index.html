@@ -39,6 +39,19 @@ header button { border-color:#fff; }
 .spin { display:inline-block; width:18px; height:18px; border:3px solid #c9ced6; border-top-color:var(--pri); border-radius:50%; animation:r 1s linear infinite; vertical-align:-3px; margin-right:8px; }
 @keyframes r { to { transform:rotate(360deg); } }
 @media (prefers-reduced-motion:reduce) { .spin { animation:none; } }
+/* R-14 P3: ruch tylko tam, gdzie coś tłumaczy (krótko, < 300 ms; „ogranicz ruch” wyłącza) */
+button { transition:transform 160ms cubic-bezier(.23,1,.32,1), background-color 150ms ease; }
+button:active:not(:disabled) { transform:scale(.97); }
+#drop { transition:border-color 150ms ease, background-color 150ms ease, transform 150ms ease; }
+#drop.over { transform:scale(1.01); }
+.spin { animation-duration:.7s; }
+@keyframes rise { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+@keyframes fld-in { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:none; } }
+#result:not([hidden]) > * { animation:rise 250ms cubic-bezier(.23,1,.32,1) both; }
+#result:not([hidden]) > :nth-child(2) { animation-delay:50ms; } #result:not([hidden]) > :nth-child(3) { animation-delay:100ms; }
+#preview .fld:not([hidden]) { animation:fld-in 180ms cubic-bezier(.23,1,.32,1); } /* pole pokazane przez wybór „wjeżdża” */
+@media (prefers-reduced-motion:reduce) { button, #drop { transition:none; } button:active:not(:disabled), #drop.over { transform:none; }
+  #result:not([hidden]) > *, #preview .fld:not([hidden]) { animation:none; } }
 .trace { display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; }
 .trace ul { margin:4px 0 0; padding-left:20px; }
 .grid { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:16px; align-items:start; }
@@ -46,9 +59,16 @@ header button { border-color:#fff; }
 pre { margin:0; max-height:75vh; overflow:auto; background:#0f1720; color:#e6edf3; padding:12px; border-radius:4px; font-size:13px; }
 /* kolorowanie JSON-a (paleta jak w edytorach kodu): klucze, teksty, liczby, true/false/null */
 #json .jk { color:#79c0ff; } #json .js { color:#7ee787; } #json .jn { color:#ffa657; } #json .jb { color:#d2a8ff; font-weight:600; }
-[role=tablist] { display:flex; gap:4px; flex-wrap:wrap; border-bottom:2px solid var(--line); margin-bottom:16px; }
-[role=tab] { background:#fff; color:var(--pri); border:1px solid var(--line); border-bottom:0; border-radius:4px 4px 0 0; }
+/* R-14 (#10): krokomierz — jeden rząd, przewijanie w poziomie zamiast kilku rzędów przycisków */
+[role=tablist] { display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:2px 2px 10px; border-bottom:2px solid var(--line); margin-bottom:16px; scrollbar-width:thin; }
+[role=tab] { display:flex; align-items:center; gap:8px; flex:0 0 auto; max-width:240px; background:#fff; color:var(--pri); border:1px solid var(--line); border-radius:999px; padding:6px 14px 6px 6px; font-weight:600; }
+[role=tab] .num { display:inline-grid; place-items:center; width:26px; height:26px; border-radius:50%; background:var(--line); color:var(--pri); font-size:.85rem; flex:none; }
+[role=tab] .tit { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+[role=tab].seen .num { background:var(--ok); color:#fff; font-size:0; }
+[role=tab].seen .num::after { content:"✓"; font-size:.85rem; }
 [role=tab][aria-selected=true] { background:var(--pri); color:#fff; border-color:var(--pri); }
+[role=tab][aria-selected=true] .num { background:#fff; color:var(--pri); font-size:.85rem; }
+[role=tab][aria-selected=true] .num::after { content:none; }
 fieldset.sec { border:1px solid var(--line); border-radius:6px; padding:12px 16px; margin:0 0 16px; }
 fieldset.sec > legend { font-weight:700; font-size:1.05rem; padding:0 6px; }
 fieldset.grp { border:0; padding:0; margin:0; }
@@ -141,10 +161,10 @@ a { color:var(--pri); }
     <form id="up-form">
       <label id="drop" for="file">
         <strong>Przeciągnij plik tutaj</strong> albo kliknij, aby wybrać<br>
-        <span class="hint">PDF, DOC, DOCX, ODS, XLSX, JPG, JPEG, PNG</span><br>
+        <span class="hint">PDF, Word (DOC, DOCX), Excel (XLSX), ODS albo skan (JPG, PNG) — konwersja rusza od razu</span><br>
         <span id="fname"></span>
       </label>
-      <input id="file" class="sr" tabindex="-1" type="file" accept=".pdf,.doc,.docx,.ods,.xlsx,.jpg,.jpeg,.png">
+      <input id="file" class="sr" tabindex="-1" type="file" accept=".pdf,.doc,.docx,.ods,.xlsx,.jpg,.jpeg,.jpe,.png">
       <div class="actions">
         <button id="go" type="submit" disabled>Konwertuj</button>
         <span id="status" role="status" aria-live="polite"></span>
@@ -210,7 +230,7 @@ a { color:var(--pri); }
 <script>
 "use strict";
 const API = "/api/v1";
-const EXTS = ["pdf", "doc", "docx", "ods", "xlsx", "jpg", "jpeg", "png"];
+const EXTS = ["pdf", "doc", "docx", "ods", "xlsx", "jpg", "jpeg", "jpe", "png"];
 const $ = (id) => document.getElementById(id);
 // R-12: JSON z kolorami składni. Węzły tekstowe + <span> z textContent (bez innerHTML — treść pochodzi z dokumentu).
 // Kopiowanie/pobieranie dalej bierze czysty tekst (textContent / result.form).
@@ -303,7 +323,10 @@ function pick(f) {
   }
   file = f; $("go").disabled = false;
   $("fname").textContent = "Wybrano: " + f.name + " (" + Math.ceil(f.size / 1024) + " KB)";
+  // R-14 (#6): trzy kroki — wrzuć, sprawdź, pobierz: konwersja rusza sama; przycisk zostaje jako „Konwertuj ponownie”
+  if (!busy) $("up-form").requestSubmit();
 }
+let busy = false;
 $("drop").tabIndex = 0;
 $("drop").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("file").click(); } });
 $("file").addEventListener("change", () => $("file").files[0] && pick($("file").files[0]));
@@ -313,7 +336,8 @@ $("drop").addEventListener("drop", (e) => e.dataTransfer.files[0] && pick(e.data
 
 $("up-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  if (!file) return;
+  if (!file || busy) return;
+  busy = true;
   setMsg($("up-msg"), "");
   $("go").disabled = true;
   const t0 = Date.now();
@@ -331,7 +355,8 @@ $("up-form").addEventListener("submit", async (e) => {
     prog.fail("błąd połączenia lub odpowiedzi.");
     setMsg($("up-msg"), "Błąd połączenia lub odpowiedzi: " + err.message);
   } finally {
-    prog.stop(); $("go").disabled = !file;
+    busy = false;
+    prog.stop(); $("go").disabled = !file; $("go").textContent = "Konwertuj ponownie";
   }
 });
 
@@ -416,19 +441,33 @@ function progress(f) {
 // --- wynik ---
 function showResult() {
   const tr = result.trace || {}, errs = tr.rules_errors || [];
-  const box = $("trace"); box.innerHTML = "";
-  const item = (label, val) => { const d = document.createElement("div"); d.innerHTML = "<strong></strong> "; d.firstChild.textContent = label; d.append(val); box.append(d); };
-  item("Źródło szkicu:", tr.source === "llm" ? "LLM" : tr.source === "heuristic" ? "heurystyka" : "—");
-  if (tr.reason) item("Powód:", tr.reason);
-  item("Znaków tekstu:", String(tr.text_chars ?? "—"));
-  const v = document.createElement("div"); v.style.flexBasis = "100%";
-  if (!errs.length) { v.className = "msg ok"; v.textContent = "✓ Zgodny z regułami COI"; }
-  else {
-    v.className = "msg err";
-    v.textContent = "Błędy walidatora (" + errs.length + ")" + (tr.source === "heuristic" ? " — szkic LLM odrzucony, użyto heurystyki:" : ":");
-    const ul = document.createElement("ul"); errs.forEach((x) => { const li = document.createElement("li"); li.textContent = x; ul.append(li); }); v.append(ul);
+  // R-14 (#3): jeden baner dla urzędnika — gotowe? zgodne? ile trwało? co sprawdzić? Szczegóły techniczne zwinięte.
+  const box = $("trace"); box.replaceChildren();
+  const ai = tr.source === "llm", ok = !errs.length, toCheck = ((tr.changes || {}).check || []).length;
+  const secs = tr.timings ? Math.max(1, Math.round(tr.timings.razem_s)) : null;
+  const banner = el("div", { className: "msg " + (!ok ? "err" : ai ? "ok" : "warn"), style: "flex-basis:100%;margin-top:0" });
+  const parts = [ok ? "zgodny z wymaganiami COI" : "nie przeszedł kontroli zgodności", secs ? "przygotowany w " + secs + " s" : ""].filter(Boolean);
+  banner.append(el("strong", { textContent: !ok ? "✗ Formularz wymaga poprawek" : ai ? "✓ Formularz gotowy" : "⚠ Formularz gotowy w trybie awaryjnym" }),
+    " · " + parts.join(" · "));
+  const next = !ok ? "Sprawdź listę błędów w szczegółach technicznych i spróbuj ponownie."
+    : !ai ? "Asystent AI był niedostępny, więc formularz zbudowano z samej struktury dokumentu — przejrzyj go dokładniej przed pobraniem."
+    : "Przejrzyj podgląd poniżej" + (toCheck ? " oraz " + toCheck + (toCheck === 1 ? " pozycję oznaczoną" : " pozycje oznaczone") + " „do sprawdzenia”" : "") + ", a potem pobierz JSON.";
+  banner.append(el("div", { textContent: next, style: "margin-top:4px;font-weight:400" }));
+  if (toCheck) {
+    const go = el("button", { type: "button", className: "sec", textContent: "Pokaż pozycje do sprawdzenia", style: "margin-top:8px" });
+    go.onclick = () => $("changes").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    banner.append(go);
   }
-  box.append(v);
+  const det = el("details", { style: "flex-basis:100%;margin-top:8px" }, el("summary", { textContent: "Szczegóły techniczne" }));
+  const row = (k, v) => det.append(el("div", {}, el("strong", { textContent: k + " " }), String(v)));
+  row("Źródło szkicu:", ai ? "model językowy" + (tr.model ? " (" + tr.model + ")" : "") : tr.source === "heuristic" ? "heurystyka (bez AI)" : "—");
+  if (tr.reason) row("Powód:", tr.reason);
+  row("Znaków tekstu w dokumencie:", tr.text_chars ?? "—");
+  if (tr.ocr_used) row("Odczyt:", "OCR (skan)");
+  if (tr.timings) row("Czasy:", "odczyt " + tr.timings.odczyt_s + " s · AI " + tr.timings.szkic_s + " s · budowa i walidacja " + tr.timings.budowa_walidacja_s + " s");
+  if (errs.length) { det.open = true; det.append(el("div", { textContent: "Błędy walidatora (" + errs.length + "):" }), el("ul", {}, ...errs.map((x) => el("li", { textContent: x })))); }
+  (tr.warnings || []).forEach((w) => det.append(el("div", { className: "hint", textContent: "• " + w })));
+  box.append(banner, det);
   showJson(result.form);
   $("result").hidden = false;
   renderForm(result.form);
@@ -436,7 +475,7 @@ function showResult() {
   renderPlain(tr.plain_language);
   renderDicts(tr.proposedDictionaries);
   setupAppr();
-  $("trace").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("trace").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
 }
 function save(obj, name) {
   const a = document.createElement("a");
@@ -686,7 +725,9 @@ function renderForm(form) {
     return panel;
   });
   const btns = tabs.map((t, i) => {
-    const b = el("button", { type: "button", role: "tab", id: "tb" + i, textContent: (i + 1) + ". " + (t.title || "Krok"), tabIndex: i ? -1 : 0, onclick: () => select(i) });
+    // R-14 (#10): krokomierz — numer w kółku + tytuł; odwiedzone dostają ✓ (klasa .seen), jeden rząd z przewijaniem
+    const b = el("button", { type: "button", role: "tab", id: "tb" + i, tabIndex: i ? -1 : 0, onclick: () => select(i), title: t.title || "Krok" },
+      el("span", { className: "num", textContent: String(i + 1) }), el("span", { className: "tit", textContent: t.title || "Krok" }));
     b.setAttribute("aria-selected", String(!i)); b.setAttribute("aria-controls", "tp" + i);
     b.addEventListener("keydown", (e) => { const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (d) { select((i + d + tabs.length) % tabs.length); btns[(i + d + tabs.length) % tabs.length].focus(); } });
     return b;
@@ -694,7 +735,8 @@ function renderForm(form) {
   visited = new Set([tabs[0] && tabs[0].id]);
   function select(i) {
     visited.add(tabs[i].id); updAppr();
-    btns.forEach((b, j) => { b.setAttribute("aria-selected", String(i === j)); b.tabIndex = i === j ? 0 : -1; });
+    btns.forEach((b, j) => { b.setAttribute("aria-selected", String(i === j)); b.tabIndex = i === j ? 0 : -1; b.classList.toggle("seen", visited.has(tabs[j].id) && i !== j); });
+    btns[i].scrollIntoView({ block: "nearest", inline: "nearest" });
     panels.forEach((p, j) => (p.hidden = i !== j));
     panels[i].focus();
   }
