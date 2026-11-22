@@ -100,7 +100,9 @@ pre { margin:0; max-height:75vh; overflow:auto; background:#0f1720; color:#e6edf
 /* kolorowanie JSON-a (paleta jak w edytorach kodu): klucze, teksty, liczby, true/false/null */
 #json .jk { color:#79c0ff; } #json .js { color:#7ee787; } #json .jn { color:#ffa657; } #json .jb { color:#d2a8ff; font-weight:600; }
 /* R-14 (#10): krokomierz — jeden rząd, przewijanie w poziomie zamiast kilku rzędów przycisków */
-[role=tablist] { display:flex; gap:6px; flex-wrap:nowrap; overflow-x:auto; padding:2px 2px 10px; border-bottom:2px solid var(--line); margin-bottom:16px; scrollbar-width:thin; }
+[role=tablist] { display:flex; gap:6px; flex-wrap:wrap; padding:2px 2px 12px; border-bottom:2px solid var(--line); margin-bottom:16px; } /* R-16: zawijanie, bez paska przewijania */
+[role=tab].na { opacity:.5; border-style:dashed; }
+[role=tab].na::after { content:"nie dotyczy"; flex:none; font-size:.8rem; font-weight:400; padding:1px 8px; border-radius:999px; background:var(--pri-bg); }
 [role=tab] { display:flex; align-items:center; gap:8px; flex:0 0 auto; max-width:240px; background:#fff; color:var(--pri); border:1px solid var(--line); border-radius:999px; padding:6px 14px 6px 6px; font-weight:600; }
 [role=tab] .num { display:inline-grid; place-items:center; width:26px; height:26px; border-radius:50%; background:var(--line); color:var(--pri); font-size:.85rem; flex:none; }
 [role=tab] .tit { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -803,13 +805,13 @@ function renderForm(form) {
     panel.setAttribute("aria-labelledby", "tb" + i);
     [...(t.questions || [])].sort(byPos).forEach((q) => q.field && panel.append(renderField(q.field)));
     const nav = el("div", { className: "navbtns" });
-    nav.append(i > 0 ? el("button", { type: "button", className: "sec", textContent: "← Wstecz", onclick: () => select(i - 1) }) : el("span"));
-    if (i < tabs.length - 1) nav.append(el("button", { type: "button", textContent: "Dalej →", onclick: () => select(i + 1) }));
+    nav.append(i > 0 ? el("button", { type: "button", className: "sec", textContent: "← Wstecz", onclick: () => select(step(i, -1)) }) : el("span"));
+    if (i < tabs.length - 1) nav.append(el("button", { type: "button", textContent: "Dalej →", onclick: () => select(step(i, 1)) }));
     panel.append(nav);
     return panel;
   });
   const btns = tabs.map((t, i) => {
-    // R-14 (#10): krokomierz — numer w kółku + tytuł; odwiedzone dostają ✓ (klasa .seen), jeden rząd z przewijaniem
+    // R-14 (#10) / R-16: krokomierz — numer w kółku + tytuł; odwiedzone ✓ (.seen), niedotyczące wariantu przygaszone (.na)
     const b = el("button", { type: "button", role: "tab", id: "tb" + i, tabIndex: i ? -1 : 0, onclick: () => select(i), title: t.title || "Krok" },
       el("span", { className: "num", textContent: String(i + 1) }), el("span", { className: "tit", textContent: t.title || "Krok" }));
     b.setAttribute("aria-selected", String(!i)); b.setAttribute("aria-controls", "tp" + i);
@@ -820,12 +822,31 @@ function renderForm(form) {
   function select(i) {
     visited.add(tabs[i].id); updAppr();
     btns.forEach((b, j) => { b.setAttribute("aria-selected", String(i === j)); b.tabIndex = i === j ? 0 : -1; b.classList.toggle("seen", visited.has(tabs[j].id) && i !== j); });
-    btns[i].scrollIntoView({ block: "nearest", inline: "nearest" });
     panels.forEach((p, j) => (p.hidden = i !== j));
     panels[i].focus();
   }
+  // R-16: następny/poprzedni krok, który dotyczy wybranego wariantu (kroki „nie dotyczy” pomijamy)
+  function step(i, d) {
+    let j = i + d;
+    while (j > 0 && j < tabs.length - 1 && btns[j].classList.contains("na")) j += d;
+    return Math.max(0, Math.min(tabs.length - 1, j));
+  }
+  stepper = { btns, panels };
   list.append(...btns); pv.append(list, ...panels);
   evalStates();
+}
+let stepper = null;
+// R-16: strona, której wszystkie pola są ukryte przez warunki (inny wariant wniosku) = „nie dotyczy” — obywatel jej nie wypełnia
+function markNotApplicable() {
+  if (!stepper) return;
+  stepper.panels.forEach((panel, j) => {
+    const flds = [...panel.querySelectorAll(".fld")];
+    const visible = (w) => { for (let e = w; e && e !== panel; e = e.parentElement) if (e.hidden) return false; return true; };
+    const na = flds.length > 0 && !flds.some(visible);
+    const b = stepper.btns[j];
+    b.classList.toggle("na", na);
+    b.title = na ? "Nie dotyczy wybranego wariantu — ten krok jest pomijany" : (b.querySelector(".tit") || {}).textContent || "";
+  });
 }
 
 function isRequired(f) { return [].concat(f.validation || []).some((v) => (v && v.type ? v.type : v) === "REQUIRED"); }
@@ -949,6 +970,7 @@ async function evalStates() {
   }));
   if (my !== gen) return; // nowsza zmiana już w toku
   res.forEach(({ wrap, show, ro }) => { wrap.hidden = !show; wrap.classList.toggle("st-ro", ro); });
+  markNotApplicable();
   $("preview").querySelectorAll("input,select,textarea").forEach((c) => (c.disabled = c.dataset.ro === "1" || !!c.closest(".st-ro")));
 }
 </script>
