@@ -44,6 +44,8 @@ header button { border-color:#fff; }
 .grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:16px; align-items:start; }
 @media (max-width:900px) { .grid { grid-template-columns:minmax(0,1fr); } }
 pre { margin:0; max-height:75vh; overflow:auto; background:#0f1720; color:#e6edf3; padding:12px; border-radius:4px; font-size:13px; }
+/* kolorowanie JSON-a (paleta jak w edytorach kodu): klucze, teksty, liczby, true/false/null */
+#json .jk { color:#79c0ff; } #json .js { color:#7ee787; } #json .jn { color:#ffa657; } #json .jb { color:#d2a8ff; font-weight:600; }
 [role=tablist] { display:flex; gap:4px; flex-wrap:wrap; border-bottom:2px solid var(--line); margin-bottom:16px; }
 [role=tab] { background:#fff; color:var(--pri); border:1px solid var(--line); border-bottom:0; border-radius:4px 4px 0 0; }
 [role=tab][aria-selected=true] { background:var(--pri); color:#fff; border-color:var(--pri); }
@@ -210,6 +212,27 @@ a { color:var(--pri); }
 const API = "/api/v1";
 const EXTS = ["pdf", "doc", "docx", "ods", "xlsx", "jpg", "jpeg", "png"];
 const $ = (id) => document.getElementById(id);
+// R-12: JSON z kolorami składni. Węzły tekstowe + <span> z textContent (bez innerHTML — treść pochodzi z dokumentu).
+// Kopiowanie/pobieranie dalej bierze czysty tekst (textContent / result.form).
+const JSON_TOKEN = /("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g;
+function showJson(obj) {
+  const pre = $("json"), text = JSON.stringify(obj, null, 2);
+  pre.textContent = "";
+  if (text.length > 600000) { pre.textContent = text; return; }  // bardzo duży JSON: bez kolorów (płynność UI)
+  const frag = document.createDocumentFragment();
+  let last = 0;
+  for (const m of text.matchAll(JSON_TOKEN)) {
+    if (m.index > last) frag.append(text.slice(last, m.index));
+    const span = document.createElement("span");
+    span.className = m[1] ? (m[2] ? "jk" : "js") : (m[3] ? "jb" : "jn");
+    span.textContent = m[1] || m[0];
+    frag.append(span);
+    if (m[1] && m[2]) frag.append(m[2]);
+    last = m.index + m[0].length;
+  }
+  frag.append(text.slice(last));
+  pre.append(frag);
+}
 let token = sessionStorage.getItem("coi_token") || "";
 let file = null, result = null;
 
@@ -359,7 +382,7 @@ function showResult() {
     const ul = document.createElement("ul"); errs.forEach((x) => { const li = document.createElement("li"); li.textContent = x; ul.append(li); }); v.append(ul);
   }
   box.append(v);
-  $("json").textContent = JSON.stringify(result.form, null, 2);
+  showJson(result.form);
   $("result").hidden = false;
   renderForm(result.form);
   renderChanges(tr.changes);
@@ -462,7 +485,7 @@ async function applyPlain(group, btn) {
     if (typeof v === "string" && g.fragment && v.includes(g.fragment)) { o[k] = v.replace(g.fragment, () => g.zamiana); n++; }
   });
   if (!n) return setMsg($("pl-msg"), "Nie znaleziono fragmentu „" + x.fragment + "” w polu (mógł już zostać zmieniony).", "warn");
-  $("json").textContent = JSON.stringify(result.form, null, 2);
+  showJson(result.form);
   renderForm(result.form);
   btn.disabled = true; btn.textContent = "✓ Zastosowano (" + n + ")";
   setMsg($("pl-msg"), "Zmieniono " + n + "×: „" + x.fragment + "” → „" + x.zamiana + "”. JSON i podgląd odświeżone.", "ok");
