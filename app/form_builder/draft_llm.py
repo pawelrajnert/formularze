@@ -42,36 +42,34 @@ STRUKTURA:
 - Części standardowe wstawia SYSTEM z szablonów — NIE generuj ich jako stron ani pól: organ/adresat, w czyim imieniu (podmiot wniosku), dane i adres wnioskodawcy (imię, nazwisko, PESEL, NIP/REGON/KRS), dane innej osoby, pełnomocnik i pełnomocnictwo, opłata skarbowa, telefon/e-mail do kontaktu, zgoda RODO i klauzula informacyjna, strona końcowa (podgląd). Zamiast nich wypełnij pola sterujące:
   `organ` (adresat z dokumentu: SAMA nazwa organu, bez adresu, np. „Wójt Gminy Elbląg”; puste, gdy brak), `applicant_kinds` (kto może złożyć: osoba / firma / inna_osoba), `proxy_allowed` (false tylko, gdy dokument wyklucza pełnomocnika), `fee_info` (opłata skarbowa: kwota i za co; puste, gdy brak).
 - Dane wnioskodawcy NIE trafiają do `pages`, nawet pod inną nazwą: „składający deklarację”, „właściciel”, „klub/firma/podmiot składający wniosek”, jego reprezentant, adres zamieszkania/siedziby wnioskodawcy — to robi szablon (dla firmy/klubu ustaw applicant_kinds z „firma”). Dane OSÓB TRZECICH (poprzedni właściciel psa, osoba odpowiedzialna za roboty, trener, współmałżonek) są w `pages`, zawsze atomowo (Imię, Nazwisko, adres w osobnych polach), a sekcja i KAŻDE pole mówią, o kogo chodzi: sekcja „Dane kandydata”, pola „Imię kandydata”, „Nazwisko kandydata” (nie „Dane osobowe” / „Imię”). Tak samo pola o innym organie lub urzędzie niż adresat wniosku: „W którym organie zapłacono opłatę” (nie „Nazwa organu” ani label zaczynający się od „Organ”/„Urząd”).
-- `pages` to TYLKO strony „przedmiotu wniosku” (1 lub więcej, nazwane od treści, np. „Informacje o budynku”): WSZYSTKIE pola merytoryczne z dokumentu, pogrupowane w tematyczne sekcje. Oświadczenia specyficzne dla wniosku (poza RODO) → na ostatniej stronie sekcja „Oświadczenia” z polami CONSENT_SECTION (jedno pole = jedno krótkie oświadczenie; label = treść).
+- `pages` to TYLKO strony „przedmiotu wniosku” (1 lub więcej, nazwane od treści, np. „Informacje o budynku”): WSZYSTKIE pola merytoryczne z dokumentu, pogrupowane w tematyczne sekcje. Oświadczenia i zgody WNIOSKODAWCY z dokumentu (poza RODO) → na ostatniej stronie sekcja „Oświadczenia” z polami CONSENT_SECTION (jedno pole = jedno oświadczenie z tekstu; label = jego treść). Oświadczenie lub zgodę, którą podpisuje INNA osoba (osoba odpowiedzialna, kandydat, podopieczny, rodzic, współwłaściciel), wnioskodawca tylko załącza: FILE_UPLOADER „Oświadczenie/Zgoda <kogo>”, nigdy CONSENT_SECTION wnioskodawcy.
 
 KOMPLETNOŚĆ I WIERNOŚĆ (sprawdź przed odpowiedzią):
-- Przejdź dokument po kolei: każdy numerowany punkt, każda pozycja tabeli, każda kratka i każde miejsce do wpisania ma swoje pole (poza częściami standardowymi i elementami papierowymi). Nic nie może zginąć — także zgody i oświadczenia z dalszych punktów dokumentu oraz zgoda na kontakt e-mailowy.
-- NIE wymyślaj: żadnych pól, opcji ani oświadczeń, których nie ma w dokumencie (np. „Oświadczam, że dane są prawdziwe”, „Nazwa banku”, „Zamieszkuję na nieruchomości”, gdy papier tego nie ma).
+- Przejdź dokument po kolei: każdy numerowany punkt, każda pozycja tabeli, każda kratka i każde miejsce do wpisania ma swoje pole (poza częściami standardowymi i elementami papierowymi). Nic nie może zginąć — także zgody i oświadczenia z dalszych punktów dokumentu (np. zgody osób z kolejnych punktów, zgoda na kontakt e-mailowy, jeśli jest).
+- NIE wymyślaj pól, opcji ani oświadczeń, których nie ma w dokumencie. Każde CONSENT_SECTION ma swoje zdanie w tekście. BŁĄD: „Oświadczam, że dane są prawdziwe”, „Zamieszkuję na nieruchomości” albo pole „Nazwa banku” dodane, choć tekst ich nie zawiera. Brak w tekście = brak pola.
 - Zachowaj sens pola z papieru: wybór rodzaju (np. rodzaj zaświadczenia, cel) to RADIO/CHECKBOX z opcjami z papieru (+ „Inne” z polem tekstowym, gdy papier je ma), a nie ankieta o szczegółach; dane osoby to dane osoby, nie przedmiotu (np. „pochodzenie psa: imię, nazwisko, adres poprzedniego właściciela” = dane właściciela, nie „imię psa”).
 - Labele wierne i poprawne: przedziały i progi jak w papierze („od 45 do 60 m²”, nie „60 m²”), „Liczba”, nie „Ilość”; bez formatu w labelu („(DD-MM-RRRR)”, „(opcjonalnie)”, „(TAK/NIE)”) — format i uwagi idą do hint.
 
 TYPY PÓL: TEXT_FIELD krótki tekst; TEXTAREA uzasadnienie/opis; NUMBER liczby i kwoty; DATEPICKER daty; RADIO jeden wybór (2–5 opcji); CHECKBOX wiele wyborów (2–5 opcji); SELECT lista >5 opcji; FILE_UPLOADER każdy załącznik z listy załączników osobno (załącznik = FILE_UPLOADER, nigdy RADIO „Tak/Nie” ani CHECKBOX; „Załącznik A (TAK/NIE)” = jedno pole FILE_UPLOADER, bez dodatkowego pytania; numer dokumentu to TEXT_FIELD, nie plik); CONSENT_SECTION oświadczenia i zgody (nigdy CHECKBOX); TEXT_BLOCK krótka informacja bez pola (np. kwota opłaty, numer konta).
 - options tylko dla SELECT/RADIO/CHECKBOX. „Niepotrzebne skreślić”, kratki ☐ → RADIO/CHECKBOX z tymi opcjami.
-- Tabela z wieloma pustymi wierszami (lista osób, działek, pojazdów) → jedna sekcja repeating=true z polami-kolumnami.
 - Kategorie, które mogą występować razem (np. kilka rodzajów zajęcia pasa, kilka dyscyplin) → CHECKBOX, nie RADIO.
 - required=true gdy pole jest obowiązkowe lub ma gwiazdkę *, a także pole warunkowe, którego papier wymaga przy danej opcji (np. numer konta przy przelewie) — show_if i tak ukrywa je przy innej opcji. Każda strona merytoryczna ma co najmniej jedno pole required.
 - validators: PESEL, NIP, REGON, EMAIL, ZIP_CODE, EPUAP, ADE, SERIAL_NUMBER_ID_CARD — gdy pole tego dotyczy.
 - dictionary: zostaw puste, chyba że masz pewność (system sam rozpozna typowe pola po etykiecie). prefill zawsze puste (dane wnioskodawcy są w szablonie).
-- show_if: {"field": dokładny label pola wyboru (RADIO/SELECT/CHECKBOX) zdefiniowanego WCZEŚNIEJ, "equals": dokładnie jedna z jego opcji}. Używaj dla pól zależnych (np. „jeśli tak, podaj…”, Polska/zagranica, osoba fizyczna/firma).
+- show_if: {"field": dokładny label pola wyboru (RADIO/SELECT/CHECKBOX) zdefiniowanego WCZEŚNIEJ, "equals": dokładnie jedna z jego opcji}.
 
 ZALEŻNOŚCI (show_if) — formularz elektroniczny pokazuje tylko to, co dotyczy wnioskodawcy. Stosuj zawsze te wzorce:
-- Warianty wniosku w tytule lub nagłówku („wynajęcie lub użyczenie”, „hodowanie/utrzymywanie”, „stypendium / nagroda / wyróżnienie”, „pierwsza deklaracja / zmiana / korekta / ustanie obowiązku”, „pełnoletni / niepełnoletni”) → PIERWSZE pole pierwszej strony to RADIO „Czego dotyczy wniosek” (lub odpowiednie pytanie) z WSZYSTKIMI wariantami z papieru, a pola i sekcje właściwe tylko dla jednego wariantu mają show_if na tę opcję.
-- „Jeśli tak / jeżeli tak / w przypadku odpowiedzi twierdzącej, podaj…” → wcześniej RADIO z pytaniem (opcje Tak/Nie), a pole zależne z show_if equals „Tak” (analogicznie „Nie”).
+- Warianty wniosku — w tytule, nagłówku, liście rodzajów wniosku albo w zdaniu „proszę o …” jako alternatywa z „/”, „lub” albo „*” (np. „wynajęcie/użyczenie*”, „hodowanie/utrzymywanie*”, „stypendium / nagroda / wyróżnienie”, „pierwsza deklaracja / korekta / ustanie obowiązku”) → PIERWSZE pole pierwszej strony to RADIO „Czego dotyczy wniosek” z WSZYSTKIMI wariantami. Gdy dokument powtarza części osobno dla każdego wariantu: pola wspólne raz, a sekcje różne między wariantami (inne dane, inne zgody) z show_if na swój wariant. Formy liczby („psa/psy”, „charta/chartów”) to nie warianty.
+- Wybór, kto składa wniosek lub kogo dotyczy (organ / klub, pełnoletni / niepełnoletni, osoba fizyczna / firma, właściciel / najemca) → RADIO + show_if na sekcjach każdej opcji (np. zgoda rodzica tylko przy niepełnoletnim). Pole „<rola>: wnioskodawca lub inna osoba” (np. osoba odpowiedzialna) → RADIO („Ja” / „Inna osoba”); przy „Inna osoba” jej dane i FILE_UPLOADER z jej oświadczeniem.
+- „Jeśli (tak) / jeżeli / w przypadku …, podaj…” → ZAWSZE show_if; gdy w tekście nie ma pola sterującego, dodaj tuż przed RADIO z pytaniem (Tak/Nie), a pole zależne z show_if equals „Tak” (analogicznie „Nie”).
 - Alternatywy „niepotrzebne skreślić” / kratki, po których są różne pola (np. sposób zwrotu: przelew → numer konta; odbiór osobiście → brak pól) → RADIO + show_if na polach każdej opcji.
 - Adres merytoryczny (np. nieruchomości), gdy może być za granicą: Kraj (SELECT Polska/Inny kraj); Województwo, Kod pocztowy i pola krajowe z show_if Kraj = Polska; pola zagraniczne z show_if Kraj = Inny kraj.
-- Osoba fizyczna / firma, właściciel / najemca itp. → RADIO + show_if na sekcjach właściwych dla każdej opcji.
-- Listy „kolejne / dodatkowe / pozostałe / współwłaściciele / członkowie / podopieczni” → JEDNA sekcja repeating=true z kompletem pól, obejmująca też pierwszy element (np. jedna sekcja „Psy” zamiast „pierwszy pies” + „dodatkowe psy”).
-- Label pola warunkowego musi pasować do jego warunku (pole z show_if „Tatuaż” nie może mówić o mikroprocesorze); gdy pole dotyczy dwóch opcji, zrób osobne pole dla każdej opcji.
+- Listy „kolejne / dodatkowe / pozostałe / w przypadku więcej niż jednego …”, współwłaściciele, podopieczni → JEDNA sekcja repeating=true z kompletem pól, obejmująca też pierwszy element (np. jedna sekcja „Psy”, nie „pierwszy pies” + „dodatkowe psy”).
+- Label pola warunkowego pasuje do warunku (pole z show_if „Tatuaż” nie mówi o mikroprocesorze); pole dla dwóch opcji → osobne pole dla każdej.
 
 POLA ATOMOWE I ODKRYWANIE STOPNIOWE (najważniejsze — e-formularz ma INNĄ treść niż papier):
 - Jedna dana = jedno pole. Rozbijaj pola zbiorcze: „Imię i nazwisko” → „Imię” + „Nazwisko”; „adres” → Kraj, Miejscowość, Kod pocztowy, Ulica, Numer budynku, Numer lokalu; „telefon/e-mail” → dwa pola.
 - Każdy ukośnik „/” i każda alternatywa na papierze to pole sterujące + show_if: „Nazwisko i imię/Nazwa firmy” → RADIO („Osoba fizyczna” / „Firma”) i pola tylko dla wybranej opcji; „1) … 2) …” (np. „zaliczyć… / zwrócić…”) → RADIO z tymi opcjami i pola warunkowe pod każdą opcją.
-- „Jeśli / jeżeli / w przypadku …” ZAWSZE daje show_if. Gdy w dokumencie nie ma pola sterującego, dodaj RADIO z pytaniem (opcje „Tak”/„Nie”) tuż przed polami zależnymi.
 - Tabele: wiersze z inną stawką, kategorią lub opisem → osobne pola (każdy wiersz z papieru musi mieć swoje pole); identyczne wiersze do powtórzenia (lista osób, pojazdów, działek) → jedna sekcja repeating=true.
 - Listy wyboru wszędzie, gdzie lista wartości jest zamknięta (rodzaj, kategoria, tak/nie, województwo, kraj) — lepiej wybór niż wpisywanie.
 
@@ -80,6 +78,14 @@ POMIJASZ (elementy papierowe): podpis, pieczęć, miejscowość i data wypełnie
 JĘZYK: prosty, druga osoba liczby pojedynczej, krótkie etykiety (np. „Numer telefonu”, „Uzasadnienie”), bez wersalików. Nie używaj: dokonać, posiadać, pragnąć, informujemy, imiesłowów na -ąc, form bezosobowych („naliczono”), form zależnych od płci („Zapoznałem/am się” → „Znam i akceptuję”, „Oświadczam, że jestem świadomy/a” → „Wiem, że”). Pytania i polecenia w 2. osobie („Wybierz…”, „Podaj…”). Trudne terminy objaśnij w hint. Poprawiaj literówki i błędy z papieru.
 TYTUŁ: zaczyna się od „Wniosek”, „Zgłoszenie”, „Deklaracja” lub „Oświadczenie”, potem czego dotyczy; krótki, bez odwołań do przepisów prawa, max 255 znaków. Przedmiot wniosku przepisz DOKŁADNIE słowami z tytułu dokumentu (nie zamieniaj np. „nieruchomości” na „budynku”).
 finish_text: zawsze pusty (stronę końcową z podglądem robi system)."""
+
+# F-16+++: blisko końca promptu (po przykładzie 1), bo przykłady nie mają wariantów, a model je naśladuje;
+# przykład 2 zostaje ostatni (tests/test_draft.py czyta jego JSON do końca promptu)
+FINAL_CHECK = """KONTROLA PRZED ODPOWIEDZIĄ (dla KAŻDEGO dokumentu; przykłady wyżej nie mają wariantów, Twój dokument może mieć):
+1. Czy tekst wymienia rodzaje lub warianty wniosku (lista rodzajów, „/”, „lub”, „*” w tytule albo w zdaniu „proszę o …”)? TAK → pierwsze pole pierwszej strony = RADIO z tymi wariantami, np. dla „wniosek o zwrot/zaliczenie* nadpłaty”: {"label":"Czego dotyczy wniosek","type":"RADIO","required":true,"options":["Zwrot nadpłaty","Zaliczenie nadpłaty"]}. Tytuł z wariantem NIE zastępuje tego pola. Jedno takie pole na cały formularz; sekcje wariantów mają show_if na nie.
+2. Czy tekst daje wybór, kto składa wniosek (np. „Wnioskodawca: organ / klub”), kogo dotyczy albo czy osoba jest pełnoletnia? TAK → RADIO + show_if na sekcjach każdej opcji.
+3. Każde CONSENT_SECTION to zdanie wnioskodawcy przepisane z tekstu. Nie umiesz wskazać zdania → usuń pole. Zgoda lub oświadczenie podpisywane przez inną osobę (kandydat, podopieczny, rodzic, osoba odpowiedzialna) → FILE_UPLOADER „Zgoda <kogo>”, nie CONSENT_SECTION.
+4. Sekcja na „dodatkowe/kolejne” elementy → jedna sekcja repeating=true albo show_if na pytaniu „Czy … więcej niż jeden …?”."""
 
 CONTINUATION = """To jest CZĘŚĆ {i} z {n} tego samego dokumentu (kontynuacja). Zwróć szkic tylko z pól, które występują w TEJ części:
 - strony przedmiotu wniosku (bez części standardowych — te wstawia system),
@@ -207,7 +213,7 @@ def system_prompt() -> str:
     example_text = compress((FEWSHOT / "form1.txt").read_text("utf-8"))
     example5_text = compress((FEWSHOT / "form5.txt").read_text("utf-8"))
     return (f"{SYSTEM_RULES}\n\nPRZYKŁAD — tekst formularza:\n<<<\n{example_text}\n>>>\n"
-            f"Poprawny szkic dla przykładu:\n{_compact('form1_draft.json')}\n\n"
+            f"Poprawny szkic dla przykładu:\n{_compact('form1_draft.json')}\n\n{FINAL_CHECK}\n\n"
             "PRZYKŁAD 2 — tylko strony przedmiotu wniosku (pokazuje rozbicie „1) … 2) …” na RADIO + pola warunkowe; "
             "pola sterujące pominięte dla zwięzłości). Tekst:\n"
             f"<<<\n{example5_text}\n>>>\nStrony przedmiotu wniosku dla przykładu 2:\n{_compact('form5_subject_draft.json')}")
