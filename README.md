@@ -1,6 +1,6 @@
 # Form2Norm — papierowy wniosek → e-formularz COI w kilkadziesiąt sekund
 
-**Form2Norm** zamienia papierowy formularz urzędowy (PDF, Word, Excel, ODS, skan JPG/PNG) w **JSON e-formularza zgodny ze standardem COI** — gotowy do importu w generatorze formularzy mObywatela. Urzędnik wrzuca plik, sprawdza podgląd i pobiera JSON.
+**Form2Norm** zamienia papierowy formularz urzędowy (PDF, Word, Excel, ODS, skan JPG/PNG) w **JSON e-formularza zgodny ze standardem COI** — gotowy do importu w generatorze formularzy mObywatela. Urzędnik wrzuca plik, sprawdza podgląd i pobiera JSON. Wyniki w postaci JSON-ów dla poszczególnych wniosków znajdują się w katalogu **/wyniki**.
 
 | | |
 |---|---|
@@ -31,7 +31,7 @@
 7. [Bezpieczeństwo, OWASP, AI Act, RODO](#7-bezpieczeństwo-owasp-ai-act-rodo)
 8. [Konfiguracja](#8-konfiguracja)
 9. [REST API w 30 sekund](#9-rest-api-w-30-sekund)
-10. [Dla dewelopera / stażysty](#10-dla-dewelopera--stażysty)
+10. [Dla dewelopera ](#10-dla-dewelopera)
 11. [Znane ograniczenia](#11-znane-ograniczenia)
 
 ---
@@ -204,7 +204,7 @@ curl -s -X POST "http://localhost:8000/api/v1/forms/convert" -H "Authorization: 
 
 Odpowiedź: `{"filename": "...", "form": {JSON formularza COI}}`. Z `?debug=true` dodatkowo `trace` (czasy etapów, model, „co zmieniliśmy”, prosty język, propozycje słowników). Wszystkie endpointy i kody błędów: [docs/API.md](docs/API.md).
 
-## 10. Dla dewelopera / stażysty
+## 10. Dla dewelopera
 
 | Chcę… | Gdzie / jak |
 |---|---|
