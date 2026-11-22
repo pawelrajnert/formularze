@@ -73,6 +73,36 @@ details.tip summary::-webkit-details-marker { display:none; }
 details.tip[open] > div { background:var(--warn-bg); border:1px solid #8a6d00; padding:6px 8px; border-radius:4px; margin:4px 0; font-size:.9rem; }
 .navbtns { display:flex; justify-content:space-between; gap:8px; margin-top:8px; }
 a { color:var(--pri); }
+/* pasek postępu konwersji (etapy przełączane czasowo po stronie klienta) */
+#prog { margin-top:12px; }
+#prog ol { list-style:none; display:flex; flex-wrap:wrap; gap:4px 16px; margin:0 0 6px; padding:0; }
+#prog li { color:var(--muted); }
+#prog li::before { content:"○ "; }
+#prog li.on { color:var(--pri); font-weight:600; }
+#prog li.on::before { content:"● "; }
+#prog li.done { color:var(--ok); }
+#prog li.done::before { content:"✓ "; }
+#prog li.fail { color:var(--err); font-weight:600; }
+#prog li.fail::before { content:"✗ "; }
+.bar { height:8px; background:#e3e7ed; border-radius:4px; overflow:hidden; }
+.bar > div { height:100%; width:0; background:var(--pri); transition:width .4s; }
+.bar.ok > div { background:var(--ok); }
+.bar.fail > div { background:var(--err); }
+@media (prefers-reduced-motion:reduce) { .bar > div { transition:none; } }
+/* N-C3 / F-10 */
+.pl-field { margin:6px 0 10px; }
+.pl-field > b { display:block; margin-bottom:4px; }
+.pl-item { border-left:4px solid #8a6d00; background:#fffbea; padding:6px 10px; margin:6px 0; border-radius:0 4px 4px 0; }
+.pl-item.lvl-err { border-left-color:var(--err); background:var(--err-bg); }
+.pl-item p { margin:2px 0; }
+.badge { display:inline-block; font-size:.8rem; font-weight:700; padding:0 6px; border-radius:10px; border:1px solid #8a6d00; background:var(--warn-bg); margin-right:6px; }
+.badge.lvl-err { border-color:var(--err); color:var(--err); background:#fff; }
+.badge.cnt { border-color:var(--line); background:#fff; color:var(--muted); }
+.pl-item mark { background:#ffbf47; color:inherit; padding:0 2px; }
+.pl-item button { min-height:36px; padding:4px 10px; margin-top:4px; }
+.dict { border:1px solid var(--line); border-radius:6px; padding:8px 12px; margin:8px 0; }
+.dict h3 { font-size:1rem; margin:0 0 4px; }
+.dict ul { margin:4px 0; padding-left:20px; }
 </style>
 </head>
 <body>
@@ -104,6 +134,10 @@ a { color:var(--pri); }
         <button id="go" type="submit" disabled>Konwertuj</button>
         <span id="status" role="status" aria-live="polite"></span>
       </div>
+      <div id="prog" hidden aria-hidden="true">
+        <ol id="prog-steps"></ol>
+        <div class="bar" id="prog-bar"><div></div></div>
+      </div>
       <div id="up-msg" role="alert"></div>
     </form>
   </section>
@@ -115,6 +149,17 @@ a { color:var(--pri); }
       <p class="hint">E-formularz to nie skan papieru: system usuwa to, co w sieci zbędne, i dokłada sekcje ze standardu COI.</p>
       <div id="ch-sum" class="tiles"></div>
       <div id="ch-lists"></div>
+    </section>
+    <section id="plain" class="card" hidden aria-labelledby="pl-h">
+      <h2 id="pl-h">Prosty język (standard COI)</h2>
+      <p id="pl-sum" class="hint"></p>
+      <div id="pl-list"></div>
+      <div id="pl-msg" role="status" aria-live="polite"></div>
+    </section>
+    <section id="dicts" class="card" hidden aria-labelledby="dc-h">
+      <h2 id="dc-h">Propozycje nowych słowników</h2>
+      <p class="hint">Zamknięte listy wyboru, które warto utrzymywać centralnie jako słownik COI (pole <code>dictionaryName</code> zamiast <code>options</code>).</p>
+      <div id="dc-list"></div>
     </section>
     <section id="appr" class="card" hidden aria-labelledby="appr-h">
       <h2 id="appr-h">Zatwierdzenie urzędnika</h2>
@@ -208,23 +253,54 @@ $("up-form").addEventListener("submit", async (e) => {
   setMsg($("up-msg"), "");
   $("go").disabled = true;
   const t0 = Date.now();
-  const tick = () => { $("status").innerHTML = '<span class="spin" aria-hidden="true"></span>Trwa konwersja… ' + Math.round((Date.now() - t0) / 1000) + " s (z LLM zwykle 10–60 s)"; };
-  tick();
-  const timer = setInterval(tick, 1000);
+  const prog = progress(file);
   try {
     const fd = new FormData(); fd.append("file", file);
     const r = await fetch(API + "/forms/convert?debug=true", { method: "POST", headers: authHeaders(), body: fd });
-    if (r.status === 401 && token) { token = ""; sessionStorage.removeItem("coi_token"); show("login"); setMsg($("login-msg"), "Sesja wygasła — zaloguj się ponownie."); return; }
-    if (!r.ok) return setMsg($("up-msg"), await errorText(r));
+    if (r.status === 401 && token) { prog.fail("sesja wygasła."); token = ""; sessionStorage.removeItem("coi_token"); show("login"); setMsg($("login-msg"), "Sesja wygasła — zaloguj się ponownie."); return; }
+    if (!r.ok) { const m = await errorText(r); prog.fail(m); return setMsg($("up-msg"), m); }
     result = await r.json();
     result.stem = file.name.replace(/\.[^.]+$/, "");
+    prog.done(Math.round((Date.now() - t0) / 1000));
     showResult();
   } catch (err) {
+    prog.fail("błąd połączenia lub odpowiedzi.");
     setMsg($("up-msg"), "Błąd połączenia lub odpowiedzi: " + err.message);
   } finally {
-    clearInterval(timer); $("status").textContent = result ? "Gotowe w " + Math.round((Date.now() - t0) / 1000) + " s." : ""; $("go").disabled = !file;
+    prog.stop(); $("go").disabled = !file;
   }
 });
+
+// Pasek postępu: backend nie streamuje etapów, więc przełączamy je czasowo (szacunek); koniec = odpowiedź serwera.
+const STEPS = ["Wysyłanie pliku", "Odczyt dokumentu (OCR dla skanów)", "AI tworzy szkic formularza", "Budowa i walidacja"];
+function progress(f) {
+  const t0 = Date.now(), img = /\.(jpe?g|png)$/i.test(f.name);
+  const tUp = 500 + f.size / 2000, tRead = tUp + (img ? 12000 : 2000);  // wysyłanie ~2 MB/s; OCR skanu ~12 s
+  const lis = STEPS.map((t) => el("li", { textContent: t }));
+  $("prog-steps").replaceChildren(...lis);
+  const bar = $("prog-bar"); bar.className = "bar"; bar.firstChild.style.width = "0";
+  $("prog").hidden = false;
+  let cur = -1;
+  const set = (i, pct, text) => {
+    lis.forEach((li, j) => (li.className = j < i ? "done" : j === i ? "on" : ""));
+    bar.firstChild.style.width = pct + "%";
+    if (i !== cur) { cur = i; $("status").textContent = STEPS[i] + "…"; }
+    if (text) $("status").textContent = text;
+  };
+  const tick = () => {
+    const ms = Date.now() - t0, s = Math.round(ms / 1000);
+    if (ms < tUp) set(0, 5 + 10 * ms / tUp);
+    else if (ms < tRead) set(1, 15 + 20 * (ms - tUp) / (tRead - tUp));
+    else set(2, Math.min(90, 35 + (ms - tRead) / 1000), "AI tworzy szkic formularza… " + s + " s (z LLM zwykle 10–60 s)");
+  };
+  tick();
+  const timer = setInterval(tick, 500);
+  return {
+    stop: () => clearInterval(timer),
+    done: (sec) => { clearInterval(timer); lis.forEach((li) => (li.className = "done")); bar.className = "bar ok"; bar.firstChild.style.width = "100%"; $("status").textContent = "Gotowe ✓ (" + sec + " s)"; },
+    fail: (msg) => { clearInterval(timer); if (lis[cur]) lis[cur].className = "fail"; bar.className = "bar fail"; $("status").textContent = "Nie udało się — " + msg; },
+  };
+}
 
 // --- wynik ---
 function showResult() {
@@ -246,6 +322,8 @@ function showResult() {
   $("result").hidden = false;
   renderForm(result.form);
   renderChanges(tr.changes);
+  renderPlain(tr.plain_language);
+  renderDicts(tr.proposedDictionaries);
   setupAppr();
   $("trace").scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -272,6 +350,100 @@ function renderChanges(ch) {
     .filter(([k]) => (ch[k] || []).length)
     .map(([k, t, open]) => el("details", { className: "chg" + (k === "check" ? " warn" : ""), open },
       el("summary", { textContent: t + " (" + ch[k].length + ")" }), el("ul", {}, ...ch[k].map((x) => el("li", { textContent: x }))))));
+}
+
+// --- N-C3: prosty język — sugestie pogrupowane strona → pole, powtórzenia (reguła + fragment) zwinięte ---
+// Treść pochodzi z dokumentu: wszystko przez textContent / węzły tekstowe, bez innerHTML.
+function markIn(text, frag) {
+  const p = el("p"), i = frag ? text.indexOf(frag) : -1;
+  if (i < 0) { p.textContent = text; return p; }
+  p.append(text.slice(0, i), el("mark", { textContent: frag }), text.slice(i + frag.length));
+  return p;
+}
+function renderPlain(pl) {
+  const list = (pl && pl.suggestions) || [];
+  $("plain").hidden = !pl; setMsg($("pl-msg"), "");
+  if (!pl) return;
+  const s = pl.summary || {};
+  $("pl-sum").textContent = list.length ? "Sugestii: " + list.length + " (błędy: " + (s.bledy || 0) + ", ostrzeżenia: " + (s.ostrzezenia || 0) + "). Najedź na sugestię, aby zobaczyć źródło w standardzie."
+    : "✓ Brak sugestii — teksty formularza są zgodne z zasadami prostego języka.";
+  const pages = new Map();  // strona -> pole -> (reguła + fragment) -> [sugestie]
+  list.forEach((x) => {
+    const st = x.strona || "(bez strony)", po = x.pole || x.techName || "(pole)";
+    if (!pages.has(st)) pages.set(st, new Map());
+    const fields = pages.get(st);
+    if (!fields.has(po)) fields.set(po, new Map());
+    const k = x.regula + "\u0000" + x.fragment, g = fields.get(po);
+    if (!g.has(k)) g.set(k, []);
+    g.get(k).push(x);
+  });
+  $("pl-list").replaceChildren(...[...pages].map(([st, fields]) => {
+    const n = [...fields.values()].reduce((a, g) => a + [...g.values()].reduce((b, v) => b + v.length, 0), 0);
+    return el("details", { className: "chg", open: true }, el("summary", { textContent: "Strona: " + st + " (" + n + ")" }),
+      ...[...fields].map(([po, g]) => el("div", { className: "pl-field" }, el("b", { textContent: po }), ...[...g.values()].map(plainItem))));
+  }));
+}
+function plainItem(group) {
+  const x = group[0], err = x.poziom === "błąd";
+  const head = el("p", {}, el("span", { className: "badge" + (err ? " lvl-err" : ""), textContent: x.poziom || "ostrzeżenie" }));
+  if (group.length > 1) head.append(el("span", { className: "badge cnt", textContent: "×" + group.length, title: "Ta sama uwaga powtarza się " + group.length + " razy" }));
+  head.append(x.komunikat || "");
+  const box = el("div", { className: "pl-item" + (err ? " lvl-err" : ""), title: x.zrodlo ? "Źródło: " + x.zrodlo : "" }, head,
+    markIn(x.tekst || "", x.fragment), el("p", { className: "hint", textContent: "Propozycja: " + (x.propozycja || "") }));
+  if (x.zamiana != null) {
+    const b = el("button", { type: "button", className: "sec", textContent: "Zastosuj: „" + x.fragment + "” → „" + x.zamiana + "”" });
+    b.onclick = () => applyPlain(group, b);
+    box.append(b);
+  }
+  return box;
+}
+// ścieżka typu tabs[1].questions[0].field.title -> [obiekt-rodzic, klucz]
+function resolvePath(obj, path) {
+  const keys = [...String(path || "").matchAll(/([^.[\]]+)|\[(\d+)\]/g)].map((m) => (m[2] != null ? Number(m[2]) : m[1]));
+  if (!keys.length) return null;
+  let cur = obj;
+  for (const k of keys.slice(0, -1)) { if (cur == null || typeof cur !== "object") return null; cur = cur[k]; }
+  return cur != null && typeof cur === "object" ? [cur, keys[keys.length - 1]] : null;
+}
+async function applyPlain(group, btn) {
+  const x = group[0];
+  // F-18: zatwierdzany JSON musi mieć hash z tokenu /convert — przy zatwierdzaniu tylko kopiujemy propozycję do schowka
+  if (result.approval) {
+    try { await navigator.clipboard.writeText(x.zamiana); setMsg($("pl-msg"), "Skopiowano „" + x.zamiana + "” do schowka. Formularz podlega zatwierdzeniu, więc JSON nie jest zmieniany w przeglądarce.", "warn"); }
+    catch { setMsg($("pl-msg"), "Nie udało się skopiować — propozycja: „" + x.zamiana + "”.", "warn"); }
+    return;
+  }
+  let n = 0;
+  group.forEach((g) => {
+    const ref = resolvePath(result.form, g.sciezka);
+    if (!ref) return;
+    const [o, k] = ref, v = o[k];
+    if (typeof v === "string" && g.fragment && v.includes(g.fragment)) { o[k] = v.replace(g.fragment, () => g.zamiana); n++; }
+  });
+  if (!n) return setMsg($("pl-msg"), "Nie znaleziono fragmentu „" + x.fragment + "” w polu (mógł już zostać zmieniony).", "warn");
+  $("json").textContent = JSON.stringify(result.form, null, 2);
+  renderForm(result.form);
+  btn.disabled = true; btn.textContent = "✓ Zastosowano (" + n + ")";
+  setMsg($("pl-msg"), "Zmieniono " + n + "×: „" + x.fragment + "” → „" + x.zamiana + "”. JSON i podgląd odświeżone.", "ok");
+}
+
+// --- F-10: propozycje nowych słowników ---
+function renderDicts(ds) {
+  $("dicts").hidden = !ds || !ds.length;
+  if (!ds || !ds.length) return;
+  $("dc-list").replaceChildren(...ds.map((d) => {
+    const items = (d.pozycje || []).map((p) => el("li", { textContent: (p.nazwa || "") + (p.kod ? " (" + p.kod + ")" : "") }));
+    const pos = el("div");
+    if (items.length > 8) pos.append(el("ul", {}, ...items.slice(0, 8)),
+      el("details", { className: "chg" }, el("summary", { textContent: "Pokaż pozostałe (" + (items.length - 8) + ")" }), el("ul", {}, ...items.slice(8))));
+    else pos.append(el("ul", {}, ...items));
+    const where = (d.wystapienia || []).map((w) => el("li", { textContent: (w.tytulPola || w.techName || "") + " — " + (w.tytulFormularza || w.formularz || "") + (w.typ ? " [" + w.typ + "]" : "") }));
+    return el("div", { className: "dict" },
+      el("h3", { textContent: (d.nazwa || "") + (d.etykieta ? " — „" + d.etykieta + "”" : "") }),
+      el("p", { className: "hint", textContent: "Pozycji: " + (d.pozycje || []).length + (d.pewnosc ? " · pewność: " + d.pewnosc : "") }),
+      pos, el("p", { textContent: "Gdzie występuje:" }), el("ul", {}, ...where),
+      d.uzasadnienie ? el("p", { className: "hint", textContent: "Uzasadnienie: " + d.uzasadnienie }) : "");
+  }));
 }
 
 // --- F-18: zatwierdzenie (APPROVAL_REQUIRED) — bez niego eksport zablokowany ---

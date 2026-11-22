@@ -110,3 +110,28 @@ def test_changes_summary_n_c4():
     s = ch["summary"]
     assert s["fields"] == s["from_document"] + s["from_standard"] and s["from_standard"] > 0 and s["prefilled"] > 0
     assert out["trace"]["changes"]["summary"]["fields"] == s["fields"]
+
+
+def test_trace_dictionaries_and_plain_language():
+    """F-10 + N-C3: propozycje słowników i sugestie prostego języka tylko w debug trace."""
+    out = convert_document(FILES["docx"].read_bytes(), "docx", True)
+    t = out["trace"]
+    assert isinstance(t["proposedDictionaries"], list)
+    pl = t["plain_language"]
+    assert set(pl["summary"]) == {"razem", "bledy", "ostrzezenia", "wg_reguly"}
+    assert pl["summary"]["razem"] == len(pl["suggestions"])
+    for s in pl["suggestions"]:
+        assert {"sciezka", "fragment", "regula", "poziom", "zamiana"} <= set(s)
+    plain = convert_document(FILES["docx"].read_bytes(), "docx", False)
+    assert "trace" not in plain and "proposedDictionaries" not in plain and "plain_language" not in plain
+
+
+def test_trace_extras_failure_does_not_break_convert(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("x")
+    monkeypatch.setattr(pipeline.dictionary_proposals, "propose_for_form", boom)
+    monkeypatch.setattr(pipeline.plain_language, "check_plain_language", boom)
+    out = convert_document(FILES["docx"].read_bytes(), "docx", True)
+    assert check(out["form"]) == []
+    assert out["trace"]["proposedDictionaries"] == []
+    assert out["trace"]["plain_language"]["suggestions"] == [] and out["trace"]["plain_language"]["summary"]["razem"] == 0

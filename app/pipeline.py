@@ -1,4 +1,5 @@
 """Dokument -> hackcore.Document -> Draft (F-06: LLM, a w razie problemu heurystyka) -> JSON formularza COI -> walidacja."""
+import logging
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -7,6 +8,7 @@ from hackcore import (IngestError, LLMClient, MissingAPIKey, MissingDependency, 
                       UnknownModel, load_document, load_registry, selected_model_id)
 
 from app import approval, config
+from app.form_builder import dictionary_proposals, plain_language
 from app.form_builder.builder import build
 from app.form_builder.draft_llm import draft_summary, make_draft
 from app.form_builder.draft_postprocess import paper_reason
@@ -14,6 +16,9 @@ from app.rules_check import check
 
 __all__ = ["ConversionError", "IngestError", "UnknownModel", "convert_document", "registry"]
 MODELS_FILE = Path(__file__).resolve().parents[1] / "config" / "models.yaml"  # X-09
+
+
+log = logging.getLogger(__name__)
 
 
 class ConversionError(Exception):
@@ -128,6 +133,20 @@ def _reason(result, no_llm: str) -> str:
     return next((w for w in result.warnings if "heurystyk" in w), "")[:300]
 
 
+def _safe(fn, form: dict, empty):
+    """Dodatki do debug trace (F-10, N-C3) nie mogą wywalić /convert: błąd -> pusty wynik + log typu błędu."""
+    try:
+        return fn(form)
+    except Exception as e:  # noqa: BLE001 — świadomie szeroko, to tylko podpowiedzi
+        log.warning("debug trace: %s nie powiodło się (%s)", getattr(fn, "__name__", fn), type(e).__name__)
+        return empty
+
+
+def _plain_language(form: dict) -> dict:
+    pl = plain_language.check_plain_language(form)
+    return {"summary": plain_language.summary(pl), "suggestions": pl}
+
+
 def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "", model_id: str | None = None) -> dict:
     """model_id: id z config/models.yaml (np. `?model=`); None -> LLM_MODEL_ID albo stare LLM_* z env."""
     llm, model_label, no_llm = _select_llm(model_id)  # przed ingestem: nieznane id = szybki błąd
@@ -153,4 +172,7 @@ def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "", m
         "source": result.source, "model": model_label, "reason": _reason(result, no_llm), "seconds": draft_summary(result)["seconds"],
         "text_chars": len(doc.text), "ocr_used": doc.ocr_used, "rules_errors": [],
         "cleanup": notes, "removed_paper_elements": removed, "warnings": result.warnings,
-        "changes": changes(form, removed, notes)}}
+        "changes": changes(form, removed, notes),
+        "proposedDictionaries": _safe(dictionary_proposals.propose_for_form, form, []),  # F-10
+        "plain_language": _safe(_plain_language, form, {  # N-C3
+            "summary": {"razem": 0, "bledy": 0, "ostrzezenia": 0, "wg_reguly": {}}, "suggestions": []})}}
