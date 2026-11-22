@@ -1,0 +1,388 @@
+{
+  "data": "2026-11-22 09:27",
+  "commit": "5c03a62",
+  "formularze": {
+    "1": {
+      "pola_gt": 4,
+      "pola_wyniku": 4,
+      "recall": 100.0,
+      "precision": 100.0,
+      "f1": 100.0,
+      "nie_powinno_byc": 0,
+      "warianty": null,
+      "warunki": null,
+      "wymagane": null,
+      "zalaczniki": null,
+      "slowniki_pol": 8,
+      "slowniki_pokrycie": 100.0,
+      "szczegoly": {
+        "brakujace_pola": [],
+        "nadmiarowe_pola": [],
+        "neutralne_poza_zakresem": 0,
+        "zmyslenia": [],
+        "brakujace_warianty": [],
+        "brakujace_warunki": [],
+        "brakujace_zalaczniki": [],
+        "wymagane_bez_REQUIRED": []
+      },
+      "technicznie_ok": true,
+      "bledy_regul": 0,
+      "bledy_schematu": 0,
+      "przyklady_bledow": [],
+      "formularz": "Wniosek o ustalenie numeru porządkowego nieruchomości",
+      "wynik": "eval/out/1.json",
+      "gt": "wzorzec COI"
+    },
+    "2": {
+      "pola_gt": 6,
+      "pola_wyniku": 9,
+      "recall": 100.0,
+      "precision": 100.0,
+      "f1": 100.0,
+      "nie_powinno_byc": 0,
+      "warianty": 100.0,
+      "warunki": 100.0,
+      "wymagane": 100.0,
+      "zalaczniki": null,
+      "slowniki_pol": 7,
+      "slowniki_pokrycie": null,
+      "szczegoly": {
+        "brakujace_pola": [],
+        "nadmiarowe_pola": [],
+        "neutralne_poza_zakresem": 1,
+        "zmyslenia": [],
+        "brakujace_warianty": [],
+        "brakujace_warunki": [],
+        "brakujace_zalaczniki": [],
+        "wymagane_bez_REQUIRED": []
+      },
+      "technicznie_ok": true,
+      "bledy_regul": 0,
+      "bledy_schematu": 0,
+      "przyklady_bledow": [],
+      "formularz": "Wniosek o zwrot opłaty skarbowej",
+      "wynik": "wyniki/2.json",
+      "gt": "dokument źródłowy"
+    },
+    "3": {
+      "pola_gt": 2,
+      "pola_wyniku": 9,
+      "recall": 100.0,
+      "precision": 33.3,
+      "f1": 50.0,
+      "nie_powinno_byc": 0,
+      "warianty": 100.0,
+      "warunki": 100.0,
+      "wymagane": 100.0,
+      "zalaczniki": null,
+      "slowniki_pol": 5,
+      "slowniki_pokrycie": 0.0,
+      "szczegoly": {
+        "brakujace_pola": [],
+        "nadmiarowe_pola": [
+          "Czy posiadasz użytki rolne lub gospodarstwo rolne na terenie Gminy Młynary?",
+          "Okres posiadania gospodarstwa rolnego (od - do)",
+          "Ilość użytków rolnych (w hektarach fizycznych)",
+          "Ilość użytków rolnych (w hektarach przeliczeniowych)",
+          "Ilość dzierżawionych użytków rolnych (w hektarach fizycznych)",
+          "Ilość dzierżawionych użytków rolnych (w hektarach przeliczeniowych)"
+        ],
+        "neutralne_poza_zakresem": 0,
+        "zmyslenia": [],
+        "brakujace_warianty": [],
+        "brakujace_warunki": [],
+        "brakujace_zalaczniki": [],
+        "wymagane_bez_REQUIRED": []
+      },
+      "technicznie_ok": true,
+      "bledy_regul": 0,
+      "bledy_schematu": 0,
+      "przyklady_bledow": [],
+      "formularz": "Wniosek o wydanie zaświadczenia",
+      "wynik": "wyniki/3.json",
+      "gt": "dokument źródłowy"
+    },
+    "4": {
+      "pola_gt": 10,
+      "pola_wyniku": 14,
+      "recall": 90.0,
+      "precision": 92.9,
+      "f1": 91.4,
+      "nie_powinno_byc": 0,
+      "warianty": 100.0,
+      "warunki": 100.0,
+      "wymagane": 90.0,
+      "zalaczniki": 100.0,
+      "slowniki_pol": 5,
+      "slowniki_pokrycie": null,
+      "szczegoly": {
+        "brakujace_pola": [
+          "Oświadczenie: zapoznałem się z warunkami wynajmu"
+        ],
+        "nadmiarowe_pola": [
+          "Potwierdzam zapoznanie się z warunkami wynajmu świetlicy wiejskiej"
+        ],
+        "neutralne_poza_zakresem": 0,
+        "zmyslenia": [],
+        "brakujace_warianty": [],
+        "brakujace_warunki": [],
+        "brakujace_zalaczniki": [],
+        "wymagane_bez_REQUIRED": [
+          "Oświadczenie: zapoznałem się z warunkami wynajmu"
+        ]
+      },
+      "technicznie_ok": true,
+      "bledy_regul": 0,
+      "bledy_schematu": 0,
+      "przyklady_bledow": [],
+      "formularz": "Wniosek o wynajęcie lub użyczenie świetlicy wiejskiej",
+      "wynik": "wyniki/4.json",
+      "gt": "dokument źródłowy"
+    },
+    "5": {
+      "pola_gt": 5,
+      "pola_wyniku": 9,
+      "recall": 80.0,
+      "precision": 77.8,
+      "f1": 78.9,
+      "nie_powinno_byc": 0,
+      "warianty": 100.0,
+      "warunki": 50.0,
+      "wymagane": null,
+      "zalaczniki": 100.0,
+      "slowniki_pol": 7,
+      "slowniki_pokrycie": null,
+      "szczegoly": {
+        "brakujace_pola": [
+          "Nazwa podatku"
+        ],
+        "nadmiarowe_pola": [
+          "Opis załącznika",
+          "Plik załącznika"
+        ],
+        "neutralne_poza_zakresem": 0,
+        "zmyslenia": [],
+        "brakujace_warianty": [],
+        "brakujace_warunki": [
+          "nazw podat ⇐ zalicz pocz (brak pola)"
+        ],
+        "brakujace_zalaczniki": [],
+        "wymagane_bez_REQUIRED": []
+      },
+      "technicznie_ok": true,
+      "bledy_regul": 0,
+      "bledy_schematu": 0,
+      "przyklady_bledow": [],
+      "formularz": "Wniosek o stwierdzenie nadpłaty podatku",
+      "wynik": "eval/out/5.json",
+      "gt": "wzorzec COI"
+    },
+    "6": {
+      "pola_gt": 19,
+      "pola_wyniku": 33,
+      "recall": 94.7,
+      "precision": 100.0,
+      "f1": 97.3,
+      "nie_powinno_byc": 0,
+      "warianty": null,
+      "warunki": null,
+      "wymagane": 88.9,
+      "zalaczniki": 100.0,
+      "slowniki_pol": 9,
+      "slowniki_pokrycie": 66.7,
+      "szczegoly": {
+        "brakujace_pola": [
+          "Adres osoby odpowiedzialnej (zam.)"
+        ],
+        "nadmiarowe_pola": [],
+        "neutralne_poza_zakresem": 1,
+        "zmyslenia": [],
+        "brakujace_warianty": [],
+        "brakujace_warunki": [],
+        "brakujace_zalaczniki": [],
+        "wymagane_bez_REQUIRED": [
+          "Rodzaj robót i sposób wykonania"
+        ]
+      },
+      "technicznie_ok": true,
+      "bledy_regul": 0,
+      "bledy_schematu": 0,
+      "przyklady_bledow": [],
+      "formularz": "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego w celu prowadzenia robót",
+      "wynik": "wyniki/6.json",
+      "gt": "dokument źródłowy"
+    },
+    "7": {
+      "pola_gt": 11,
+      "pola_wyniku": 29,
+      "recall": 90.9,
+      "precision": 48.3,
+      "f1": 63.1,
+      "nie_powinno_byc": 0,
+      "warianty": 100.0,
+      "warunki": 100.0,
+      "wymagane": 75.0,
+      "zalaczniki": 0.0,
+      "slowniki_pol": 8,
+      "slowniki_pokrycie": 75.0,
+      "szczegoly": {
+        "brakujace_pola": [
+          "Adres miejsca utrzymywania psa"
+        ],
+        "nadmiarowe_pola": [
+          "Imię poprzedniego właściciela",
+          "Nazwisko poprzedniego właściciela",
+          "Kraj (Adres poprzedniego właściciela)",
+          "Ulica (Adres poprzedniego właściciela)",
+          "Numer budynku (Adres poprzedniego właściciela)",
+          "Numer lokalu (Adres poprzedniego właściciela)",
+          "Kod pocztowy (Adres poprzedniego właściciela)",
+          "Miejscowość (Adres poprzedniego właściciela)",
+          "Miejscowość (za granicą) (Adres poprzedniego właściciela)",
+          "Kod pocztowy (za granicą) (Adres poprzedniego właściciela)",
+          "Ulica",
+          "Numer budynku",
+          "Numer lokalu",
+          "Miejscowość",
+          "Kod pocztowy"
+        ],
+        "neutralne_poza_zakresem": 0,
+        "zmyslenia": [],
+        "brakujace_warianty": [],
+        "brakujace_warunki": [],
+        "brakujace_zalaczniki": [
+          "szczepi|wscieklizn"
+        ],
+        "wymagane_bez_REQUIRED": [
+          "Pochodzenie psa (metryka, rodowód, poprzedni właściciel)",
+          "Adres miejsca utrzymywania psa"
+        ]
+      },
+      "technicznie_ok": true,
+      "bledy_regul": 0,
+      "bledy_schematu": 0,
+      "przyklady_bledow": [],
+      "formularz": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
+      "wynik": "wyniki/7.json",
+      "gt": "dokument źródłowy"
+    },
+    "8": {
+      "pola_gt": 21,
+      "pola_wyniku": 59,
+      "recall": 85.7,
+      "precision": 92.9,
+      "f1": 89.2,
+      "nie_powinno_byc": 1,
+      "warianty": 100.0,
+      "warunki": 25.0,
+      "wymagane": 50.0,
+      "zalaczniki": 50.0,
+      "slowniki_pol": 12,
+      "slowniki_pokrycie": 83.3,
+      "szczegoly": {
+        "brakujace_pola": [
+          "Współmałżonek – nazwisko, imię (B.2.5)",
+          "Współmałżonek – adres zamieszkania (B.2.6)",
+          "Współmałżonek – PESEL (B.2.7)"
+        ],
+        "nadmiarowe_pola": [
+          "Inne załączniki (opis)",
+          "Oświadczam, że dane zawarte w deklaracji są prawdziwe i kompletne.",
+          "Zamieszkuję na nieruchomości, której dotyczy deklaracja."
+        ],
+        "neutralne_poza_zakresem": 17,
+        "zmyslenia": [
+          "Oświadczam, że dane zawarte w deklaracji są prawdziwe i kompletne."
+        ],
+        "brakujace_warianty": [],
+        "brakujace_warunki": [
+          "malzon nazwisk|imie ⇐ wspolnosc|majatk (brak pola)",
+          "malzon pesel ⇐ wspolnosc|majatk (brak pola)",
+          "kwota|poz zalacznik ⇐ tak"
+        ],
+        "brakujace_zalaczniki": [
+          "upowazn|pelnomocn",
+          "inne|inny"
+        ],
+        "wymagane_bez_REQUIRED": [
+          "Suma opłaty (E.1.51 / E.2.67)"
+        ]
+      },
+      "technicznie_ok": true,
+      "bledy_regul": 0,
+      "bledy_schematu": 0,
+      "przyklady_bledow": [],
+      "formularz": "Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi",
+      "wynik": "wyniki/8.json",
+      "gt": "dokument źródłowy"
+    },
+    "9": {
+      "pola_gt": 25,
+      "pola_wyniku": 98,
+      "recall": 88.0,
+      "precision": 96.9,
+      "f1": 92.2,
+      "nie_powinno_byc": 0,
+      "warianty": 50.0,
+      "warunki": 50.0,
+      "wymagane": 88.9,
+      "zalaczniki": 80.0,
+      "slowniki_pol": 19,
+      "slowniki_pokrycie": 70.0,
+      "szczegoly": {
+        "brakujace_pola": [
+          "Pełnomocnik klubu – imię",
+          "Pełnomocnik klubu – nazwisko",
+          "Pełnomocnik klubu – seria i numer dowodu osobistego"
+        ],
+        "nadmiarowe_pola": [
+          "Numer kierunkowy",
+          "Czy wniosek składa reprezentant klubu?",
+          "Numer kierunkowy"
+        ],
+        "neutralne_poza_zakresem": 2,
+        "zmyslenia": [],
+        "brakujace_warianty": [
+          "Wnioskodawca",
+          "Dane reprezentanta czy pełnomocnika klubu",
+          "Sposób korespondencji z urzędem",
+          "Kandydat pełnoletni czy nieletni"
+        ],
+        "brakujace_warunki": [
+          "klub nazwa|nazwy ⇐ klub",
+          "epuap adres|skrzyn ⇐ epuap",
+          "doreczen|edoreczen adres|skrzyn ⇐ doreczen|edoreczen",
+          "rodzic|opiekun ⇐ nielet|niepelnolet|maloletn"
+        ],
+        "brakujace_zalaczniki": [
+          "pelnomocn"
+        ],
+        "wymagane_bez_REQUIRED": [
+          "Opinia macierzystego klubu"
+        ]
+      },
+      "technicznie_ok": true,
+      "bledy_regul": 0,
+      "bledy_schematu": 0,
+      "przyklady_bledow": [],
+      "formularz": "Wniosek o przyznanie stypendium, nagrody lub wyróżnienia sportowego Rady Miasta",
+      "wynik": "wyniki/9.json",
+      "gt": "dokument źródłowy"
+    }
+  },
+  "srednia": {
+    "recall": 92.1,
+    "precision": 82.5,
+    "f1": 84.7,
+    "warianty": 92.9,
+    "warunki": 75.0,
+    "wymagane": 84.7,
+    "zalaczniki": 71.7,
+    "slowniki_pokrycie": 65.8,
+    "technicznie_ok": "9/9",
+    "nie_powinno_byc": 1,
+    "slowniki_pol": 80
+  },
+  "pominiete": [],
+  "konwersje": []
+}

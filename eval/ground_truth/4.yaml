@@ -1,0 +1,23 @@
+# Ground truth z treści data/4 (Wniosek o wynajęcie/użyczenie świetlicy wiejskiej, docx).
+# Miejscowość i data, imię i nazwisko, adres, telefon, podpis -> szablony COI.
+formularz: "Wniosek o wynajęcie lub użyczenie świetlicy wiejskiej"
+zrodlo: "Wniosek o wynajęcie świetlicy.docx"
+pola:
+  - {nazwa: "Świetlica (w miejscowości)", klucze: [swietlic, "miejscow|nazw|lokaliz|adres|ktor|wybierz|wies"], wymagane: true}
+  - {nazwa: "Termin od", klucze: ["data od|termin od|od dnia|od kiedy|rozpocz|poczat"], wymagane: true}
+  - {nazwa: "Termin do", klucze: ["data do|termin do|do dnia|do kiedy|zakoncz|koniec|konca"], wymagane: true}
+  - {nazwa: "Cel wynajęcia (rodzaj uroczystości)", klucze: ["cel|uroczyst"], wymagane: true}
+  - {nazwa: "Przewidywana ilość uczestników", klucze: [uczestnik], wymagane: true}
+  - {nazwa: "Osoba odpowiedzialna za porządek i bezpieczeństwo", klucze: ["osob|osoba", odpowiedzial], wymagane: true}
+  - {nazwa: "Oświadczenie: zapoznałem się z warunkami wynajmu", klucze: [zapoznal, warunk], wymagane: true}
+  - {nazwa: "Oświadczenie: odpowiadam za ład i porządek", klucze: [lad, porzad], wymagane: true}
+  - {nazwa: "Oświadczenie: przepisy sanitarne, BHP, p.poż.", klucze: ["sanitar|bhp"], wymagane: true}
+  - {nazwa: "Oświadczenie: odpowiedzialność za powierzone mienie", klucze: [mieni], wymagane: true}
+warianty:
+  - {nazwa: "Wynajem czy użyczenie", opcje: [["wynaj|wynajem|najem|najmu"], ["uzycz"]]}
+zalaczniki:
+  - ["oswiadcz|zgod"]   # zgoda / zbiorcze oświadczenie osoby odpowiedzialnej innej niż wnioskodawca
+warunkowe:
+  - {pole: ["oswiadcz|zgod", "osob|osoba"], gdy: ["inn"]}
+poza_zakresem: []
+nie_powinno_byc: [[kaucj], [prawdziw], ["rachunk|numer konta|konto bank|konta bank"], ["cena|kwota|stawk"]]

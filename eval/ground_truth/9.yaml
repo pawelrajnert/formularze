@@ -1,0 +1,60 @@
+# Ground truth z treści data/9 (Wniosek o stypendium / nagrodę / wyróżnienie sportowe, Zgierz, docx).
+# Dokument zawiera trzy wnioski w jednym pliku – GT opisuje ich sumę (wspólne pola + warunkowe części).
+# Poza GT: data sporządzenia, podpis i pieczątka, klauzula informacyjna (pkt 4) -> szablony COI.
+formularz: "Wniosek o przyznanie stypendium, nagrody lub wyróżnienia sportowego Rady Miasta"
+zrodlo: "Wniosek o przyznanie stypendium.docx"
+pola:
+  - {nazwa: "Reprezentant klubu – imię", klucze: [reprezent, imie]}
+  - {nazwa: "Reprezentant klubu – nazwisko", klucze: [reprezent, nazwisk]}
+  - {nazwa: "Pełnomocnik klubu – imię", klucze: [pelnomocn, imie]}
+  - {nazwa: "Pełnomocnik klubu – nazwisko", klucze: [pelnomocn, nazwisk]}
+  - {nazwa: "Pełnomocnik klubu – seria i numer dowodu osobistego", klucze: ["dowod|seria"]}
+  - {nazwa: "Nazwa klubu sportowego", klucze: [klub, "nazwa|nazwy"], wymagane: true}
+  - {nazwa: "Adres siedziby klubu", klucze: [siedzib]}
+  - {nazwa: "Inny adres korespondencyjny", klucze: ["inny adres|adres korespondencyjny|adres do korespondencji klub"]}
+  - {nazwa: "Adres skrzynki ePUAP", klucze: [epuap, "adres|skrzyn"]}
+  - {nazwa: "Adres e-Doręczeń", klucze: ["doreczen|edoreczen", "adres|skrzyn"]}
+  - {nazwa: "Sportowiec – imię", klucze: ["sportow|kandydat|zawodni|osob", imie], wymagane: true}
+  - {nazwa: "Sportowiec – nazwisko", klucze: ["sportow|kandydat|zawodni|osob", nazwisk], wymagane: true}
+  - {nazwa: "Sportowiec – data urodzenia", klucze: ["data urodz"], wymagane: true}
+  - {nazwa: "Sportowiec – adres zameldowania", klucze: [zameldow], wymagane: true}
+  - {nazwa: "Sportowiec – adres do korespondencji (jeśli inny)", klucze: [korespond, "rozni|inny|sportow|kandydat|zameldow"]}
+  - {nazwa: "Inna dyscyplina", klucze: ["inna dyscyplin|inne dyscyplin|inna"]}
+  - {nazwa: "Osiągnięcia sportowe", klucze: [osiagniec], wymagane: true}
+  - {nazwa: "Opinia macierzystego klubu", klucze: [opini], wymagane: true}
+  - {nazwa: "Dodatkowe informacje", klucze: [dodatkow]}
+  - {nazwa: "Trener / opiekun – dane (wyróżnienie)", klucze: [trener]}
+  - {nazwa: "Podopieczny – imię i nazwisko (wyróżnienie)", klucze: ["podopieczn|zawodni", "imie|nazwisk"]}
+  - {nazwa: "Podopieczny – osiągnięcia sportowe (wyróżnienie)", klucze: ["podopieczn|zawodni", osiagn]}
+  - {nazwa: "Rodzic / opiekun prawny – imię i nazwisko (kandydat nieletni)", klucze: ["rodzic|opiekun"]}
+  - {nazwa: "Zgoda na przetwarzanie danych we wniosku (pkt 5)", klucze: ["przetwarz|zgod"], wymagane: true}
+  - {nazwa: "Oświadczenie o zapoznaniu się z regulaminem", klucze: [regulamin], wymagane: true}
+warianty:
+  - {nazwa: "Rodzaj wniosku", opcje: [[stypend], [nagrod], [wyroznien]]}
+  - {nazwa: "Wnioskodawca", opcje: [[prezydent], [klub]]}
+  - {nazwa: "Dane reprezentanta czy pełnomocnika klubu", opcje: [[reprezent], [pelnomocn]]}
+  - {nazwa: "Sposób korespondencji z urzędem", opcje: [["poczt|tradycyj"], [epuap], ["doreczen|edoreczen"]]}
+  - {nazwa: "Adres do korespondencji pocztowej", opcje: [[siedzib], ["inny"]]}
+  - {nazwa: "Rodzaj dyscyplin", opcje: [[zespol], [indywidual, inna], [lekkoatlet]]}
+  - nazwa: "Dyscypliny sportowe"
+    opcje: [[gimnastyk], [hokej], [karate], [kolarst], [koszyk], [lekkoatlet], [lucznic], [lyzwiar], [narciar],
+            ["pilka nozn"], ["pilka reczn"], ["pilka siatk"], ["pilka wodn"], [motocykl], [walki], ["sporty wodne"],
+            ["tenis stol"], ["tenis ziem"], [unihokej], [zapas]]
+  - {nazwa: "Kandydat pełnoletni czy nieletni", opcje: [[pelnolet], ["nielet|niepelnolet|maloletn"]]}
+warunkowe:
+  - {pole: [reprezent, imie], gdy: [klub]}
+  - {pole: [klub, "nazwa|nazwy"], gdy: [klub]}
+  - {pole: [epuap, "adres|skrzyn"], gdy: [epuap]}
+  - {pole: ["doreczen|edoreczen", "adres|skrzyn"], gdy: ["doreczen|edoreczen"]}
+  - {pole: ["inny adres|adres korespondencyjny|adres do korespondencji klub"], gdy: [inny]}
+  - {pole: [trener], gdy: [wyroznien]}
+  - {pole: ["podopieczn|zawodni", "imie|nazwisk"], gdy: [wyroznien]}
+  - {pole: ["rodzic|opiekun"], gdy: ["nielet|niepelnolet|maloletn"]}
+zalaczniki:
+  - [krs]                                   # odpis z KRS lub innego rejestru
+  - ["dyplom|osiagn"]                      # dokumenty potwierdzające osiągnięcia
+  - [opini]                                # dokument z opinią klubu
+  - ["zaswiadcz|zwiaz"]                    # zaświadczenia Polskiego Związku Sportowego
+  - [pelnomocn]                            # pełnomocnictwo klubu (pkt 1)
+poza_zakresem: [["telefon|tel"], ["oplat"]]
+nie_powinno_byc: [[pesel], [prawdziw], [nazw, bank], ["rachunk|numer konta|konto bank|konta bank"]]

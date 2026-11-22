@@ -1,0 +1,28 @@
+# Ground truth z treści data/7 (Wniosek o zezwolenie na hodowanie/utrzymywanie psów, PDF – brak docx).
+# Sekcja A (dane wnioskodawcy), podpis, pieczęć, opłata skarbowa, RODO -> szablony COI.
+formularz: "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne"
+zrodlo: "Wniosek o wydanie zezwolenia na hodowanie.PDF"
+pola:
+  - {nazwa: "Pochodzenie psa (metryka, rodowód, poprzedni właściciel)", klucze: ["pochodz|rodowod|metryk"], wymagane: true}
+  - {nazwa: "Rasa psa", klucze: [rasa], wymagane: true}
+  - {nazwa: "Data urodzenia psa", klucze: ["data urodz"], wymagane: true}
+  - {nazwa: "Data szczepienia", klucze: ["szczepien"]}
+  - {nazwa: "Numer mikroprocesora", klucze: ["mikroproc|chip|czip", "numer|nr"]}
+  - {nazwa: "Numer tatuażu", klucze: ["tatua", "numer|nr"]}
+  - {nazwa: "Adres miejsca utrzymywania psa", klucze: [adres, utrzym], wymagane: true}
+  - {nazwa: "Opis miejsca i warunków utrzymywania", klucze: ["opis", "miejsc|warunk"], wymagane: true}
+  - {nazwa: "Oświadczenie: psy nie będą wykorzystywane do polowań", klucze: [polowa], wymagane: true}
+  - {nazwa: "Oświadczenie: szczepienie przeciw wściekliźnie", klucze: [wscieklizn], wymagane: true}
+  - {nazwa: "Oświadczenie: zapewniam warunki utrzymywania", klucze: [zapewn, warunk], wymagane: true}
+warianty:
+  - {nazwa: "Hodowanie czy utrzymywanie", opcje: [[hodow], [utrzym]]}
+  - {nazwa: "Chart czy mieszaniec charta", opcje: [[chart], [mieszan]]}
+  - {nazwa: "Płeć psa", opcje: [[pies], [suka]]}
+  - {nazwa: "Sposób oznakowania psa", opcje: [["mikroproc|chip|czip"], [tatua], [brak]]}
+warunkowe:
+  - {pole: ["mikroproc|chip|czip", "numer|nr"], gdy: ["mikroproc|chip|czip"]}
+  - {pole: ["tatua", "numer|nr"], gdy: [tatua]}
+zalaczniki:
+  - ["szczepi|wscieklizn"]   # "w załączeniu kopia dla każdego psa"
+poza_zakresem: [[oplat], ["przetwarz|rodo|osobow"], [pieczec], ["sprawy|sprawa"]]
+nie_powinno_byc: [["waga|masa"], ["kolor|masc|umaszcz"], [prawdziw], [nazw, bank]]

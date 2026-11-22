@@ -1,0 +1,20 @@
+# Ground truth z treści data/3 (Wniosek o wydanie zaświadczenia, docx).
+# Imię i nazwisko, adres, PESEL, telefon, podpis -> szablony COI. Opłata skarbowa (INFORMACJE) -> szablon opłaty.
+formularz: "Wniosek o wydanie zaświadczenia"
+zrodlo: "Wniosek o wydanie zaświadczenia.docx"
+pola:
+  - {nazwa: "Inny rodzaj zaświadczenia (jaki)", klucze: ["inne|inny|jakie|jaki"]}
+  - {nazwa: "Cel / miejsce przedłożenia zaświadczenia", klucze: ["przedloz|cel"], wymagane: true}
+warianty:
+  - nazwa: "Zaświadczenie o (rodzaj)"
+    opcje:
+      - [posiadan, uzytk]
+      - [dzierzaw]
+      - ["okres|okresie", gospodarst]
+      - ["nieposiadan|nieposiadaniu"]
+      - ["inne|inny"]
+warunkowe:
+  - {pole: ["inne|inny|jakie|jaki"], gdy: ["inne|inny"]}
+zalaczniki: []
+poza_zakresem: [[oplat], ["dowod|potwierdz", "uiszcz|zaplat|wplat"], [pesel], [telefon]]
+nie_powinno_byc: [[nazw, bank], [prawdziw], [numer, "rachunk|numer konta|konto bank|konta bank"], [hektar, liczb]]

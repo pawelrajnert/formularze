@@ -1,0 +1,53 @@
+# Ground truth wygenerowany automatycznie z oficjalnego wzorca COI (konfiguracja_form_wniosekOStwierdzenieNadpłatyPodatkuHacknation (2).json)
+# przez scripts/evaluate.py: zakładki inne niż „Dane”, „Kontakt…”, FINISH.
+formularz: Wniosek o stwierdzenie nadpłaty podatku
+zrodlo: 'wzorzec COI: konfiguracja_form_wniosekOStwierdzenieNadpłatyPodatkuHacknation (2).json'
+pola:
+- nazwa: Podatek, którego dotyczy nadpłata
+  klucze:
+  - podat
+  - nadpla
+  wymagane: false
+- nazwa: Kwota
+  klucze:
+  - kwot
+  wymagane: false
+- nazwa: Uzasadnienie
+  klucze:
+  - uzasad
+  wymagane: false
+- nazwa: Nazwa podatku
+  klucze:
+  - nazw
+  - podat
+  wymagane: false
+- nazwa: Numer rachunku
+  klucze:
+  - nume
+  - rachun
+  wymagane: false
+warianty:
+- nazwa: Wybierz, co mamy zrobić z nadpłatą
+  opcje:
+  - - zalicz
+    - pocz
+  - - zwroc
+    - przele
+warunkowe:
+- pole:
+  - nazw
+  - podat
+  gdy:
+  - zalicz
+  - pocz
+- pole:
+  - nume
+  - rachun
+  gdy:
+  - zwroc
+  - przele
+zalaczniki:
+- - deklar
+  - podatk
+poza_zakresem: []
+nie_powinno_byc: []

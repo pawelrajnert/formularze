@@ -1,0 +1,20 @@
+# Ground truth z treści dokumentu źródłowego data/2 (Wniosek o zwrot opłaty skarbowej, docx).
+# Tylko część merytoryczna: sekcje 3–5 i 7 papieru. Dane wnioskodawcy/pełnomocnika (2.x), data i podpis (8) -> szablony COI.
+# Klucze: dopasowanie po początku słowa w znormalizowanym tekście; "a|b" = alternatywa; klucz ze spacją = fraza.
+formularz: "Wniosek o zwrot opłaty skarbowej"
+zrodlo: "Wniosek o zwrot opłaty skarbowej.docx"
+pola:
+  - {nazwa: "Data uiszczenia opłaty", klucze: [data, "uiszcz|zaplat|wplat"], wymagane: true}
+  - {nazwa: "Wysokość opłaty", klucze: ["wysokosc|kwota"], wymagane: true}
+  - {nazwa: "Nazwa organu, w którym zapłacono opłatę", klucze: [organ], wymagane: true}
+  - {nazwa: "Uzasadnienie wniosku", klucze: [uzasadn], wymagane: true}
+  - {nazwa: "Nr rachunku", klucze: ["rachunk|numer konta|konto bank|konta bank"]}
+  - {nazwa: "Dane właściciela rachunku", klucze: ["wlasciciel|posiadacz"]}
+warianty:
+  - {nazwa: "Sposób zwrotu opłaty", opcje: [["gotowk|kasie|kasa"], ["przelew|rachunek"]]}
+warunkowe:
+  - {pole: ["rachunk|numer konta|konto bank|konta bank"], gdy: ["przelew|rachunek"]}
+  - {pole: ["wlasciciel|posiadacz"], gdy: ["przelew|rachunek"]}
+zalaczniki: []   # oba załączniki z papieru dotyczą pełnomocnictwa -> szablon COI (poza_zakresem)
+poza_zakresem: [[pelnomocn]]
+nie_powinno_byc: [[nazw, bank], [prawdziw], ["swift|iban"]]

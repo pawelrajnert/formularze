@@ -1,0 +1,57 @@
+# Ground truth z treści data/8 (Deklaracja o wysokości opłaty za odpady, Gdynia, docx).
+# Poza GT (szablony COI): B.1.2–B.1.4 i B.3/B.4 (dane i adresy składającego), F (kontakt), H (podpis).
+# Część I (adnotacja organu) wypełnia urząd -> nie powinna trafić do e-formularza.
+# Stawki (37, 40, …) są stałe z uchwały – to informacja, nie pole do wypełnienia (poza_zakresem).
+formularz: "Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi"
+zrodlo: "Deklaracja o wysokości opłaty.docx"
+pola:
+  - {nazwa: "Inny podmiot – jaki (B.1.1.6)", klucze: ["jaki|jakie|inny podmiot|rodzaj podmiotu"]}
+  - {nazwa: "Współmałżonek – nazwisko, imię (B.2.5)", klucze: [malzon, "nazwisk|imie"]}
+  - {nazwa: "Współmałżonek – adres zamieszkania (B.2.6)", klucze: [malzon, adres]}
+  - {nazwa: "Współmałżonek – PESEL (B.2.7)", klucze: [malzon, pesel]}
+  - {nazwa: "Data zdarzenia / zmiany danych (C.25)", klucze: [data, "zdarz|zmian|powstan|ustan|obowiaz|wystap"], wymagane: true}
+  - {nazwa: "Nieruchomość – miejscowość (D.1.26)", klucze: [nieruchom, miejscow]}
+  - {nazwa: "Nieruchomość – kod pocztowy (D.1.27)", klucze: [nieruchom, kod]}
+  - {nazwa: "Nieruchomość – ulica (D.1.28)", klucze: [nieruchom, ulic]}
+  - {nazwa: "Nieruchomość – numer domu (D.1.29)", klucze: [nieruchom, "domu|budynk|numer nieruch|nr nieruch"]}
+  - {nazwa: "Nieruchomość – numer lokalu (D.1.30)", klucze: [nieruchom, lokal]}
+  - {nazwa: "Miejsce lokalizacji pojemników (D.2.31)", klucze: ["pojemnik|gromadz"]}
+  - {nazwa: "Numer/y działki (D.2.32 / B.3.16)", klucze: [dzialk]}
+  - {nazwa: "Oświadczenie o kompostowniku (D.4.35)", klucze: [kompost]}
+  - {nazwa: "Liczba gospodarstw – lokale do 45 m² (E.1.36)", klucze: ["liczba|gospodarstw", "45"]}
+  - {nazwa: "Liczba gospodarstw – 45–60 m² (E.1.39)", klucze: ["liczba|gospodarstw", "60"]}
+  - {nazwa: "Liczba gospodarstw – 60–80 m² (E.1.42)", klucze: ["liczba|gospodarstw", "80"]}
+  - {nazwa: "Liczba gospodarstw – powyżej 80 m² (E.1.45)", klucze: ["liczba|gospodarstw", "powyzej 80|przekraczajacej 80|ponad 80|80 m2"]}
+  - {nazwa: "Liczba gospodarstw objętych zwolnieniem dochodowym (E.1.48)", klucze: [zwolnien]}
+  - {nazwa: "Wysokość miesięcznej opłaty (E.1.38/41/44/47)", klucze: ["wysokosc|kwota|oplat", "miesi|oplat"]}
+  - {nazwa: "Suma opłaty (E.1.51 / E.2.67)", klucze: ["suma|razem|lacznie"], wymagane: true}
+  - {nazwa: "Kwota z poz. 29 załącznika A lub B (E.3.68)", klucze: ["kwota|poz", zalacznik]}
+warianty:
+  - nazwa: "Składający deklarację (B.1.1)"
+    opcje:
+      - [wlasciciel]
+      - ["wspolnosc|majatk"]
+      - ["najemc|dzierzaw"]
+      - [wspolnota]
+      - [spoldziel]
+      - ["inny|zarzadz|uzytkowan"]
+  - nazwa: "Okoliczności złożenia deklaracji (C.25)"
+    opcje:
+      - [pierwsz]
+      - ["nowa|zmian"]
+      - [ustani]
+      - [korekt]
+  - {nazwa: "Rodzaj nieruchomości (D.3.33)", opcje: [[jednorodzin], [wielolokal]]}
+  - {nazwa: "Nieruchomość częściowo niezamieszkała (D.3.34)", opcje: [[tak], [nie]]}
+warunkowe:
+  - {pole: ["jaki|jakie|inny podmiot|rodzaj podmiotu"], gdy: ["inny|zarzadz|uzytkowan"]}
+  - {pole: [malzon, "nazwisk|imie"], gdy: ["wspolnosc|majatk"]}
+  - {pole: [malzon, pesel], gdy: ["wspolnosc|majatk"]}
+  - {pole: ["kwota|poz", zalacznik], gdy: [tak]}
+zalaczniki:
+  - ["zalacznik a"]
+  - ["zalacznik b"]
+  - ["upowazn|pelnomocn"]
+  - ["inne|inny"]
+poza_zakresem: [[pesel], ["nip|regon"], [kraj], [wojewodztw], [gmina], [powiat], [miejscow], [ulic], [lokal], [kod], ["domu|budynk"], ["nazwisk|imie|nazwa"], [adres], ["telefon|fax"], ["e mail|email|poczty|elektron"], [korespond], [stawk]]
+nie_powinno_byc: [["data wplywu"], [pieczec], [adnotac], [prawdziw], [nazw, bank]]

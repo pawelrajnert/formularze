@@ -1,0 +1,27 @@
+# Ground truth wygenerowany automatycznie z oficjalnego wzorca COI (konfiguracja_form_wniosekOUstalenieNumeruPorządkowegoNieruchomości (1).json)
+# przez scripts/evaluate.py: zakładki inne niż „Dane”, „Kontakt…”, FINISH.
+formularz: Wniosek o ustalenie numeru porządkowego nieruchomości
+zrodlo: 'wzorzec COI: konfiguracja_form_wniosekOUstalenieNumeruPorządkowegoNieruchomości (1).json'
+pola:
+- nazwa: Miejscowość
+  klucze:
+  - miejsc
+  wymagane: false
+- nazwa: Obręb
+  klucze:
+  - obre
+  wymagane: false
+- nazwa: Numer ewidencyjny działki
+  klucze:
+  - nume
+  - ewiden
+  wymagane: false
+- nazwa: Ulica
+  klucze:
+  - ulic
+  wymagane: false
+warianty: []
+warunkowe: []
+zalaczniki: []
+poza_zakresem: []
+nie_powinno_byc: []

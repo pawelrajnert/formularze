@@ -1,0 +1,34 @@
+# Ground truth z treści data/6 (Wniosek o zezwolenie na zajęcie pasa drogowego, docx).
+# Wnioskodawca, adres, telefon/e-mail, miejscowość i data, podpis, klauzula RODO -> szablony COI.
+formularz: "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego w celu prowadzenia robót"
+zrodlo: "Wniosek o wydanie zezwolenia na zajęcie pasa drogowego.docx"
+pola:
+  - {nazwa: "Nazwa drogi oraz jej nr", klucze: ["nazwa drogi|numer drogi|nr drogi|droga gminna|drogi gminnej|nazwa i numer drogi|drogi oraz"], wymagane: true}
+  - {nazwa: "Miejscowość", klucze: [miejscowosc], wymagane: true}
+  - {nazwa: "Działka nr ewid.", klucze: ["dzialk|ewiden"], wymagane: true}
+  - {nazwa: "Rodzaj robót i sposób wykonania", klucze: ["rodzaj|zakres|sposob|opis|cel", "robot|wykon"], wymagane: true}
+  - {nazwa: "Jezdnia – zajęcie do 20% szerokości", klucze: ["do 20"]}
+  - {nazwa: "Jezdnia – zajęcie powyżej 20% do 50%", klucze: ["20 do 50|20 50|do 50"]}
+  - {nazwa: "Jezdnia – zajęcie powyżej 50%", klucze: ["powyzej 50|ponad 50"]}
+  - {nazwa: "Chodnik", klucze: [chodnik]}
+  - {nazwa: "Długość", klucze: [dlugosc]}
+  - {nazwa: "Szerokość", klucze: [szerokosc]}
+  - {nazwa: "Powierzchnia (razem m2)", klucze: ["powierzchn|razem|m2"]}
+  - {nazwa: "Całkowita powierzchnia zajęcia", klucze: ["calkowit|laczn|suma"], wymagane: true}
+  - {nazwa: "Termin robót od dnia", klucze: ["od dnia|data od|termin od|rozpocz|poczat"], wymagane: true}
+  - {nazwa: "Termin robót do dnia", klucze: ["do dnia|data do|termin do|zakoncz|koniec|konca"], wymagane: true}
+  - {nazwa: "Liczba dni", klucze: ["liczba dni|ilosc dni|czas trwania|dni zajecia|okres zajecia"]}
+  - {nazwa: "Wykonawca robót", klucze: [wykonaw], wymagane: true}
+  - {nazwa: "Osoba odpowiedzialna za wykonanie robót", klucze: [odpowiedzial], wymagane: true}
+  - {nazwa: "Adres osoby odpowiedzialnej (zam.)", klucze: [odpowiedzial, "adres|zamieszk"]}
+  - {nazwa: "Telefon osoby odpowiedzialnej", klucze: [odpowiedzial, "telefon|tel"]}
+warianty: []
+warunkowe: []
+zalaczniki:
+  - [plan, "orientac|ogoln"]
+  - [plan, "sytuac|szczegol"]
+  - [harmonogram]
+  - [organizac, ruch]
+  - [zabezpiecz]
+poza_zakresem: [[pelnomocn], ["przetwarz|rodo|osobow"], ["telefon|e mail|email|poczty"]]
+nie_powinno_byc: [[stawk], [prawdziw], [nazw, bank], ["kwota|oplata", "zajec|pasa"]]
