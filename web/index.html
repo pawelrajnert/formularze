@@ -6,7 +6,7 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'">
 <title>Form2Norm — cyfryzacja formularzy</title>
 <style>
-:root { --fg:#0D0E0E; --muted:#515255; --bg:#F3F3F4; --card:#fff; --line:#CFD0D2; --pri:#0D0E0E; --pri-d:#363739; --pri-bg:#E7E7E8; --acc:#CA0049; --acc-h:#B30041; --acc-a:#860031; --acc-fg:#FCE6EE; --ok:#1b6b2f; --ok-bg:#e6f4ea; --err:#a4001d; --err-bg:#fdecee; --warn-bg:#fff6d6; }
+:root { --fg:#0D0E0E; --muted:#515255; --bg:#F3F3F4; --card:#fff; --line:#CFD0D2; --pri:#0D0E0E; --pri-d:#363739; --pri-bg:#E7E7E8; --acc:#FF6B1A; --acc-h:#F25C0A; --acc-a:#D44E05; --acc-fg:#FFF1E8; --acc-on:#1A0B02; --ok:#1b6b2f; --ok-bg:#e6f4ea; --err:#a4001d; --err-bg:#fdecee; --warn-bg:#fff6d6; }
 * { box-sizing:border-box; }
 body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--fg); background:var(--bg); }
 [hidden] { display:none !important; } /* klasy z display:flex/grid nie mogą nadpisać atrybutu hidden */
@@ -31,7 +31,7 @@ input:disabled::placeholder, textarea:disabled::placeholder { color:var(--muted)
 :focus-visible { outline:4px solid #FFDD00; outline-offset:2px; }
 button { cursor:pointer; border:2px solid var(--pri); background:var(--pri); color:#fff; padding:10px 22px; border-radius:9999px; min-height:44px; font-weight:600; }
 button.sec { background:#fff; color:var(--pri); }
-button.cta { background:var(--acc); border-color:var(--acc); color:var(--acc-fg); }
+button.cta { background:var(--acc); border-color:var(--acc); color:var(--acc-on); } /* R-17: pomarańcz jak Porsche / iPhone 17 Pro, ciemny tekst = czytelny kontrast */
 button.cta:active:not(:disabled) { background:var(--acc-a); border-color:var(--acc-a); }
 @media (hover:hover) and (pointer:fine) { button:hover { background:var(--pri-d); } button.sec:hover { background:var(--pri-bg); } button.cta:hover:not(:disabled) { background:var(--acc-h); border-color:var(--acc-h); } }
 button:disabled { opacity:.6; cursor:not-allowed; }
@@ -83,7 +83,7 @@ button:active:not(:disabled) { transform:scale(.97); }
 .msg.warn { background:#fff; border:1px solid var(--line); border-left:4px solid #FFDD00; color:var(--fg); }
 .msg.ok { background:#fff; border:1px solid var(--line); border-left:4px solid var(--ok); color:var(--fg); }
 .msg.ok .okmark, .msg.ok > strong { color:var(--ok); }
-.msg.err { background:var(--acc-fg); border:1px solid var(--acc); border-left:4px solid var(--acc); color:var(--acc-a); }
+.msg.err { background:var(--err-bg); border:1px solid var(--err); border-left:4px solid var(--err); color:var(--err); }
 /* R-15 P3 (#14): wysoki kontrast — ramki na kartach */
 @media (prefers-contrast:more) { .card, .actbar { border:1px solid var(--fg); } .actbar { background:#fff; backdrop-filter:none; } }
 /* R-15 P3 (#15): ptaszek sukcesu rysuje się raz (rzadki, ważny moment) */
@@ -195,16 +195,16 @@ a { color:var(--pri); }
 #sec-list code { background:#fff; border:1px solid #8a6d00; border-radius:3px; padding:0 4px; display:inline-block; max-width:100%; overflow-wrap:anywhere; hyphens:none; }
 /* R-15 P2 (#11) — na końcu arkusza, żeby nadpisać wcześniejsze style sugestii */
 .pl-item { border-left-color:#FFDD00; background:#fff; border-top:1px solid var(--line); border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
-.pl-item.lvl-err { border-left-color:var(--acc); background:var(--acc-fg); }
+.pl-item.lvl-err { border-left-color:var(--err); background:var(--err-bg); }
 .badge { border-color:#d4b800; background:#fff9cc; color:var(--fg); }
-.badge.lvl-err { border-color:var(--acc); color:var(--acc-a); background:#fff; }
+.badge.lvl-err { border-color:var(--err); color:var(--err); background:#fff; }
 #trace, #result > .grid, #changes, #plain { scroll-margin-top:80px; } /* przyklejony pasek nie zasłania nagłówka */
 </style>
 </head>
 <body>
 <header>
   <div class="hd">
-    <h1 class="brand"><svg class="mark" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#CA0049"/><path d="M10.5 7.5h7.5l5 5v11.5a1 1 0 0 1-1 1H10.5a1 1 0 0 1-1-1v-15.5a1 1 0 0 1 1-1z" fill="#fff"/><path d="M12.5 17h7M12.5 20.5h4.5" stroke="#CA0049" stroke-width="1.8" stroke-linecap="round"/></svg><span>Form<b>2</b>Norm</span></h1>
+    <h1 class="brand"><svg class="mark" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#FF6B1A"/><path d="M10.5 7.5h7.5l5 5v11.5a1 1 0 0 1-1 1H10.5a1 1 0 0 1-1-1v-15.5a1 1 0 0 1 1-1z" fill="#fff"/><path d="M12.5 17h7M12.5 20.5h4.5" stroke="#CA0049" stroke-width="1.8" stroke-linecap="round"/></svg><span>Form<b>2</b>Norm</span></h1>
     <span class="tag">Cyfryzacja formularzy</span>
     <button id="logout" class="sec" type="button" hidden>Wyloguj</button>
   </div>
@@ -551,7 +551,7 @@ function showResult() {
   banner.append(title, " · " + parts.join(" · "));
   // R-15 P2 (#8): przyklejony pasek akcji — stan + następny krok + wyjście
   $("act-st").textContent = (!ok ? "✗ Wymaga poprawek" : ai ? "✓ Gotowe · zgodny z wymaganiami COI" : "⚠ Gotowe w trybie awaryjnym") + (toCheck ? " · do sprawdzenia: " + toCheck : "");
-  $("act-st").style.color = !ok ? "var(--acc-a)" : ai ? "var(--ok)" : "var(--fg)";
+  $("act-st").style.color = !ok ? "var(--err)" : ai ? "var(--ok)" : "var(--fg)";
   const next = !ok ? "Sprawdź listę błędów w szczegółach technicznych i spróbuj ponownie."
     : !ai ? "Asystent AI był niedostępny, więc formularz zbudowano z samej struktury dokumentu — przejrzyj go dokładniej przed pobraniem."
     : "Przejrzyj podgląd poniżej" + (toCheck ? " oraz " + toCheck + (toCheck === 1 ? " pozycję oznaczoną" : " pozycje oznaczone") + " „do sprawdzenia”" : "") + ", a potem pobierz JSON.";
@@ -848,7 +848,8 @@ function renderForm(form) {
   visited = new Set([tabs[0] && tabs[0].id]);
   function select(i) {
     visited.add(tabs[i].id); updAppr();
-    btns.forEach((b, j) => { b.setAttribute("aria-selected", String(i === j)); b.tabIndex = i === j ? 0 : -1; b.classList.toggle("seen", visited.has(tabs[j].id) && i !== j); });
+    btns.forEach((b, j) => { b.setAttribute("aria-selected", String(i === j)); b.tabIndex = i === j ? 0 : -1; });
+    stepper.cur = i; markDone();
     panels.forEach((p, j) => (p.hidden = i !== j));
     panels[i].focus();
   }
@@ -858,11 +859,31 @@ function renderForm(form) {
     while (j > 0 && j < tabs.length - 1 && btns[j].classList.contains("na")) j += d;
     return Math.max(0, Math.min(tabs.length - 1, j));
   }
-  stepper = { btns, panels };
+  stepper = { btns, panels, tabs, cur: 0 };
   list.append(...btns); pv.append(list, ...panels);
   evalStates();
 }
 let stepper = null;
+// R-17: ✓ przy kroku tylko, gdy WSZYSTKIE widoczne wymagane pola są uzupełnione (pola z rejestru / profilu zaufanego
+// system uzupełni sam, więc się liczą). Krok bez pól wymaganych: ✓ po odwiedzeniu. Brakujące — liczba w podpowiedzi.
+const visibleIn = (panel) => (w) => { for (let e = w; e && e !== panel; e = e.parentElement) if (e.hidden) return false; return true; };
+function filled(f, wrap) {
+  if (f.defaultValueType === "EXTERNAL_SYSTEM") return true;
+  if (f.type === "CONSENT_SECTION") return [...wrap.querySelectorAll("input[type=checkbox][required]")].every((c) => c.checked);
+  const v = f.__userAnswer;
+  return v === true || (typeof v === "number") || asArr(v).some((x) => x !== "" && x != null && x !== false);
+}
+function markDone() {
+  if (!stepper) return;
+  stepper.panels.forEach((panel, j) => {
+    const reqs = [...panel.querySelectorAll(".fld")].filter((w) => w._req && visibleIn(panel)(w));
+    const missing = reqs.filter((w) => !filled(w._req, w)).length;
+    const done = !missing && !stepper.btns[j].classList.contains("na") && (reqs.length > 0 || visited.has(stepper.tabs[j].id));
+    const b = stepper.btns[j];
+    b.classList.toggle("seen", done && j !== stepper.cur);
+    if (!b.classList.contains("na")) b.title = (b.querySelector(".tit") || {}).textContent + (missing ? " — do uzupełnienia: " + missing + (missing === 1 ? " pole wymagane" : " pól wymaganych") : "");
+  });
+}
 // R-16: strona, której wszystkie pola są ukryte przez warunki (inny wariant wniosku) = „nie dotyczy” — obywatel jej nie wypełnia
 function markNotApplicable() {
   if (!stepper) return;
@@ -908,6 +929,8 @@ function renderField(f) {
   const ext = f.defaultValueType === "EXTERNAL_SYSTEM";  // defaultValue to klucz rejestru (np. PESEL.name), nie wartość
   if (!ext && f.defaultValue != null && !(Array.isArray(f.defaultValue) && !f.defaultValue.length)) f.__userAnswer = f.defaultValue;
   if ((f.states || []).length) stated.push({ f, wrap });
+  const hasReq = f.type === "CONSENT_SECTION" ? ((f.consentSectionConfig || {}).consents || []).some((k) => k.required) : isRequired(f);
+  if (hasReq && !["SECTION", "REPEATING_SECTION", "TEXT_BLOCK", "INFO_SECTION"].includes(f.type)) wrap._req = f;  // R-17
   const input = (tag, props) => {
     const c = el(tag, { id, ...props });
     c.dataset.ro = ro;
@@ -965,7 +988,7 @@ function renderField(f) {
       const consents = (f.consentSectionConfig && f.consentSectionConfig.consents) || [];
       if (f.title) wrap.append(el("p", { textContent: f.title, style: "font-weight:600" }));
       consents.forEach((k, i) => {
-        const c = el("input", { type: "checkbox", id: id + "_" + i, required: !!k.required });
+        const c = el("input", { type: "checkbox", id: id + "_" + i, required: !!k.required, onchange: () => markDone() });
         c.dataset.ro = ro;
         const lab = el("label", { className: "opt", htmlFor: c.id }, c, el("span", { innerHTML: safeHtml(k.description) || "Zgoda" }));
         if (k.required) lab.append(el("span", { className: "req", textContent: " *" }), el("span", { className: "sr", textContent: "(wymagane)" }));
@@ -974,7 +997,7 @@ function renderField(f) {
       return wrap;
     }
     case "FILE_UPLOADER": {
-      const c = input("input", { type: "file" });
+      const c = input("input", { type: "file", onchange: () => answer(f, c.files.length ? c.files[0].name : null) });
       wrap.append(labelFor(f, id), tooltip(f), hint(f, id), c, el("div", { className: "hint", textContent: "Podgląd — plik nie jest wysyłany." }));
       return wrap;
     }
@@ -1007,7 +1030,7 @@ async function evalStates() {
   }));
   if (my !== gen) return; // nowsza zmiana już w toku
   res.forEach(({ wrap, show, ro }) => { wrap.hidden = !show; wrap.classList.toggle("st-ro", ro); });
-  markNotApplicable();
+  markNotApplicable(); markDone();
   $("preview").querySelectorAll("input,select,textarea").forEach((c) => (c.disabled = c.dataset.ro === "1" || !!c.closest(".st-ro")));
 }
 </script>
