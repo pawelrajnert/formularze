@@ -56,7 +56,7 @@ JWT_SECRET=<dowolny długi losowy tekst, np. wynik: openssl rand -hex 32>
 docker compose up --build     # pierwszy raz ok. 3 min (budowa obrazu), potem kilka sekund
 ```
 
-**Windows:** zamiast kroków 1–3 możesz dwukliknąć **`start.bat`**. Skrypt utworzy `.env` i otworzy go do uzupełnienia, a po ponownym uruchomieniu zbuduje obraz, poczeka, aż aplikacja wstanie, i otworzy przeglądarkę. Zatrzymanie: `start.bat stop`.
+**Windows:** zamiast kroków 1–3 możesz uruchomić **`start.bat`**. Skrypt utworzy `.env` i otworzy go do uzupełnienia, a po ponownym uruchomieniu zbuduje obraz, poczeka, aż aplikacja wstanie, i otworzy przeglądarkę. Zatrzymanie: `start.bat stop`.
 
 Klonując na Windowsie, użyj `git clone -c core.longpaths=true …`. Materiały COI w `data/` mają długie nazwy plików i bez tej opcji klonowanie do głęboko zagnieżdżonego katalogu się nie uda. Do samego uruchomienia folder `data/` nie jest potrzebny.
 
