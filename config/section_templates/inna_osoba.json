@@ -234,7 +234,7 @@
       "title": "Kod pocztowy",
       "description": "",
       "options": [],
-      "validation": [],
+      "validation": ["ZIP_CODE"],
       "readOnly": false,
       "repeatingSectionGrid": [],
       "states": [

@@ -48,7 +48,7 @@
       "title": "Adres e-mail",
       "description": "",
       "options": [],
-      "validation": [],
+      "validation": ["EMAIL"],
       "readOnly": false,
       "repeatingSectionGrid": [],
       "defaultValue": "MLPZ.email",

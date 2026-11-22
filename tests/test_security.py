@@ -103,7 +103,10 @@ def test_soffice_profile_disables_macros(monkeypatch):
     seen = {}
 
     def fake_run(args, **kw):
-        profile = args[1].split("=", 1)[1].removeprefix("file://")
+        # file:///C:/… (Windows) i file:///tmp/… (Linux) -> ścieżka systemowa
+        from urllib.parse import urlsplit
+        from urllib.request import url2pathname
+        profile = url2pathname(urlsplit(args[1].split("=", 1)[1]).path)
         seen["xcu"] = open(f"{profile}/user/registrymodifications.xcu", encoding="utf-8").read()
         raise tools.subprocess.TimeoutExpired(args, 1)
 
@@ -230,3 +233,34 @@ def test_llm_bad_json_log_has_no_document_data(caplog):
     with caplog.at_level(logging.WARNING):
         assert c.complete_model("s", "u", Box).name == "ok"
     assert "zły JSON" in caplog.text and PESEL not in caplog.text
+
+
+# --- R-10 (audyt wymagań): pliki z danych COI, które były odrzucane ----------------------------------------------
+from pathlib import Path as _P
+
+_DATA = _P(__file__).resolve().parents[1] / "data"
+
+
+@pytest.mark.parametrize("pattern", ["7/*/*.DOC", "5/*/*.DOC"])
+def test_doc_with_docx_content_accepted_as_docx(pattern):
+    """Plik .DOC z treścią DOCX (formularz 7 nie ma innego Worda) — przyjmowany i czytany jako DOCX."""
+    p = next(_DATA.glob(pattern))
+    assert validation.check_content(p.read_bytes(), "doc") == "docx"
+    r = upload(p.name.replace(" ", "_"), p.read_bytes())
+    assert r.status_code == 200, r.text
+
+
+def test_jpe_accepted():
+    p = next(_DATA.glob("7/*/*.JPE"))
+    assert validation.check_name(p.name) == "jpe"
+    assert validation.check_content(p.read_bytes(), "jpe") == "jpe"
+
+
+def test_doc_ext_with_pdf_content_still_rejected():
+    r = upload("wniosek.doc", b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF")
+    assert r.status_code == 415
+
+
+def test_control_chars_in_name_rejected():
+    r = upload("wnio\x00sek.pdf", b"%PDF-1.4\n%%EOF")
+    assert r.status_code == 400

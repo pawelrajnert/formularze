@@ -91,7 +91,7 @@ def approve(body: Approval, user: str | None = Depends(require_auth)) -> dict:
 async def convert(file: UploadFile, debug: bool = False, model: str | None = None) -> dict:
     ext = check_name(file.filename)
     data = await read_limited(file, _max_bytes())
-    check_content(data, ext)
+    ext = check_content(data, ext)  # R-10: np. .DOC z treścią DOCX -> czytamy jako docx
     stem = file.filename.rsplit(".", 1)[0]
     try:
         # w wątku: OCR/LibreOffice/LLM blokują, a pętla zdarzeń ma obsługiwać inne żądania

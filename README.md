@@ -228,8 +228,8 @@ Obie flagi są domyślnie wyłączone (`false`), żeby jury mogło od razu pobra
 
 ## Bezpieczeństwo
 
-- **Whitelista rozszerzeń:** `pdf, doc, docx, ods, xlsx, jpg, jpeg, png`.
-- **Typ z treści:** sygnatura pliku przez `filetype`. DOCX, XLSX i ODS sprawdzamy przez spis plików ZIP (`word/document.xml`, `xl/workbook.xml`, `mimetype`). Archiwum nie jest rozpakowywane, co chroni przed zip-bombą. Typ niezgodny z rozszerzeniem daje 415.
+- **Whitelista rozszerzeń:** `pdf, doc, docx, ods, xlsx, jpg, jpeg, jpe, png` (bez względu na wielkość liter).
+- **Typ z treści:** sygnatura pliku przez `filetype`. DOCX, XLSX i ODS (i każdy plik ZIP) sprawdzamy przez spis plików ZIP (`word/document.xml`, `xl/workbook.xml`, `mimetype`). Archiwum nie jest rozpakowywane, co chroni przed zip-bombą. Typ niezgodny z rozszerzeniem daje 415. Wyjątek: dokument Word pod „drugą” końcówką (`.doc` z treścią DOCX — tak są zapisane `.DOC` formularzy 5 i 7 — albo odwrotnie) przyjmujemy i czytamy według **treści**.
 - **Nazwa pliku:** najwyżej 250 znaków, bez `; : > < / \ | ' * % $`.
 - **Limit rozmiaru:** `MAX_FILE_SIZE_MB`. Za duże ciało żądania jest odrzucane już po nagłówku `Content-Length`, a strumień jest dodatkowo czytany porcjami z limitem.
 - **Pliki w pamięci:** upload nie trafia do pliku tymczasowego (`spool_max_size` w Starlette jest podniesiony) i nie zapisujemy go trwale. Są dwa wyjątki, oba usuwane po żądaniu:
@@ -301,7 +301,9 @@ Sprawdza JSON Schema i reguły techniczne:
 - **`repeatingSectionGrid`:** schemat ma literówkę `repetingSectionGrid`, ale przykłady COI i JSONata używają `repeatingSectionGrid`. Kopia schematu w `config/form_schema.json` ma poprawioną nazwę.
 - **`validation`:** zawsze jest listą, a pusta lista oznacza pole opcjonalne. Przykład 1 ma `validation: {}`, uznajemy to za odchylenie.
 - **`flow.links[].id`:** zawsze UUID. Przykład 5 ma krótkie id.
-- **`defaultValue`:** to string albo tablica. Reguły techniczne podają `[]` dla pól wyboru, a schemat dopuszcza tylko string, więc kopia schematu dopuszcza oba warianty.
+- **`defaultValue`:** to string albo tablica. Reguły techniczne podają `[]` dla pól wyboru, a schemat dopuszcza tylko string, więc kopia schematu dopuszcza oba warianty. RADIO nie dostaje `defaultValue` (jak we wzorcach 1/5), a NUMBER nigdy.
+- **Dane kontaktowe z profilu (MLPZ: adres, telefon, e-mail) są edytowalne** (`defaultValueType: EXTERNAL_SYSTEM`, `readOnly: false`), tak jak w oficjalnych wzorcach COI 1 i 5. Dokument „Dane inicjalne” mówi o `readOnly` dla pól zasilanych danymi inicjalnymi — stosujemy to do danych z rejestru PESEL (imię, nazwisko, PESEL: `readOnly: true`), a dane kontaktowe zostawiamy do poprawienia przez obywatela (nieaktualny telefon czy adres korespondencyjny nie może blokować wniosku).
+- **Walidatory w sekcjach standardowych:** `ZIP_CODE` (polskie kody pocztowe), `EMAIL`, `NIP`, `REGON`, `PESEL` — wzorce mają tu `[]`, reguły techniczne dopuszczają walidatory, więc je dodajemy (lepsze dane dla urzędu). Warianty zagraniczne bez `ZIP_CODE`.
 
 ## Wyniki dla jury
 
@@ -323,7 +325,7 @@ Skrypt bierze z każdego folderu `data/<nr>` plik w kolejności docx → pdf →
 pytest
 ```
 
-Testy (63) nie wymagają klucza LLM. Wywołania modelu są w nich zastępowane atrapami.
+Testy (ok. 350 + 90 testów odczytu plików, które wymagają Tesseracta/LibreOffice — komplet przechodzi w Dockerze) nie wymagają klucza LLM. Wywołania modelu są w nich zastępowane atrapami.
 
 ## Licencje
 
@@ -383,9 +385,9 @@ data/                materiały COI (formularze 1–9)
 
 ## Znane ograniczenia
 
-- **Darmowe API Mistral:** limit 2 zapytania na minutę. Przy większym ruchu część żądań dostaje 429 i po 3 próbach (ok. 1 min) przechodzi na heurystykę. Produkcyjnie potrzebny jest płatny plan albo model lokalny.
-- **Ekstrakcja tekstu** (`app/ingest.py`) to tymczasowy adapter. Długie dokumenty są ucinane do 30 000 znaków.
+- **Darmowe API Mistral:** limit 2 zapytania na minutę na model i klucz. Okno limitu, model zapasowy (8B), pula kluczy i cache sprawiają, że 5 konwersji pod rząd nie czeka (zmierzone), ale przy większym ruchu zapytania czekają albo trafiają do słabszego modelu zapasowego. Produkcyjnie: płatny plan albo model u siebie na GPU.
+- **Długie dokumenty** idą do LLM w najwyżej 2 częściach po 18 000 znaków (reszta pominięta z ostrzeżeniem w `trace.warnings`).
+- **Pola zmyślone przez AI ze słów obecnych w dokumencie** (np. „Nazwa banku” przy „rachunek w banku”) nie są wykrywane automatycznie — tylko pola ze słowami spoza dokumentu trafiają do „do sprawdzenia”.
 - **Szkic heurystyczny** ma wyraźnie gorszą jakość od LLM: tylko pola tekstowe, jedna strona, najwyżej 60 pól.
 - **Podgląd we frontendzie** nie ładuje pełnych słowników (Kraje, TERYT), tylko wstawia wartość zastępczą do przełączania stanów. Sekcje powtarzalne pokazuje jako jeden wiersz.
 - **Batch** (`convert-batch`) nie jest zaimplementowany.
-- **Limit rozmiaru** dla uploadu chunked bez `Content-Length` działa dopiero po sparsowaniu żądania.
