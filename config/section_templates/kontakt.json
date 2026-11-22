@@ -18,7 +18,31 @@
      "x": 0,
      "y": 0,
      "rows": 1,
-     "cols": 3,
+     "cols": 1,
+     "field": {
+      "id": "abff789e-eb3d-4851-b9b1-2109934293a6",
+      "type": "SELECT",
+      "techName": "numer_kierunkowy",
+      "title": "Numer kierunkowy",
+      "description": "",
+      "dictionaryName": "Numery kierunkowe",
+      "options": [],
+      "multiLevelTree": false,
+      "validation": [],
+      "searchEnabled": true,
+      "readOnly": false,
+      "repeatingSectionGrid": [],
+      "states": [],
+      "questionOrder": 0,
+      "tooltipMessage": "",
+      "defaultValue": []
+     }
+    },
+    {
+     "x": 1,
+     "y": 0,
+     "rows": 1,
+     "cols": 2,
      "field": {
       "id": "09b435ac-0e4b-4570-9aff-36f143a8999d",
       "type": "TEXT_FIELD",
@@ -32,7 +56,7 @@
       "defaultValue": "MLPZ.phoneNumber",
       "defaultValueType": "EXTERNAL_SYSTEM",
       "states": [],
-      "questionOrder": 0,
+      "questionOrder": 1,
       "tooltipMessage": ""
      }
     },
@@ -48,13 +72,15 @@
       "title": "Adres e-mail",
       "description": "",
       "options": [],
-      "validation": ["EMAIL"],
+      "validation": [
+       "EMAIL"
+      ],
       "readOnly": false,
       "repeatingSectionGrid": [],
       "defaultValue": "MLPZ.email",
       "defaultValueType": "EXTERNAL_SYSTEM",
       "states": [],
-      "questionOrder": 1,
+      "questionOrder": 2,
       "tooltipMessage": ""
      }
     }

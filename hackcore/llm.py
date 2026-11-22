@@ -142,11 +142,16 @@ def parse_json(text: str) -> dict:
 
 
 class LLMClient:
-    def __init__(self, base_url: str, api_key: str, model: str, timeout: float = 120,
+    def __init__(self, base_url: str, api_key: str, model: str, timeout: float | None = None,
                  max_attempts: int = MAX_ATTEMPTS, rate_limit_wait: float = RATE_LIMIT_WAIT_S,
                  fallback_models: list[str] | None = None):
         """fallback_models: modele zapasowe na TYM SAMYM endpoincie i kluczach (R-04), używane tylko wtedy, gdy główny
         ma pełny limit; None -> env LLM_FALLBACK_MODELS („ministral-8b-latest,…”), domyślnie brak."""
+        if timeout is None:  # R-11: duże formularze (8: ~6 tys. tokenów) przy wolnym API trwały > 120 s -> heurystyka
+            try:
+                timeout = float(os.environ.get("LLM_TIMEOUT", "240"))
+            except ValueError:
+                timeout = 240.0
         self.model = model
         self.last_model = model  # faktycznie użyty model w ostatnim zapytaniu (zapas -> wpis w warnings szkicu)
         self.max_attempts = max_attempts
