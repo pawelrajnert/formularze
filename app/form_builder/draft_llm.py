@@ -10,12 +10,14 @@ Kroki:
    „przedmiotu wniosku”), scalenie (strony dopisane na końcu). Nadmiar ucinamy z ostrzeżeniem.
 4. Post-processing deterministyczny (draft_postprocess) + kontrola rules_check(build(draft)); gdy coś nie gra -> heurystyka.
 """
+import copy
 import hashlib
 import json
 import logging
+import os
 import re
 import time
-from collections import Counter
+from collections import Counter, OrderedDict
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, get_args
@@ -164,6 +166,9 @@ def coerce_draft(d: dict) -> dict:
 # --- tekst -----------------------------------------------------------------------------------------------------
 _LEADERS = re.compile(r"(?:[.…_][ \t]?){4,}|…{2,}")
 _CLAUSE_HEAD = re.compile(r"klauzul\w*\s+informacyjn|informacj\w*\s+o\s+przetwarzaniu\s+danych", re.I)
+_CLAUSE_END = re.compile(r"\n(?:\d+[.)]\s|\d+\.\d+\.|[IVX]+\.\s|Wniosek o )")
+_RODO_WORDS = re.compile(r"administrator|dan(e|ych)\b|przetwarz|prawo|odbiorc|przechowyw|inspektor|\biod\b|rodo|skarg|"
+                         r"profilowa|osobow|cel\w* przetwarz|podstaw\w* prawn|okres", re.I)
 
 
 def compress(text: str) -> str:
@@ -172,13 +177,33 @@ def compress(text: str) -> str:
     t = re.sub(r"[ \t ]+", " ", t)
     t = re.sub(r"[ \t]*\n[ \t]*", "\n", t)
     t = re.sub(r"\n{3,}", "\n\n", t)
-    if m := _CLAUSE_HEAD.search(t):  # klauzula RODO bywa ~3k znaków; do szkicu wystarczy początek (administrator, IOD)
-        rest = t[m.end():]
-        iod = re.search(r"[^\n]*\b(iod|inspektor\w*)\b[^\n]*", rest, re.I)
-        tail = rest[:CLAUSE_KEEP_CHARS] + ("\n" + iod.group(0)[:200] if iod and iod.start() > CLAUSE_KEEP_CHARS else "")
+    # Klauzula RODO bywa ~3k znaków; do szkicu wystarczy początek (administrator, IOD). Skracamy KAŻDĄ klauzulę, ale tylko
+    # do następnego punktu formularza / kolejnego wniosku: formularz 9 ma klauzulę w środku (część o stypendium), a dalej
+    # warianty nagroda/wyróżnienie, zgody i pełnoletność — wcześniej ucinało wszystko po pierwszej klauzuli.
+    out, pos = [], 0
+    while m := _CLAUSE_HEAD.search(t, pos):
+        end = _clause_end(t, m.end())
+        rest = t[m.end():end]
+        out.append(t[pos:m.end()])
         if len(rest) > CLAUSE_KEEP_CHARS + 200:
-            t = t[:m.end()] + tail + "\n[… dalsza treść klauzuli RODO pominięta …]"
-    return t.strip()
+            iod = re.search(r"[^\n]*\b(iod|inspektor\w*)\b[^\n]*", rest, re.I)
+            out.append(rest[:CLAUSE_KEEP_CHARS] + ("\n" + iod.group(0)[:200] if iod and iod.start() > CLAUSE_KEEP_CHARS else "")
+                       + "\n[… dalsza treść klauzuli RODO pominięta …]\n")
+        else:
+            out.append(rest)
+        pos = end
+    out.append(t[pos:])
+    return "".join(out).strip()
+
+
+def _clause_end(t: str, start: int) -> int:
+    """Koniec klauzuli RODO: pierwszy punkt numerowany / „Wniosek o”, który NIE jest punktem samej klauzuli
+    (klauzule mają własne „1. Administratorem…”, „2. Dane… przetwarzane…”)."""
+    for n in _CLAUSE_END.finditer(t, start):
+        line = t[n.start() + 1:t.find("\n", n.start() + 1) if "\n" in t[n.start() + 1:] else len(t)]
+        if not _RODO_WORDS.search(line):
+            return n.start()
+    return len(t)
 
 
 def chunks(doc: Document, limit: int = MAX_CHUNK_CHARS, max_chunks: int = MAX_CHUNKS) -> tuple[list[str], bool]:
@@ -327,7 +352,7 @@ def _disclosure(source: str, llm: LLMClient | None, pii: dict) -> dict:
     """AI Act art. 50: co wygenerowało AI — tylko w trace/rekordzie obok JSON-a, nigdy w samym JSON-ie."""
     return {
         "generated_by_ai": source == "llm",
-        "model": getattr(llm, "model", None) if source == "llm" else None,
+        "model": (getattr(llm, "last_model", None) or getattr(llm, "model", None)) if source == "llm" else None,
         "prompt_version": hashlib.sha256(system_prompt().encode("utf-8")).hexdigest()[:12],
         "deterministic_parts": ["szablony sekcji standardowych", "sprzątanie (tidy)", "walidator rules_check"],
         "human_verified": False,  # ustawia zatwierdzenie urzędnika (F-18)
@@ -342,10 +367,49 @@ def make_draft(doc: Document, llm: LLMClient | None, compliance: bool | None = N
     pii: dict = {}
     if compliance:
         doc, pii = _mask(doc)
-    result = _make_draft(doc, llm)
+    key = _cache_key(doc, llm)
+    if key and (hit := _CACHE.get(key)) is not None:
+        _CACHE.move_to_end(key)
+        result = copy.deepcopy(hit)
+        result.seconds = 0.0
+        result.warnings = [*result.warnings, "Wynik z pamięci podręcznej (ten sam dokument, model i prompt) — bez zapytania do LLM."]
+    else:
+        result = _make_draft(doc, llm)
+        # heurystyki i szkiców z modelu zapasowego nie cache'ujemy: następnym razem główny model może już odpowiedzieć
+        if key and result.source == "llm" and getattr(llm, "last_model", llm.model) == llm.model:
+            _CACHE[key] = copy.deepcopy(result)
+            while len(_CACHE) > cache_size():
+                _CACHE.popitem(last=False)
     if compliance:
         result.ai_disclosure = _disclosure(result.source, llm, pii)
     return result
+
+
+# --- R-04: pamięć podręczna szkiców (w procesie) ---------------------------------------------------------------
+_CACHE: "OrderedDict[str, DraftResult]" = OrderedDict()
+
+
+def cache_size() -> int:
+    """DRAFT_CACHE_SIZE z env (domyślnie 32 szkice); 0 = wyłączone."""
+    try:
+        return max(0, int(os.environ.get("DRAFT_CACHE_SIZE", "32")))
+    except ValueError:
+        return 32
+
+
+def _cache_key(doc: Document, llm: LLMClient | None) -> str | None:
+    """Ten sam tekst (po ew. maskowaniu PII) + model + wersja promptu -> ten sam szkic (temperature=0).
+
+    Tylko prawdziwy LLMClient — atrapy w testach zwracają różne odpowiedzi dla tego samego tekstu.
+    Klucz to hash: w pamięci nie trzymamy tekstu dokumentu.
+    """
+    if not isinstance(llm, LLMClient) or cache_size() == 0:
+        return None
+    h = hashlib.sha256()
+    for part in (llm.model, system_prompt(), doc.source_format, doc.text or ""):
+        h.update(part.encode("utf-8"))
+        h.update(b"\0")
+    return h.hexdigest()
 
 
 def _make_draft(doc: Document, llm: LLMClient | None) -> DraftResult:
@@ -360,6 +424,8 @@ def _make_draft(doc: Document, llm: LLMClient | None) -> DraftResult:
         try:
             llm_removed = list(removed)
             draft = attachments_as_uploads(_llm_draft(doc, llm, warnings), warnings)
+            if (used := getattr(llm, "last_model", None)) and used != getattr(llm, "model", used):
+                warnings.append(f"Główny model ({llm.model}) miał pełny limit zapytań — szkic zrobił model zapasowy {used}.")
             if (draft := _finalize(draft, llm_removed, warnings)) is not None:
                 return DraftResult(draft, "llm", llm_removed, warnings, time.perf_counter() - t0)
             warnings.append("LLM zwrócił pusty lub niepoprawny szkic — użyto heurystyki.")

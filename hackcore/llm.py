@@ -5,6 +5,8 @@
 - limit zapytań (X-11): okno 60 s per endpoint+klucz. Limit czytamy z nagłówka `x-ratelimit-limit-req-minute`
   (Mistral free = 2/min, bez Retry-After) i czekamy DOKŁADNIE tyle, ile trzeba, zanim wyślemy zapytanie
   (zamiast stałych 31 s po 429, które bywały za krótkie -> podwójne czekanie). Bez nagłówków: 31 s po 429,
+- kilka kluczy (R-04): `api_key="k1,k2"` -> pula; każde zapytanie idzie kluczem, który najszybciej może je wysłać
+  (każdy klucz ma swoje okno limitu) — 2 klucze darmowego Mistrala = 4 zapytania/min,
 - odpowiedź ucięta (finish_reason=length): ponowienie przy temperature=0 da to samo -> od razu LLMError,
 - zły JSON: wycięcie {...} z odpowiedzi + walidacja pydantic, 1 retry,
 - po wyczerpaniu prób: LLMError -> wołający robi fallback (COI: heurystyka, UZP: same regexy).
@@ -87,12 +89,18 @@ class RateWindow:
             pass
 
 
+def split_keys(api_key: str | None) -> list[str]:
+    """„k1, k2” -> ["k1", "k2"] (puste i duplikaty out). Klucze API nie zawierają przecinków."""
+    return list(dict.fromkeys(k.strip() for k in (api_key or "").split(",") if k.strip()))
+
+
 _WINDOWS: dict[str, RateWindow] = {}
 _WINDOWS_LOCK = threading.Lock()
 
 
-def rate_window(base_url: str, api_key: str) -> RateWindow:
-    key = base_url.rstrip("/") + "|" + hashlib.sha256((api_key or "").encode()).hexdigest()[:16]
+def rate_window(base_url: str, api_key: str, model: str = "") -> RateWindow:
+    """Okno per endpoint + klucz + model (Mistral free liczy limit osobno dla każdego modelu — zmierzone)."""
+    key = base_url.rstrip("/") + "|" + hashlib.sha256((api_key or "").encode()).hexdigest()[:16] + "|" + model
     with _WINDOWS_LOCK:
         return _WINDOWS.setdefault(key, RateWindow())
 
@@ -135,15 +143,41 @@ def parse_json(text: str) -> dict:
 
 class LLMClient:
     def __init__(self, base_url: str, api_key: str, model: str, timeout: float = 120,
-                 max_attempts: int = MAX_ATTEMPTS, rate_limit_wait: float = RATE_LIMIT_WAIT_S):
+                 max_attempts: int = MAX_ATTEMPTS, rate_limit_wait: float = RATE_LIMIT_WAIT_S,
+                 fallback_models: list[str] | None = None):
+        """fallback_models: modele zapasowe na TYM SAMYM endpoincie i kluczach (R-04), używane tylko wtedy, gdy główny
+        ma pełny limit; None -> env LLM_FALLBACK_MODELS („ministral-8b-latest,…”), domyślnie brak."""
         self.model = model
+        self.last_model = model  # faktycznie użyty model w ostatnim zapytaniu (zapas -> wpis w warnings szkicu)
         self.max_attempts = max_attempts
         self.rate_limit_wait = rate_limit_wait
+        if fallback_models is None:
+            fallback_models = split_keys(os.environ.get("LLM_FALLBACK_MODELS", ""))
+        models = list(dict.fromkeys([model, *fallback_models]))
         # max_retries=0: retry/backoff robimy sami (SDK czeka za krótko na 429 Mistrala)
-        self._client = openai.OpenAI(base_url=base_url, api_key=api_key or "none", timeout=timeout, max_retries=0)
+        clients = {k: openai.OpenAI(base_url=base_url, api_key=k, timeout=timeout, max_retries=0)
+                   for k in split_keys(api_key) or ["none"]}
+        # kolejność = preferencja: najpierw główny model na wszystkich kluczach, potem zapasowe
+        self._pool = [(c, rate_window(base_url, k, m), m) for m in models for k, c in clients.items()]
+        self._client, self.window, _ = self._pool[0]
+        self.max_attempts = max(max_attempts, len(self._pool) + 1)  # każdy wpis puli + 1 ponowienie
         self._json_schema_ok = True  # gdy endpoint odrzuci json_schema -> json_object do końca życia klienta
-        self.window = rate_window(base_url, api_key)
         self.waited_s = 0.0  # ile czasu ten klient spędził na czekaniu na limit (do trace / benchmarku)
+
+    @property
+    def keys(self) -> int:
+        return len({id(c) for c, _, _ in self._pool})
+
+    def _pick(self) -> float:
+        """Pierwszy (wg preferencji) klucz+model, który może wysłać zapytanie od razu; gdy żaden — ten z najkrótszym
+        czekaniem. Ustawia _client/window/last_model; zwraca ile czekać."""
+        now = time.monotonic()
+        waits = [w.wait_before(now) for _, w, _ in self._pool]
+        best = next((i for i, w in enumerate(waits) if w == 0), None)
+        if best is None:
+            best = min(range(len(self._pool)), key=waits.__getitem__)
+        self._client, self.window, self.last_model = self._pool[best]
+        return waits[best]
 
     @classmethod
     def from_env(cls) -> "LLMClient | None":
@@ -166,10 +200,10 @@ class LLMClient:
         time.sleep(seconds)
 
     def _call(self, system: str, user: str, schema: dict | None, name: str) -> str:
-        self._sleep(self.window.wait_before(time.monotonic()), f"limit {self.window.limit} zapytań/min")
+        self._sleep(self._pick(), f"limit {self.window.limit} zapytań/min × {self.keys} klucz(e)")
         self.window.record(time.monotonic())
         raw = self._client.chat.completions.with_raw_response.create(
-            model=self.model,
+            model=self.last_model,
             temperature=0,
             messages=[{"role": "system", "content": system + JSON_HINT}, {"role": "user", "content": user}],
             response_format=self._response_format(schema, name),
@@ -210,8 +244,14 @@ class LLMClient:
                 last = e
                 self.window.learn(getattr(getattr(e, "response", None), "headers", None))
                 if attempt < self.max_attempts:
-                    wait = self.window.wait_after_429(time.monotonic(), self.rate_limit_wait)
-                    self._sleep(wait, f"429, próba {attempt}/{self.max_attempts}")
+                    now = time.monotonic()
+                    if self.window.limit is None:  # limit nieznany -> po 429 traktujemy klucz jako pełny
+                        self.window.limit = max(1, len(self.window.times))
+                    others = [w.wait_before(now) for _, w, _ in self._pool if w is not self.window]
+                    if others and min(others) == 0:
+                        continue  # inny klucz/model jest wolny -> od razu nim (wybierze go _pick)
+                    wait = self.window.wait_after_429(now, self.rate_limit_wait)
+                    self._sleep(min([wait, *others]), f"429, próba {attempt}/{self.max_attempts}")
             except TruncatedOutput as e:  # temperature=0 -> ponowienie da to samo; nie marnujemy limitu i czasu
                 raise LLMError(str(e)) from e
             except openai.BadRequestError as e:
