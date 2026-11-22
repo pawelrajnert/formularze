@@ -1,5 +1,7 @@
 """C-03: JPG/PNG -> Tesseract. Strona = klatka obrazu albo kawałek A4 długiego obrazu (split_tall)."""
 import io
+import os
+from concurrent.futures import ThreadPoolExecutor
 
 from PIL import Image, ImageSequence, UnidentifiedImageError
 
@@ -15,13 +17,31 @@ def _load_image(data: bytes, max_pages: int | None = None, fmt: str = "jpg") -> 
         img.load()
     except (UnidentifiedImageError, OSError, Image.DecompressionBombError) as e:
         raise IngestError(f"Nie można odczytać obrazu ({fmt}): {e}") from e
-    pages: list[str] = []
+    parts: list[Image.Image] = []
     for frame in ImageSequence.Iterator(img):
         for part in split_tall(frame.copy()):  # strony sklejone w jeden długi obraz -> osobne strony
-            if max_pages is not None and len(pages) >= max_pages:
+            if max_pages is not None and len(parts) >= max_pages:
                 break
-            pages.append(ocr_image(part))
-    return Document.from_pages(pages or [""], fmt, ocr_used=True)
+            parts.append(part)
+    return Document.from_pages(_ocr_all(parts) or [""], fmt, ocr_used=True)
+
+
+def ocr_workers() -> int:
+    """OCR_WORKERS z env (domyślnie min(4, liczba CPU)); 1 = po kolei."""
+    try:
+        return max(1, int(os.environ.get("OCR_WORKERS", "")))
+    except ValueError:
+        return max(1, min(4, os.cpu_count() or 1))
+
+
+def _ocr_all(parts: list[Image.Image]) -> list[str]:
+    """R-02: kawałki obrazu OCR-owane równolegle (każdy to osobny proces tesseracta), kolejność stron zachowana."""
+    workers = min(ocr_workers(), len(parts))
+    if workers <= 1:
+        return [ocr_image(p) for p in parts]
+    os.environ.setdefault("OMP_THREAD_LIMIT", "1")  # tesseract sam nie wątkuje -> procesy nie walczą o rdzenie
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        return list(pool.map(ocr_image, parts))
 
 
 @register("jpg")

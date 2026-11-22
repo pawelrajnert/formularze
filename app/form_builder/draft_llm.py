@@ -183,6 +183,10 @@ def compress(text: str) -> str:
 
 def chunks(doc: Document, limit: int = MAX_CHUNK_CHARS, max_chunks: int = MAX_CHUNKS) -> tuple[list[str], bool]:
     """Strony dokumentu (skompresowane) sklejone w części ≤ limit. Zwraca (części, czy_ucięto)."""
+    # R-02: cały dokument mieści się w jednej części -> kompresja całości. Per strona klauzula RODO rozcięta
+    # na kilka „stron” (np. długi skan pocięty na A4) nie jest rozpoznawana i szła w całości (form. 9 JPG: 14k -> 4k znaków).
+    if len(whole := compress(doc.text)) <= limit:
+        return [whole], False
     pages = [compress(p) for p in (doc.pages or [doc.text])]
     pages = [p for p in pages if p] or [compress(doc.text)]
     parts: list[str] = []
