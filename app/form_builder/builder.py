@@ -14,6 +14,7 @@ from pathlib import Path
 
 from app.form_builder import templates
 from app.form_builder.cleanup import tidy, unsupported_fields, unsupported_statements
+from app.form_builder.dict_fields import apply_dictionaries
 from app.form_builder.draft import Draft
 from app.form_builder.enrich import dictionary, enrich, norm
 
@@ -160,6 +161,8 @@ class _Builder:
         if source_text is not None:  # po tidy: nie flagujemy oświadczeń, które sprzątanie i tak usunęło (RODO z szablonu)
             unsupported_statements(draft, source_text, self.notes)
             unsupported_fields(draft, source_text, self.notes)  # R-08: zwykłe pola spoza dokumentu
+        # R-15: oficjalne słowniki COI (TERYT, Kraje, Numery kierunkowe) — po kontroli źródła, bo dodaje własne pola
+        draft = apply_dictionaries(draft, self.notes)
         # same szablony to nie formularz: szkic bez pól merytorycznych (np. tylko „Podpis”) -> błąd, fallback w F-06
         if not any(s.fields for p in draft.pages for s in p.sections or []):
             raise ValueError("szkic nie zawiera żadnego pola - nie da się zbudować formularza")

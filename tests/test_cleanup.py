@@ -128,11 +128,12 @@ def test_v2_address_field_split_into_group():
     sec = by["Adres miejsca utrzymywania psa"]
     assert sec["type"] == "SECTION" and sec["states"]
     assert {"Adres e-mail właściciela", "Adres siedziby klubu - Ulica", "Adres skrzynki ePUAP"} <= set(by)  # nie rozbijane
-    assert [q["field"]["title"] for q in sec["repeatingSectionGrid"]] == ["Kraj", "Ulica", "Numer budynku", "Numer lokalu", "Kod pocztowy", "Miejscowość"]
+    assert [q["field"]["title"] for q in sec["repeatingSectionGrid"]] == ["Kraj", "Ulica", "Numer budynku", "Numer lokalu", "Kod pocztowy", "Miejscowość",
+                                                                     "Miejscowość (za granicą)", "Kod pocztowy (za granicą)"]  # R-15
     assert sec["repeatingSectionGrid"][0]["field"]["dictionaryName"] == "Kraje"
     assert [q["field"]["validation"] for q in sec["repeatingSectionGrid"]][3:5] == [[], ["REQUIRED", "ZIP_CODE"]]
     osoba = by["Osoba odpowiedzialna"]["repeatingSectionGrid"]  # jedyne pole -> grupa w miejscu
-    assert len(osoba) == 6 and "Inny adres korespondencyjny" in by and sum("grupę adresową" in n for n in notes) == 3
+    assert len(osoba) == 8 and "Inny adres korespondencyjny" in by and sum("grupę adresową" in n for n in notes) == 3
 
 
 def test_v2_applicant_duplicates_dropped_consents_kept():
