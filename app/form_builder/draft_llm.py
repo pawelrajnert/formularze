@@ -362,7 +362,8 @@ def _make_draft(doc: Document, llm: LLMClient | None) -> DraftResult:
         except LLMError as e:
             warnings.append(f"LLM niedostępny ({e}) — szkic z heurystyki.")
         except Exception as e:  # noqa: BLE001 — API nie może dać 500 przez LLM
-            log.exception("Nieoczekiwany błąd szkicu LLM")
+            # R-05: bez traceback/komunikatu — pydantic cytuje input_value, czyli treść dokumentu (PII)
+            log.error("Nieoczekiwany błąd szkicu LLM (%s)", type(e).__name__)
             warnings.append(f"Błąd szkicu LLM ({type(e).__name__}: {e}) — szkic z heurystyki.")
 
     draft, h_removed = heuristic_draft(doc)

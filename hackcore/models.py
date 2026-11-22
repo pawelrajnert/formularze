@@ -5,10 +5,11 @@
 - wybór: jawne id (np. `?model=`) > env `LLM_MODEL_ID` > stare `LLM_BASE_URL/LLM_API_KEY/LLM_MODEL`.
 """
 import os
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
+import httpx
 import yaml
 
 from hackcore.llm import LLMClient
@@ -91,15 +92,35 @@ class Registry:
         base, key, model = self.connection(model_id)
         return LLMClient(base, key, model, timeout or float(self.env.get("LLM_TIMEOUT", "120")))
 
-    def public(self) -> list[dict]:
-        """Lista do `GET /api/v1/models`: bez kluczy, nazw zmiennych env i adresów endpointów."""
+    def public(self, probe: "Callable[[str], bool] | None" = None) -> list[dict]:
+        """Lista do `GET /api/v1/models`: bez kluczy, nazw zmiennych env i adresów endpointów.
+
+        configured: model z kluczem -> jest klucz; Ollama (klucz niepotrzebny) -> serwer odpowiada (R-05),
+        sprawdzane raz na adres w obrębie wywołania, timeout 1 s.
+        """
+        probe = probe or ollama_reachable
+        alive: dict[str, bool] = {}
         out = []
         for spec in self.models.values():
             d = {k: v for k, v in asdict(spec).items() if k in _PUBLIC}
             d["default"] = spec.id == self.default
-            d["configured"] = spec.api_key(self.env) is not None
+            if spec.backend == "ollama":
+                url = spec.resolved_base_url(self.env)
+                if url not in alive:
+                    alive[url] = probe(url)
+                d["configured"] = alive[url]
+            else:
+                d["configured"] = spec.api_key(self.env) is not None
             out.append(d)
         return out
+
+
+def ollama_reachable(base_url: str, timeout: float = 1.0) -> bool:
+    """Czy endpoint OpenAI-compatible Ollamy odpowiada (GET /models)."""
+    try:
+        return httpx.get(base_url.rstrip("/") + "/models", timeout=timeout).status_code < 500
+    except httpx.HTTPError:
+        return False
 
 
 def _spec(raw: dict, i: int) -> ModelSpec:
