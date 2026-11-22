@@ -1,0 +1,200 @@
+# N-C3: asystent prostego języka — reguły (część M).
+# Źródło: „HackNation - Standardy i dobre praktyki projektowania formularzy.pdf”
+#   (data/Materiały do zadania dla Uczestników), dalej „Standard”.
+# Asystent tylko SUGERUJE — nie zmienia JSON-a formularza.
+#
+# Pola reguły:
+#   id          — stały identyfikator (UI może po nim filtrować / ukrywać)
+#   regex       — wyrażenie Pythona, dopasowywane bez rozróżniania wielkości liter;
+#                 granice słów dokłada kod: (?<!\w) ... (?!\w)
+#   wyjatki     — regex dopasowywany do całego trafionego fragmentu (fullmatch, bez wielkości liter);
+#                 trafienie = wyjątek -> brak sugestii
+#   sprawdzenie — zamiast regexu: reguła strukturalna liczona w kodzie (wersaliki, dlugosc, ...)
+#   dotyczy     — w jakich miejscach sprawdzać: title, description, tooltip, opcja, zgoda,
+#                 wartosc, strona, formularz (brak = wszędzie)
+#   poziom      — błąd (fraza wprost wskazana w Standardzie) | ostrzeżenie (heurystyka / ogólna zasada)
+#   propozycja  — wskazówka dla urzędnika (zawsze); zamiany — dokładna zamiana słowa (gdy jest prosta),
+#                 UI może wtedy pokazać przycisk „zastosuj”
+#   zrodlo      — miejsce w Standardzie
+
+wersja: 1
+
+reguly:
+  # --- Rozdz. 1, „Błędy, których warto unikać” (s. 4) -------------------------------------------
+  - id: dokonac
+    regex: 'dokon\w*'
+    poziom: błąd
+    komunikat: "„Dokonać” to pretensjonalna forma analityczna."
+    propozycja: "Użyj czasownika wprost, np. „dokonać wpłaty” → „wpłacić”, „dokonać weryfikacji” → „zweryfikować”."
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 6 i 7 (s. 4)"
+
+  - id: pragnac
+    regex: 'pragn(?:ąć|ę|iesz|ie|iemy|iecie|ą|ął|ęła|ęli|ęło|ąc)'
+    poziom: błąd
+    komunikat: "„Pragnąć” to pretensjonalny zwrot."
+    propozycja: "Napisz wprost, co chcesz przekazać, albo użyj „chcieć”."
+    zamiany: {pragnę: chcę, pragniemy: chcemy, pragniesz: chcesz, pragnie: chce, pragną: chcą, pragnąć: chcieć}
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 4 i 6 (s. 4)"
+
+  - id: posiadac
+    # „posiadacz” (termin prawny, np. posiadacz gospodarstwa) i „posiadłość” celowo pomijamy
+    regex: 'posiad\w*'
+    wyjatki: 'posiadacz\w*|posiadło\w*|posiadł'
+    poziom: błąd
+    komunikat: "„Posiadać” to pretensjonalny zwrot."
+    propozycja: "Użyj „mieć”, np. „Posiadam użytki rolne” → „Mam użytki rolne”, „posiadający” → „który ma”."
+    zamiany: {posiadam: mam, posiadasz: masz, posiada: ma, posiadamy: mamy, posiadają: mają, posiadać: mieć,
+              posiadający: mający, posiadająca: mająca, posiadające: mające, posiadających: mających}
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 6 (s. 4)"
+
+  - id: informujemy
+    regex: 'informuj(?:emy|ę|e|ą)'
+    poziom: błąd
+    komunikat: "„Informujemy” to zbędne wyrażenie."
+    propozycja: "Usuń wstęp i przejdź od razu do treści informacji."
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 4 (s. 4)"
+
+  - id: zbedne_wyrazenia
+    regex: 'w\s+odniesieniu\s+do(?:\s+powyższego)?|nadmieni\w*|uprzejmie\s+(?:informuj|prosz)\w*'
+    poziom: błąd
+    komunikat: "Zbędne wyrażenie urzędowe."
+    propozycja: "Usuń je albo napisz prościej, np. „w odniesieniu do” → „w sprawie”."
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 4 (s. 4)"
+
+  - id: imieslow_ac
+    # imiesłowy przysłówkowe współczesne (wnioskując, informując); nie: miesiąc, tysiąc, zając
+    regex: '\w{2,}ąc'
+    wyjatki: '\w*(?:miesiąc|tysiąc|zając)'
+    poziom: ostrzeżenie
+    komunikat: "Imiesłów zakończony na -ąc utrudnia czytanie."
+    propozycja: "Podziel zdanie na dwa albo użyj zwykłego czasownika, np. „Wnioskując o…” → „Jeśli wnioskujesz o…”."
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 8 (s. 4)"
+
+  - id: bezosobowe_no_to
+    # formy bezosobowe -no/-to (naliczono, nie otrzymano, zaznaczono, użyto, wzięto)
+    regex: '\w{2,}(?:ano|ono|ęto|yto|uto|arto|ito)'
+    wyjatki: 'rano|siano|łono|grono|kimono|bono|żyto|sito|koryto|kopyto|piano|\w*kino'
+    pomijaj_nazwy_wlasne: true
+    poziom: ostrzeżenie
+    komunikat: "Forma bezosobowa (-no/-to) nie mówi, kto wykonuje czynność."
+    propozycja: "Użyj strony czynnej i osobowej, np. „naliczono opłatę” → „naliczyliśmy opłatę”, „jeśli zaznaczono” → „jeśli zaznaczysz”."
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 3 (s. 4); Zasady tworzenia poprawnych komunikatów (s. 3)"
+
+  - id: nalezy
+    regex: 'należy\s+\w+ć'
+    poziom: ostrzeżenie
+    komunikat: "„Należy + bezokolicznik” to forma bezosobowa."
+    propozycja: "Zwróć się wprost do użytkownika, np. „Należy dołączyć” → „Dołącz”."
+    zrodlo: "Rozdz. 1, Zasady tworzenia poprawnych komunikatów: strona czynna i osobowa (s. 3); Błędy…, pkt 3 (s. 4)"
+
+  - id: strona_bierna
+    # „został(a) / zostanie / będą + imiesłów bierny”; „jest składany” celowo pomijamy (tytuł sekcji ze Standardu)
+    regex: '(?:zosta(?:ł|ła|ło|li|ły|nie|ną|ć)|będ(?:zie|ą))\s+(?:\w+\s+)?\w+(?:any|ana|ane|ani|ony|ona|one|eni|ęty|ęta|ęte|ty|ta|te)'
+    wyjatki: '(?:zosta\w*|będ\w*)\s+(?:\w+\s+)?(?:wszyst\w*|tak\w*)'
+    dotyczy: [description, tooltip, zgoda, title]
+    poziom: ostrzeżenie
+    komunikat: "Strona bierna ukrywa, kto wykonuje czynność."
+    propozycja: "Użyj strony czynnej, np. „wniosek zostanie rozpatrzony” → „rozpatrzymy wniosek”."
+    zrodlo: "Rozdz. 1, Zasady tworzenia poprawnych komunikatów: „Używaj strony czynnej i osobowej” (s. 3)"
+
+  - id: forma_plciowa
+    # zapoznałem/am, zapoznałem(-am), zainteresowany/a, Pan/Pani, właściciel/właścicielka
+    regex: '\w+ł(?:em|eś)?\s*(?:/\s*|\(\s*-?)(?:a|am|aś|ła|łam|łaś)\)?|\w+(?:ny|ty|wy|ły|ży)\s*(?:/\s*|\(\s*-?)(?:a|na|ta|wa|ła|ża)\)?|pan(?:a|u)?\s*/\s*pani|pani\s*/\s*pan(?:a|u)?|(\w{4,})\s*/\s*\1(?:ka|ki|ce)|\w+ca\s*/\s*\w+czyni'
+    poziom: błąd
+    komunikat: "Tekst wskazuje płeć użytkownika (forma „/a”, „Pan/Pani”)."
+    propozycja: "Użyj formy neutralnej: czasu teraźniejszego („Zapoznałem/am się” → „Znam treść…”, „Potwierdzam, że…”) albo zwrotu „Ty”."
+    zrodlo: "Rozdz. 1, Uniwersalność: „Unikaj określania płci odbiorcy” (s. 2); Oświadczenie (s. 27)"
+
+  - id: czas_przeszly_1os
+    # zapoznałem się, złożyłam, wyraziłeś — czas przeszły wymusza płeć; nie: udziałem, materiałem, kapitałem…
+    regex: '\w+(?:a|i|y|ę|ą)ł(?:em|am|eś|aś)'
+    wyjatki: '\w*(?:dział|kapitał|materiał|sygnał|potencjał|kanał|kwartał|ideał|szał|wał|pył|zapał|upał|kryształ|regał)em'
+    poziom: ostrzeżenie
+    komunikat: "Czas przeszły w 1. lub 2. osobie wymaga wskazania płci."
+    propozycja: "Użyj czasu teraźniejszego, np. „Zapoznałem się z…” → „Znam…”, „Potwierdzam zapoznanie się z…”."
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 9 (s. 4); Oświadczenie: „Preferuj formy czasu teraźniejszego” (s. 27)"
+
+  # --- Rozdz. 1, „Zasady tworzenia poprawnych komunikatów”: „Unikaj trudnych słów” (s. 3) -------------
+  - id: trudne_slowo
+    regex: 'uiszcz\w*|uiści\w*|uiść|niniejsz\w*|przedłoż\w*|przedkład\w*|winien|winna|winni|wyżej\s+wymienion\w*|ww\.|w/w|tutejsz\w*|przedmiotow(?:y|ego|ym|ej|ą|e|ych)|zwan\w+\s+dalej|wnoszę|wnosimy'
+    poziom: ostrzeżenie
+    komunikat: "Trudne, urzędowe słowo."
+    propozycja: "Użyj prostszego słowa: uiścić → zapłacić, niniejszy → ten, przedłożyć → dołączyć/złożyć, winien → musi, ww./wyżej wymieniony → podany powyżej, tutejszy urząd → nasz urząd, wnoszę o → proszę o."
+    zamiany: {uiścić: zapłacić, uiszczenia: zapłaty, uiszczona: zapłacona, uiszczonej: zapłaconej, uiszczonego: zapłaconego, uiszczana: płacona,
+              niniejszy: ten, niniejszego: tego, niniejsza: ta, niniejszej: tej, niniejsze: te, niniejszym: tym,
+              przedłożyć: dołączyć, winien: musi, winna: musi, winni: muszą, wnoszę: proszę, wnosimy: prosimy}
+    zrodlo: "Rozdz. 1, Zasady tworzenia poprawnych komunikatów: „Unikaj trudnych słów” (s. 3); Uniwersalność (s. 2)"
+
+  - id: skrot
+    # skróty, których czytelnik może nie znać; „np.” jest w samym Standardzie, więc go nie zgłaszamy
+    regex: '(?:pow|poz|zał|ul|tj|tzw|ust|pkt|godz|dot|wg|nr|ew|m\.in|j\.w)\.|nr'
+    poziom: ostrzeżenie
+    komunikat: "Skrót, którego użytkownik może nie zrozumieć."
+    propozycja: "Napisz pełne słowo, np. „pow.” → „powierzchnia”, „poz.” → „pozycja”, „nr” → „numer”, „zał.” → „załącznik”."
+    zamiany: {pow.: powierzchnia, poz.: pozycja, zał.: załącznik, nr: numer, nr.: numer, ul.: ulica, wg: według, wg.: według, tzw.: tak zwany, tj.: to jest}
+    zrodlo: "Rozdz. 1, Zasady tworzenia poprawnych komunikatów: „Unikaj skrótów, których nie wyjaśniasz” (s. 3)"
+
+  - id: przepisy_prawa
+    regex: 'art\.\s*\d+\w*|§\s*\d+|dz\.\s*u\.|ustaw\w*\s+z\s+dnia|rozporządzeni\w*\s+\w+\s+z\s+dnia'
+    poziom: ostrzeżenie
+    komunikat: "Odwołanie do przepisu prawa w treści formularza."
+    propozycja: "Usuń numer przepisu z etykiety; jeśli jest potrzebny, wyjaśnij jego sens prostymi słowami w opisie pola."
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 1 (s. 4); Tytuł: „Nie umieszczaj w tytule odwołań do przepisów prawa” (s. 7)"
+
+  - id: bezokolicznik_polecenie
+    # „Wypełnić w przypadku…”, „Podać numer…” — polecenie w bezokoliczniku zamiast zwrotu do użytkownika
+    regex: '^(?:nie\s+)?\w+(?:ać|ić|yć|eć|ąć|uć)'
+    wyjatki: '(?:nie\s+)?(?:być|mieć|móc|chcieć|wiedzieć|umieć)'
+    dotyczy: [description, tooltip]
+    poziom: ostrzeżenie
+    komunikat: "Polecenie w bezokoliczniku jest bezosobowe."
+    propozycja: "Zwróć się do użytkownika w 2. osobie, np. „Wypełnić, jeśli…” → „Wypełnij, jeśli…”, „Podać” → „Podaj”."
+    zrodlo: "Rozdz. 1, Zasady tworzenia poprawnych komunikatów: strona czynna i osobowa (s. 3); por. teksty sekcji wzorcowych: „Dodaj”, „Przelej”, „Wpisz” (s. 18–20)"
+
+  # --- reguły strukturalne (liczone w kodzie) ----------------------------------------------------------
+  - id: wersaliki
+    sprawdzenie: wersaliki
+    # skróty powszechnie znane / nazwy słowników — nie są „pisaniem wersalikami”
+    akronimy: [PESEL, NIP, REGON, KRS, BHP, ePUAP, TERYT, MLPZ, CEIDG, VAT, PIT, CIT, ZUS, KRUS, NFZ, BIP, RP, UE, PL,
+               IBAN, BIC, SWIFT, GUS, WCAG, PKD, CRWDE, PDF, JPG, JPEG, PNG, XML, MB, KB, GB, ID, SMS, WWW, URL, DW, KW, MPZP, PIN, PUK]
+    min_liter: 4
+    poziom: ostrzeżenie
+    komunikat: "Tekst pisany wersalikami (WIELKIMI LITERAMI) jest trudniejszy do czytania i wygląda jak krzyk."
+    propozycja: "Pisz zwykłą wielkością liter, np. „SUMA opłat” → „Suma opłat”."
+    zrodlo: "Rozdz. 1, Uniwersalność: „Dbaj o dostępność treści” (s. 2) i Rozdz. 2, Ogólne zasady, pkt 1 — WCAG 2.1 AA (s. 5); wszystkie etykiety sekcji wzorcowych Standardu (s. 8–29) są pisane zwykłą wielkością liter"
+
+  - id: dlugosc_etykiety
+    sprawdzenie: dlugosc
+    # Standard nie podaje limitu znaków dla etykiety (tylko 255 dla tytułu formularza w „Regułach technicznych”).
+    # Najdłuższe etykiety w sekcjach wzorcowych Standardu mają ok. 55 znaków
+    # („Wybierz, jako kto wnioskujesz / zgłaszasz / deklarujesz”, „Czy złożenie pełnomocnictwa wymaga opłaty skarbowej?”),
+    # więc 80 znaków to wyraźnie ponad wzorzec, a nie czepianie się.
+    max_znakow: 80
+    dotyczy: [title, opcja, strona]
+    poziom: ostrzeżenie
+    komunikat: "Etykieta jest za długa."
+    propozycja: "Skróć etykietę do jednej myśli; szczegóły (np. warunek „jeśli…”) przenieś do opisu pola."
+    zrodlo: "Rozdz. 1, Zasady tworzenia poprawnych komunikatów: „Twórz krótkie zdania – jedna myśl na jedno zdanie”, „Ograniczaj liczbę szczegółów” (s. 3)"
+
+  - id: dlugie_zdanie
+    sprawdzenie: dlugie_zdanie
+    # najdłuższe zdanie w tekstach wzorcowych Standardu („Opłata skarbowa”, „Dane do kontaktu”) ma 17 słów
+    max_slow: 25
+    dotyczy: [description, tooltip, zgoda]
+    poziom: ostrzeżenie
+    komunikat: "Zdanie jest długie — trudno je zrozumieć za pierwszym razem."
+    propozycja: "Podziel je na krótsze zdania albo użyj punktorów."
+    zrodlo: "Rozdz. 1, Zasady tworzenia poprawnych komunikatów: „Twórz krótkie zdania”, „Porządkuj tekst wizualnie, stosuj punktory” (s. 3); Błędy…, pkt 5 (s. 4)"
+
+  - id: dlugie_slowo
+    sprawdzenie: dlugie_slowo
+    # Standard: „unikać wyrazów o więcej niż czterech sylabach”. Słowa 5-sylabowe są jednak w samych sekcjach
+    # wzorcowych (pełnomocnictwo, zameldowania, korespondencyjny, organizacyjnej), więc zgłaszamy dopiero od 7 sylab
+    # i pomijamy słowa występujące w tekstach wzorcowych Standardu.
+    min_sylab: 7
+    wyjatki: [pełnomocnictwa, pełnomocnictwo, pełnomocnictwem, korespondencyjny, korespondencyjnego, organizacyjnej,
+              przeciwpożarowych, zagospodarowania, nieruchomości]
+    poziom: ostrzeżenie
+    komunikat: "Bardzo długie słowo (wiele sylab)."
+    propozycja: "Jeśli to możliwe, użyj krótszego, powszechnie znanego słowa albo przebuduj zdanie."
+    zrodlo: "Rozdz. 1, Błędy, których warto unikać, pkt 2: „unikać wyrazów o więcej niż czterech sylabach” (s. 4)"
