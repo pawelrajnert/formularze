@@ -166,7 +166,9 @@ _SPLITS: list[tuple[re.Pattern, list[tuple[str, list[str]]]]] = [
 # formy zależne od płci -> neutralne (standard COI); kolejność: najpierw dłuższe frazy
 _NEUTRAL: list[tuple[re.Pattern, str]] = [
     # zamienniki zachowują przypadek dopełnienia: „z regulaminem” / „odpowiedzialności karnej”
-    (re.compile(r"(?:że\s+)?zapozna[lł]em\s*/\s*a?m\s+si[eę]\s+z", re.I), "potwierdzam zapoznanie się z"),
+    # „Oświadczam, że zapoznałem/a się z”, „Zapoznałem/am się z”, „zapoznałam/em się z” (formularz 4: wariant „/a”)
+    (re.compile(r"(?:o[śs]wiadczam,?\s+)?(?:że\s+)?zapozna[lł](?:em|am)\s*/\s*(?:a|am|em|m)\s+si[eę]\s+z", re.I),
+     "potwierdzam zapoznanie się z"),
     (re.compile(r"jestem\s+[śs]wiadom(y|a)?\s*/\s*a?", re.I), "mam świadomość"),
     (re.compile(r"\b(\w+)[lł]em\s*/\s*(a?[lł]?am)\b", re.I), r"\1łem lub \1łam"),  # fallback: obie formy wprost
 ]

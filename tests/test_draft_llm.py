@@ -328,3 +328,10 @@ def test_existing_or_non_yes_no_control_untouched():
         ]}]}]})
     warnings: list[str] = []
     assert len(ensure_controls(d, warnings).pages[0].sections[0].fields) == 4 and warnings == []
+
+
+def test_neutralize_gender_variants():
+    from app.form_builder.draft_postprocess import neutralize
+    assert neutralize("Oświadczam, że zapoznałem/a się z warunkami") == "Potwierdzam zapoznanie się z warunkami"
+    assert neutralize("Zapoznałem/am się z regulaminem") == "Potwierdzam zapoznanie się z regulaminem"
+    assert neutralize("Zapoznałam/em się z regulaminem") == "Potwierdzam zapoznanie się z regulaminem"

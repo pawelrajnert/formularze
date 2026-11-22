@@ -165,9 +165,49 @@ def check_text(text: str, where: str, rules: tuple[Rule, ...] | None = None) -> 
             if key in seen:
                 continue
             seen.add(key)
+            if repl is None and rule.id in _GENDER_RULES:  # gotowa forma neutralna -> przycisk „Zastosuj” w UI
+                frag, repl = _neutral_phrase(text, frag)
             out.append({"fragment": frag, "regula": rule.id, "poziom": rule.level, "komunikat": rule.message,
                         "propozycja": rule.hint, "zamiana": repl, "zrodlo": rule.source})
-    return out
+    return _drop_overlaps(text, out)
+
+
+_GENDER_RULES = {"forma_plciowa", "czas_przeszly_1os"}
+_LEVEL_RANK = {"błąd": 2, "ostrzeżenie": 1}
+
+
+def _neutral_phrase(text: str, frag: str) -> tuple[str, str | None]:
+    """Fragment z formą zależną od płci -> (cała fraza do podmiany, forma neutralna) wg tych samych reguł,
+    których używa sprzątanie szkicu (draft_postprocess.neutralize). Brak dopasowania -> bez zamiany."""
+    from app.form_builder.draft_postprocess import _NEUTRAL
+    for rx, repl in _NEUTRAL[:-1]:  # bez ostatniej reguły-awaryjnej „X-łem lub X-łam”
+        m = rx.search(text)
+        if m and frag.lower() in m.group(0).lower():
+            return m.group(0), _match_case(m.group(0), m.expand(repl))
+    return frag, None
+
+
+def _drop_overlaps(text: str, hits: list[dict]) -> list[dict]:
+    """Kilka reguł w tym samym miejscu (np. „zapoznałem/a”: forma „/a” i czas przeszły) -> tylko najważniejsza:
+    wyższy poziom, potem ta z gotową zamianą, potem dłuższy fragment."""
+    low = text.lower()
+
+    def span(h):
+        i = low.find(h["fragment"].lower())
+        return (i, i + len(h["fragment"])) if i >= 0 else None
+
+    ranked = sorted(hits, key=lambda h: (_LEVEL_RANK.get(h["poziom"], 0), h["zamiana"] is not None, len(h["fragment"])),
+                    reverse=True)
+    kept: list[dict] = []
+    taken: list[tuple[int, int]] = []
+    for h in ranked:
+        s = span(h)
+        if s and any(s[0] < b and a < s[1] for a, b in taken):
+            continue
+        kept.append(h)
+        if s:
+            taken.append(s)
+    return [h for h in hits if h in kept]  # kolejność jak w regułach
 
 
 # --- przejście po formularzu --------------------------------------------------------------------------

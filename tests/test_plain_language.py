@@ -177,3 +177,18 @@ def test_cli(tmp_path, capsys):
     assert "posiadac" in out and "sugestii" in out
     assert main([str(p), "--json"]) == 0
     assert json.loads(capsys.readouterr().out)[str(p)]
+
+
+def test_gender_form_single_suggestion_with_replacement():
+    """Ekran z formularza 4: forma „/a” i czas przeszły trafiały w ten sam fragment -> dwie sugestie bez „Zastosuj”."""
+    from app.form_builder.plain_language import check_text
+    hits = check_text("Oświadczam, że zapoznałem/a się z warunkami wynajmu świetlicy wiejskiej", "zgoda")
+    assert len(hits) == 1
+    assert hits[0]["poziom"] == "błąd" and hits[0]["zamiana"] == "Potwierdzam zapoznanie się z"
+    assert hits[0]["fragment"] == "Oświadczam, że zapoznałem/a się z"
+
+
+def test_overlap_keeps_both_when_fragments_do_not_overlap():
+    from app.form_builder.plain_language import check_text
+    rules = {h["regula"] for h in check_text("Posiadam dokument. Zapoznałem/am się z regulaminem.", "zgoda")}
+    assert "posiadac" in rules and len(rules) >= 2
