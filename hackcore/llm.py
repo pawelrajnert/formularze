@@ -2,16 +2,24 @@
 
 - structured outputs: response_format=json_schema (N-X3); schemat z $ref rozwijany inline (małe modele kopiowały $ref),
 - instrukcja JSON powtórzona w prompcie (małe modele), temperature=0,
-- 429 (darmowe plany, Mistral 2 req/min): czekamy >= 31 s, max 3 próby,
+- limit zapytań (X-11): okno 60 s per endpoint+klucz. Limit czytamy z nagłówka `x-ratelimit-limit-req-minute`
+  (Mistral free = 2/min, bez Retry-After) i czekamy DOKŁADNIE tyle, ile trzeba, zanim wyślemy zapytanie
+  (zamiast stałych 31 s po 429, które bywały za krótkie -> podwójne czekanie). Bez nagłówków: 31 s po 429,
+- kilka kluczy (R-04): `api_key="k1,k2"` -> pula; każde zapytanie idzie kluczem, który najszybciej może je wysłać
+  (każdy klucz ma swoje okno limitu) — 2 klucze darmowego Mistrala = 4 zapytania/min,
+- odpowiedź ucięta (finish_reason=length): ponowienie przy temperature=0 da to samo -> od razu LLMError,
 - zły JSON: wycięcie {...} z odpowiedzi + walidacja pydantic, 1 retry,
 - po wyczerpaniu prób: LLMError -> wołający robi fallback (COI: heurystyka, UZP: same regexy).
 """
 import copy
+import hashlib
 import json
 import logging
 import os
 import re
+import threading
 import time
+from collections import deque
 from collections.abc import Callable
 from typing import Any, TypeVar
 
@@ -28,6 +36,73 @@ JSON_HINT = "\n\nOdpowiedz WYŁĄCZNIE poprawnym obiektem JSON zgodnym ze schema
 
 class LLMError(RuntimeError):
     """LLM niedostępny / limit / nie dał poprawnego JSON-a po wszystkich próbach."""
+
+
+class TruncatedOutput(ValueError):
+    """Model doszedł do limitu długości odpowiedzi — JSON jest ucięty."""
+
+
+WINDOW_S = 60.0
+MAX_WAIT_S = 65.0
+
+
+class RateWindow:
+    """Przesuwne okno zapytań do jednego endpointu+klucza (wspólne dla wszystkich klientów w procesie).
+
+    Limit poznajemy z nagłówków odpowiedzi; do tego czasu nie czekamy proaktywnie (zachowanie jak wcześniej).
+    """
+
+    def __init__(self) -> None:
+        self.limit: int | None = None
+        self.times: deque[float] = deque()
+        self.lock = threading.Lock()
+
+    def _trim(self, now: float) -> None:
+        while self.times and now - self.times[0] >= WINDOW_S:
+            self.times.popleft()
+
+    def wait_before(self, now: float) -> float:
+        """Ile czekać przed wysłaniem zapytania, żeby nie dostać 429 (0 = można od razu)."""
+        with self.lock:
+            self._trim(now)
+            if self.limit and len(self.times) >= self.limit:
+                return min(MAX_WAIT_S, self.times[0] + WINDOW_S + 0.5 - now)
+            return 0.0
+
+    def wait_after_429(self, now: float, fallback: float) -> float:
+        """Po 429: do wygaśnięcia najstarszego zapytania z okna; gdy okno puste (zapytania z innego procesu) -> fallback."""
+        with self.lock:
+            self._trim(now)
+            if self.times:
+                return max(1.0, min(MAX_WAIT_S, self.times[0] + WINDOW_S + 0.5 - now))
+            return fallback
+
+    def record(self, now: float) -> None:
+        with self.lock:
+            self.times.append(now)
+
+    def learn(self, headers: Any) -> None:
+        try:
+            if v := headers.get("x-ratelimit-limit-req-minute"):
+                self.limit = int(v)
+        except (AttributeError, TypeError, ValueError):
+            pass
+
+
+def split_keys(api_key: str | None) -> list[str]:
+    """„k1, k2” -> ["k1", "k2"] (puste i duplikaty out). Klucze API nie zawierają przecinków."""
+    return list(dict.fromkeys(k.strip() for k in (api_key or "").split(",") if k.strip()))
+
+
+_WINDOWS: dict[str, RateWindow] = {}
+_WINDOWS_LOCK = threading.Lock()
+
+
+def rate_window(base_url: str, api_key: str, model: str = "") -> RateWindow:
+    """Okno per endpoint + klucz + model (Mistral free liczy limit osobno dla każdego modelu — zmierzone)."""
+    key = base_url.rstrip("/") + "|" + hashlib.sha256((api_key or "").encode()).hexdigest()[:16] + "|" + model
+    with _WINDOWS_LOCK:
+        return _WINDOWS.setdefault(key, RateWindow())
 
 
 def inline_refs(schema: dict) -> dict:
@@ -68,13 +143,41 @@ def parse_json(text: str) -> dict:
 
 class LLMClient:
     def __init__(self, base_url: str, api_key: str, model: str, timeout: float = 120,
-                 max_attempts: int = MAX_ATTEMPTS, rate_limit_wait: float = RATE_LIMIT_WAIT_S):
+                 max_attempts: int = MAX_ATTEMPTS, rate_limit_wait: float = RATE_LIMIT_WAIT_S,
+                 fallback_models: list[str] | None = None):
+        """fallback_models: modele zapasowe na TYM SAMYM endpoincie i kluczach (R-04), używane tylko wtedy, gdy główny
+        ma pełny limit; None -> env LLM_FALLBACK_MODELS („ministral-8b-latest,…”), domyślnie brak."""
         self.model = model
+        self.last_model = model  # faktycznie użyty model w ostatnim zapytaniu (zapas -> wpis w warnings szkicu)
         self.max_attempts = max_attempts
         self.rate_limit_wait = rate_limit_wait
+        if fallback_models is None:
+            fallback_models = split_keys(os.environ.get("LLM_FALLBACK_MODELS", ""))
+        models = list(dict.fromkeys([model, *fallback_models]))
         # max_retries=0: retry/backoff robimy sami (SDK czeka za krótko na 429 Mistrala)
-        self._client = openai.OpenAI(base_url=base_url, api_key=api_key or "none", timeout=timeout, max_retries=0)
+        clients = {k: openai.OpenAI(base_url=base_url, api_key=k, timeout=timeout, max_retries=0)
+                   for k in split_keys(api_key) or ["none"]}
+        # kolejność = preferencja: najpierw główny model na wszystkich kluczach, potem zapasowe
+        self._pool = [(c, rate_window(base_url, k, m), m) for m in models for k, c in clients.items()]
+        self._client, self.window, _ = self._pool[0]
+        self.max_attempts = max(max_attempts, len(self._pool) + 1)  # każdy wpis puli + 1 ponowienie
         self._json_schema_ok = True  # gdy endpoint odrzuci json_schema -> json_object do końca życia klienta
+        self.waited_s = 0.0  # ile czasu ten klient spędził na czekaniu na limit (do trace / benchmarku)
+
+    @property
+    def keys(self) -> int:
+        return len({id(c) for c, _, _ in self._pool})
+
+    def _pick(self) -> float:
+        """Pierwszy (wg preferencji) klucz+model, który może wysłać zapytanie od razu; gdy żaden — ten z najkrótszym
+        czekaniem. Ustawia _client/window/last_model; zwraca ile czekać."""
+        now = time.monotonic()
+        waits = [w.wait_before(now) for _, w, _ in self._pool]
+        best = next((i for i, w in enumerate(waits) if w == 0), None)
+        if best is None:
+            best = min(range(len(self._pool)), key=waits.__getitem__)
+        self._client, self.window, self.last_model = self._pool[best]
+        return waits[best]
 
     @classmethod
     def from_env(cls) -> "LLMClient | None":
@@ -89,14 +192,28 @@ class LLMClient:
             return {"type": "json_schema", "json_schema": {"name": name, "schema": inline_refs(schema)}}
         return {"type": "json_object"}
 
+    def _sleep(self, seconds: float, why: str) -> None:
+        if seconds <= 0:
+            return
+        log.warning("LLM: czekam %.1f s (%s)", seconds, why)
+        self.waited_s += seconds
+        time.sleep(seconds)
+
     def _call(self, system: str, user: str, schema: dict | None, name: str) -> str:
-        resp = self._client.chat.completions.create(
-            model=self.model,
+        self._sleep(self._pick(), f"limit {self.window.limit} zapytań/min × {self.keys} klucz(e)")
+        self.window.record(time.monotonic())
+        raw = self._client.chat.completions.with_raw_response.create(
+            model=self.last_model,
             temperature=0,
             messages=[{"role": "system", "content": system + JSON_HINT}, {"role": "user", "content": user}],
             response_format=self._response_format(schema, name),
         )
-        return resp.choices[0].message.content or ""
+        self.window.learn(raw.headers)
+        resp = raw.parse()
+        choice = resp.choices[0]
+        if getattr(choice, "finish_reason", None) == "length":
+            raise TruncatedOutput("Odpowiedź modelu ucięta (limit długości) — za długi dokument lub zapętlenie")
+        return choice.message.content or ""
 
     def complete_json(self, system: str, user: str, schema: dict | None = None, name: str = "response") -> dict:
         return self._complete(system, user, schema, name, validate=None)
@@ -125,9 +242,18 @@ class LLMClient:
                 return data
             except openai.RateLimitError as e:
                 last = e
+                self.window.learn(getattr(getattr(e, "response", None), "headers", None))
                 if attempt < self.max_attempts:
-                    log.warning("LLM 429, czekam %.0f s (próba %d/%d)", self.rate_limit_wait, attempt, self.max_attempts)
-                    time.sleep(self.rate_limit_wait)
+                    now = time.monotonic()
+                    if self.window.limit is None:  # limit nieznany -> po 429 traktujemy klucz jako pełny
+                        self.window.limit = max(1, len(self.window.times))
+                    others = [w.wait_before(now) for _, w, _ in self._pool if w is not self.window]
+                    if others and min(others) == 0:
+                        continue  # inny klucz/model jest wolny -> od razu nim (wybierze go _pick)
+                    wait = self.window.wait_after_429(now, self.rate_limit_wait)
+                    self._sleep(min([wait, *others]), f"429, próba {attempt}/{self.max_attempts}")
+            except TruncatedOutput as e:  # temperature=0 -> ponowienie da to samo; nie marnujemy limitu i czasu
+                raise LLMError(str(e)) from e
             except openai.BadRequestError as e:
                 # endpoint nie zna json_schema -> raz przełączamy na json_object i próbujemy ponownie (bez liczenia próby)
                 if self._json_schema_ok and schema is not None and "response_format" in str(e).lower():

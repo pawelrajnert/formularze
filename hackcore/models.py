@@ -56,10 +56,16 @@ class ModelSpec:
         return (env.get(self.base_url_env, "") if self.base_url_env else "") or self.base_url
 
     def api_key(self, env: Mapping[str, str]) -> str | None:
-        """Pierwsza niepusta zmienna z api_key_env; Ollama bez klucza -> "ollama"; brak -> None."""
-        if key := next((env[n] for n in self.api_key_env if env.get(n)), None):
-            return key
-        return OLLAMA_KEY if self.backend == "ollama" else None
+        """Pierwsza niepusta zmienna z api_key_env; Ollama bez klucza -> "ollama"; brak -> None.
+
+        R-04: dodatkowe klucze tego samego konta/dostawcy w `<NAZWA>_2` … `<NAZWA>_9` (albo „k1,k2” w jednej
+        zmiennej) -> zwracane jako „k1,k2,…”; LLMClient robi z nich pulę (każdy klucz ma własny limit zapytań).
+        """
+        name = next((n for n in self.api_key_env if env.get(n)), None)
+        if name is None:
+            return OLLAMA_KEY if self.backend == "ollama" else None
+        keys = [env[name], *(env[f"{name}_{i}"] for i in range(2, 10) if env.get(f"{name}_{i}"))]
+        return ",".join(keys)
 
 
 @dataclass
