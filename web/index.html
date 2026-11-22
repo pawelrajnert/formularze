@@ -17,7 +17,9 @@ header { background:#fff; color:var(--fg); border-bottom:1px solid var(--line); 
 .tag { color:var(--muted); font-size:.95rem; padding-left:16px; border-left:1px solid var(--line); line-height:1.6; }
 #logout { margin-left:auto; min-height:40px; padding:6px 18px; }
 @media (max-width:560px) { .tag { display:none; } }
-main { max-width:1400px; margin:0 auto; padding:16px; }
+main { max-width:1400px; margin:0 auto; padding:16px; overflow-x:clip; }
+pre { max-width:100%; }
+.grid > * { min-width:0; }
 .card { background:var(--card); border:0; border-radius:.5rem; padding:24px; margin-bottom:16px; }
 h2 { font-size:1.5rem; font-weight:400; line-height:1.3; letter-spacing:.0025em; margin:0 0 16px; }
 label { font-weight:600; display:block; margin-bottom:4px; }
@@ -48,7 +50,8 @@ button.wide { width:100%; min-height:52px; margin-top:12px; font-size:1.0625rem;
 #drop { display:block; border:2px dashed #6b7280; border-radius:8px; padding:28px 16px; text-align:center; cursor:pointer; font-weight:400; }
 #drop.over { border-color:var(--pri); background:var(--pri-bg); }
 #drop strong { color:var(--pri); }
-.sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.sr { position:absolute; left:0; top:0; width:1px; height:1px; padding:0; margin:-1px; border:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+#upload, #up-form { position:relative; }
 .actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }
 .msg { padding:10px 12px; border-radius:4px; margin-top:12px; }
 .msg.err { background:var(--err-bg); color:var(--err); border:1px solid var(--err); }
@@ -64,8 +67,8 @@ button:active:not(:disabled) { transform:scale(.97); }
 #drop.over { transform:scale(1.01); }
 /* R-15 P2 (#8, #9): przyklejony pasek akcji — „gdzie jestem, co dalej, jak wyjść”, jako materiał nad treścią */
 .actbar { position:sticky; top:0; z-index:20; display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; justify-content:space-between;
-  padding:10px 16px; margin:0 0 16px; border-radius:.75rem; background:rgba(255,255,255,.72);
-  -webkit-backdrop-filter:blur(20px) saturate(180%); backdrop-filter:blur(20px) saturate(180%); box-shadow:0 1px 0 rgba(13,14,14,.06); }
+  padding:10px 16px; margin:0 0 16px; border-radius:.75rem; background:rgba(255,255,255,.94);
+  -webkit-backdrop-filter:blur(8px) saturate(140%); backdrop-filter:blur(8px) saturate(140%); box-shadow:0 1px 0 var(--line), 0 6px 16px rgba(13,14,14,.06); }
 .actbar #act-st { font-weight:600; }
 .actbar-btns { display:flex; gap:8px; flex-wrap:wrap; }
 @media (prefers-reduced-transparency:reduce) { .actbar { background:#fff; -webkit-backdrop-filter:none; backdrop-filter:none; } }
@@ -76,6 +79,8 @@ button:active:not(:disabled) { transform:scale(.97); }
 #drop.over .drop-ico, #drop.over strong { color:var(--acc); }
 /* R-15 P2 (#11): cztery typy komunikatów w palecie COI — sukces zielony, ostrzeżenie żółty pasek, błąd karmin */
 .msg.warn { background:#fff; border:1px solid var(--line); border-left:4px solid #FFDD00; color:var(--fg); }
+.msg.ok { background:#fff; border:1px solid var(--line); border-left:4px solid var(--ok); color:var(--fg); }
+.msg.ok .okmark, .msg.ok > strong { color:var(--ok); }
 .msg.err { background:var(--acc-fg); border:1px solid var(--acc); border-left:4px solid var(--acc); color:var(--acc-a); }
 /* R-15 P3 (#14): wysoki kontrast — ramki na kartach */
 @media (prefers-contrast:more) { .card, .actbar { border:1px solid var(--fg); } .actbar { background:#fff; backdrop-filter:none; } }
@@ -139,6 +144,12 @@ details.tip[open] > div { background:var(--warn-bg); border:1px solid #8a6d00; p
 a { color:var(--pri); }
 /* pasek postępu konwersji (etapy przełączane czasowo po stronie klienta) */
 #prog { margin-top:12px; }
+#upload.compact #drop, #upload.compact .actions, #upload.compact #prog, #upload.compact #up-h { display:none; }
+.upd { display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; }
+.upd-t { display:flex; align-items:center; gap:10px; min-width:0; overflow-wrap:anywhere; }
+.upd-t svg { flex:none; color:var(--muted); }
+.upd-t b { font-weight:600; }
+.upd button { margin-left:auto; min-height:40px; padding:6px 18px; }
 #prog ol { list-style:none; display:flex; flex-wrap:wrap; gap:4px 16px; margin:0 0 6px; padding:0; }
 #prog li { color:var(--muted); }
 #prog li::before { content:"○ "; }
@@ -148,8 +159,9 @@ a { color:var(--pri); }
 #prog li.done::before { content:"✓ "; }
 #prog li.fail { color:var(--err); font-weight:600; }
 #prog li.fail::before { content:"✗ "; }
-.bar { height:8px; background:#e3e7ed; border-radius:4px; overflow:hidden; }
-.bar > div { height:100%; width:0; background:var(--pri); transition:background-color .3s; } /* szerokość: requestAnimationFrame (R-13) */
+@media (max-width:600px) { #prog li:not(.on):not(.fail) { display:none; } }
+.bar { height:6px; background:var(--pri-bg); border-radius:999px; overflow:hidden; }
+.bar > div { height:100%; width:0; background:var(--pri); border-radius:999px; transition:background-color 200ms ease; } /* szerokość: requestAnimationFrame (R-13) */
 .bar.ok > div { background:var(--ok); }
 .bar.fail > div { background:var(--err); }
 @media (prefers-reduced-motion:reduce) { .bar > div { transition:none; } }
@@ -174,8 +186,9 @@ a { color:var(--pri); }
 #sec-list li { min-width:0; overflow-wrap:break-word; display:flex; flex-direction:column; gap:4px; background:#fff; border:1px solid var(--line); border-left:4px solid var(--ok); border-radius:0 .5rem .5rem 0; padding:12px 14px; }
 #sec-list li.off { border-left-color:#8a6d00; background:var(--warn-bg); }
 #sec-list li > b { display:block; }
-#sec-list .st { font-weight:700; color:var(--ok); margin-right:6px; }
-#sec-list li.off .st { color:#6b5500; }
+#sec-list li > b { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+#sec-list .st { flex:none; order:2; font-size:.78rem; font-weight:700; padding:2px 10px; border-radius:999px; background:var(--ok-bg); color:var(--ok); }
+#sec-list li.off .st { background:var(--acc-fg); color:var(--acc-a); }
 #sec-list p { margin:2px 0; font-size:.92rem; }
 #sec-list code { background:#fff; border:1px solid #8a6d00; border-radius:3px; padding:0 4px; display:inline-block; max-width:100%; overflow-wrap:anywhere; hyphens:none; }
 /* R-15 P2 (#11) — na końcu arkusza, żeby nadpisać wcześniejsze style sugestii */
@@ -223,12 +236,16 @@ a { color:var(--pri); }
       </label>
       <input id="file" class="sr" tabindex="-1" type="file" accept=".pdf,.doc,.docx,.ods,.xlsx,.jpg,.jpeg,.jpe,.png">
       <div class="actions">
-        <button id="go" type="submit" disabled>Konwertuj</button>
+        <button id="go" type="submit" class="sec" hidden>Konwertuj</button>
         <span id="status" role="status" aria-live="polite"></span>
       </div>
       <div id="prog" hidden aria-hidden="true">
         <ol id="prog-steps"></ol>
         <div class="bar" id="prog-bar"><div></div></div>
+      </div>
+      <div id="upd" class="upd" hidden>
+        <span class="upd-t"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span id="upd-t"></span></span>
+        <button id="upd-ch" type="button" class="sec">Zmień plik</button>
       </div>
       <div id="up-msg" role="alert"></div>
     </form>
@@ -251,7 +268,7 @@ a { color:var(--pri); }
       <section class="card" aria-labelledby="json-h">
         <h2 id="json-h">JSON formularza</h2>
         <div class="actions" style="margin:0 0 12px">
-          <button id="dl" type="button" class="sec">Pobierz JSON</button>
+          <button id="dl" type="button" class="sec" hidden>Pobierz JSON</button>
           <button id="copy" type="button" class="sec">Kopiuj</button>
           <span id="copy-st" role="status" aria-live="polite"></span>
         </div>
@@ -334,7 +351,7 @@ async function loadSecurity() {
     $("sec-list").replaceChildren(...items.map((x) => {
       const isOn = x.stan === "włączone";
       const li = mk("li", { className: isOn ? "" : "off" },
-        mk("b", {}, mk("span", { className: "st", textContent: isOn ? "✓" : "○ wyłączone" }), x.nazwa),
+        mk("b", {}, mk("span", { className: "st", textContent: isOn ? "Włączone" : "Wyłączone" }), mk("span", { textContent: x.nazwa })),
         mk("p", { textContent: x.opis }));
       if (!isOn && x.jak_wlaczyc) li.append(mk("p", {}, "Wyłączone w tej konfiguracji — włącz: ", mk("code", { textContent: x.jak_wlaczyc })));
       return li;
@@ -389,10 +406,10 @@ function pick(f) {
   setMsg($("up-msg"), "");
   const ext = (f.name.split(".").pop() || "").toLowerCase();
   if (!f.name.includes(".") || !EXTS.includes(ext)) {
-    file = null; $("go").disabled = true; $("fname").textContent = "";
+    file = null; $("go").hidden = true; $("fname").textContent = "";
     return setMsg($("up-msg"), "Nieobsługiwany format „." + ext + "”. Dozwolone: " + EXTS.join(", ") + ".");
   }
-  file = f; $("go").disabled = false;
+  file = f;
   $("fname").textContent = "Wybrano: " + f.name + " (" + Math.ceil(f.size / 1024) + " KB)";
   // R-14 (#6): trzy kroki — wrzuć, sprawdź, pobierz: konwersja rusza sama; przycisk zostaje jako „Konwertuj ponownie”
   if (!busy) $("up-form").requestSubmit();
@@ -408,9 +425,9 @@ $("drop").addEventListener("drop", (e) => e.dataTransfer.files[0] && pick(e.data
 $("up-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!file || busy) return;
-  busy = true;
+  busy = true; let ok = false;
   setMsg($("up-msg"), "");
-  $("go").disabled = true;
+  $("go").hidden = true; compactUpload(false);
   const t0 = Date.now();
   const prog = progress(file);
   try {
@@ -421,13 +438,16 @@ $("up-form").addEventListener("submit", async (e) => {
     result = await r.json();
     result.stem = file.name.replace(/\.[^.]+$/, "");
     await prog.done(Math.round((Date.now() - t0) / 1000));  // R-13: wynik dopiero, gdy pasek dobiegnie do 100%
-    showResult();
+    showResult(); ok = true;
+    const tt = result.trace && result.trace.timings;
+    compactUpload(true, file.name + " · gotowe" + (tt ? " w " + Math.max(1, Math.round(tt.razem_s)) + " s" : ""));
   } catch (err) {
     prog.fail("błąd połączenia lub odpowiedzi.");
     setMsg($("up-msg"), "Błąd połączenia lub odpowiedzi: " + err.message);
   } finally {
     busy = false;
-    prog.stop(); $("go").disabled = !file; $("go").textContent = "Konwertuj ponownie";
+    prog.stop();
+    if (!ok && file) { $("go").hidden = false; $("go").textContent = "Spróbuj ponownie"; }
   }
 });
 
@@ -564,9 +584,14 @@ function save(obj, name) {
   a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 $("act-dl").addEventListener("click", () => $("dl").click());
+// R-17 (#1): po sukcesie karta uploadu zwija się do jednej linii „plik · gotowe · Zmień plik”
+function compactUpload(on, text = "") {
+  $("upload").classList.toggle("compact", on); $("upd").hidden = !on; $("upd-t").textContent = text;
+}
+$("upd-ch").addEventListener("click", () => { compactUpload(false); $("file").value = ""; $("drop").focus(); $("file").click(); });
 $("act-new").addEventListener("click", () => {  // „Nowy plik”: wróć do strefy upuszczania i otwórz wybór pliku
   $("upload").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-  $("file").value = ""; $("file").click();
+  compactUpload(false); $("file").value = ""; $("file").click();
 });
 $("dl").addEventListener("click", () => {
   save(result.form, result.stem + ".json");
@@ -850,8 +875,15 @@ function markNotApplicable() {
 }
 
 function isRequired(f) { return [].concat(f.validation || []).some((v) => (v && v.type ? v.type : v) === "REQUIRED"); }
+// R-17 (#5, #6): w podglądzie ludzkie nazwy zamiast kluczy (JSON bez zmian — tytuł TERYT_* jest jak we wzorcach COI 1 i 5)
+const DICT_LABEL = { TERYT_4G_DOWODOWY: "Gmina i miejscowość (TERYT)", TERYT_DOWODOWY: "Miejscowość i ulica (TERYT)", Kraje: "Kraj", "Numery kierunkowe": "Numer kierunkowy" };
+function prefillText(key) {
+  const src = String(key || "").split(".")[0];
+  return "Uzupełni się z " + ({ PESEL: "rejestru PESEL", PESEL_ADDRESS: "rejestru PESEL", MLPZ: "profilu zaufanego" }[src] || "rejestru");
+}
+function fieldTitle(f) { return (f.dictionaryName && f.title === f.dictionaryName && DICT_LABEL[f.dictionaryName]) || f.title || f.techName || ""; }
 function labelFor(f, id) {
-  const lab = el("label", { htmlFor: id, textContent: f.title || f.techName || "" });
+  const lab = el("label", { htmlFor: id, textContent: fieldTitle(f) });
   if (isRequired(f)) lab.append(" ", el("span", { className: "req", textContent: "*", title: "pole wymagane" }), el("span", { className: "sr", textContent: "(wymagane)" }));
   return lab;
 }
@@ -921,7 +953,7 @@ function renderField(f) {
       const c = input("select", { onchange: () => answer(f, c.value || null) });
       c.append(el("option", { value: "", textContent: "— wybierz —" }), ...list.map((o) => el("option", { value: o.v, textContent: o.t, selected: cur.includes(o.v) })));
       wrap.append(labelFor(f, id), tooltip(f), hint(f, id), c);
-      if (f.dictionaryName) wrap.append(el("div", { className: "hint", textContent: "Słownik: " + f.dictionaryName }));
+      if (f.dictionaryName) wrap.append(el("div", { className: "hint", textContent: DICT_LABEL[f.dictionaryName] ? "Wybór ze słownika COI" : "Słownik: " + f.dictionaryName }));
       return wrap;
     }
     case "CONSENT_SECTION": {
@@ -944,7 +976,7 @@ function renderField(f) {
     case "TEXTAREA": case "TEXT_FIELD": case "NUMBER": case "DATEPICKER": {
       const c = f.type === "TEXTAREA" ? input("textarea", { rows: 4 }) : input("input", { type: { NUMBER: "number", DATEPICKER: "date" }[f.type] || "text" });
       if (f.__userAnswer != null) c.value = String(f.__userAnswer);
-      if (ext) c.placeholder = "🔒 uzupełni się z rejestru: " + f.defaultValue;
+      if (ext) c.placeholder = "🔒 " + prefillText(f.defaultValue);
       c.oninput = () => answer(f, c.value);
       wrap.append(labelFor(f, id), tooltip(f), hint(f, id), c);
       return wrap;
