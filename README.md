@@ -36,16 +36,27 @@
 
 Potrzebny jest tylko **Docker** (Docker Desktop na Windows/macOS).
 
-```bash
-cp .env.example .env          # 1. skopiuj wzór konfiguracji
-#    w .env wpisz: LLM_API_KEY (klucz Mistral API), AUTH_PASSWORD (hasło do aplikacji), JWT_SECRET (dowolny długi tekst)
-docker compose up --build     # 2. zbuduj i uruchom (pierwszy raz kilka minut)
-#                             # 3. otwórz http://localhost:8000 i zaloguj się (login: admin, hasło z .env)
+**Krok 1. Skopiuj wzór konfiguracji:** `cp .env.example .env` (Windows: `copy .env.example .env`).
+
+**Krok 2. W pliku `.env` uzupełnij trzy linie** (reszta ma gotowe wartości):
+
+```
+LLM_API_KEY=<klucz Mistral API; jury dostaje go od nas osobno>
+AUTH_PASSWORD=<dowolne hasło do logowania w aplikacji>
+JWT_SECRET=<dowolny długi losowy tekst, np. wynik: openssl rand -hex 32>
 ```
 
-**Windows:** wystarczy dwuklik **`start.bat`** — sam utworzy `.env` (otworzy go do uzupełnienia), zbuduje obraz, poczeka aż aplikacja wstanie i otworzy przeglądarkę. Zatrzymanie: `start.bat stop`.
+**Krok 3. Uruchom** i otwórz http://localhost:8000 (login `admin`, hasło z `AUTH_PASSWORD`):
 
-> Bez `LLM_API_KEY` aplikacja też działa, ale robi tylko prosty szkic bez AI. Klucz Mistral API (darmowy plan) zakłada się na console.mistral.ai.
+```bash
+docker compose up --build     # pierwszy raz ok. 3 min (budowa obrazu), potem kilka sekund
+```
+
+**Windows:** zamiast kroków 1–3 możesz dwukliknąć **`start.bat`**. Skrypt utworzy `.env` i otworzy go do uzupełnienia, a po ponownym uruchomieniu zbuduje obraz, poczeka, aż aplikacja wstanie, i otworzy przeglądarkę. Zatrzymanie: `start.bat stop`.
+
+Klonując na Windowsie, użyj `git clone -c core.longpaths=true …`. Materiały COI w `data/` mają długie nazwy plików i bez tej opcji klonowanie do głęboko zagnieżdżonego katalogu się nie uda. Do samego uruchomienia folder `data/` nie jest potrzebny.
+
+Bez `LLM_API_KEY` aplikacja działa, ale robi tylko prosty szkic bez AI. Bez `AUTH_PASSWORD` i `JWT_SECRET` logowanie pokaże czytelny błąd, bo nie wydajemy tokenów z pustym sekretem.
 
 Swagger API: http://localhost:8000/docs · uruchomienie bez Dockera i budowa obrazu: [docs/URUCHOMIENIE.md](docs/URUCHOMIENIE.md)
 

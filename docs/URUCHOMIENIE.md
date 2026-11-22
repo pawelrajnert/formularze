@@ -45,7 +45,7 @@ docker run --rm -p 8000:8000 --env-file .env coi-formularze:1.0
 - W obrazie są `tesseract-ocr`, `tesseract-ocr-pol` i headless LibreOffice (`libreoffice-writer-nogui`, `libreoffice-calc-nogui`).
 - Aplikacja działa jako użytkownik bez roota `appuser` (uid 1000). Obraz wystawia tylko port 8000.
 - Sekrety podajemy wyłącznie w runtime przez zmienne środowiskowe (`env_file` w compose). `.env` jest w `.dockerignore` i nie trafia do obrazu.
-- Obraz waży ok. 0,9 GB (zmierzone: 924 MB). Większość to LibreOffice, który jest potrzebny do formatów DOC i ODS.
+- Obraz waży ok. 1 GB (zmierzone na czystym klonie: 1,02 GB, budowa bez cache 3 min). Większość to LibreOffice, który jest potrzebny do formatów DOC i ODS.
 - Dlaczego nie Alpine: Tesseract z danymi `pol`, LibreOffice i binarne wheele (pypdfium2, pillow, lxml, pydantic-core) na musl to ryzyko braków i kompilacji ze źródeł. Wymóg „lekkiego obrazu” spełniamy wariantem `slim` i instalacją `--no-install-recommends`.
 
 ## Testy

@@ -1,0 +1,2 @@
+# start.bat musi mieć końce linii CRLF (cmd.exe źle czyta etykiety przy samym LF, np. w ZIP-ie z GitHuba)
+*.bat text eol=crlf
