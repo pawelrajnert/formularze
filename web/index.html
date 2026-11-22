@@ -4,31 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'">
-<title>COI — cyfryzacja formularzy</title>
+<title>Form2Norm — cyfryzacja formularzy</title>
 <style>
-:root { --fg:#1a1a1a; --muted:#4a4f57; --bg:#f4f6f9; --card:#fff; --line:#c9ced6; --pri:#0052a5; --pri-d:#003d7a; --ok:#1b6b2f; --ok-bg:#e6f4ea; --err:#a4001d; --err-bg:#fdecee; --warn-bg:#fff6d6; }
+:root { --fg:#1a1a1a; --muted:#4a4f57; --bg:#f4f6f9; --card:#fff; --line:#c9ced6; --pri:#08255E; --pri-d:#061C46; --pri-bg:#e6eaf3; --acc:#CA0049; --ok:#1b6b2f; --ok-bg:#e6f4ea; --err:#a4001d; --err-bg:#fdecee; --warn-bg:#fff6d6; }
 * { box-sizing:border-box; }
 body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--fg); background:var(--bg); }
-header { background:var(--pri); color:#fff; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
-header h1 { font-size:1.15rem; margin:0; }
+header { background:var(--pri); color:#fff; border-bottom:4px solid var(--acc); padding:12px 16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+header h1 { font-size:1.5rem; font-weight:800; margin:0; letter-spacing:-.01em; }
+header h1 .sub { font-size:1rem; font-weight:400; opacity:.85; margin-left:8px; }
 main { max-width:1400px; margin:0 auto; padding:16px; }
 .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; margin-bottom:16px; }
-h2 { font-size:1.1rem; margin:0 0 12px; }
+h2 { font-size:1.25rem; margin:0 0 12px; }
 label { font-weight:600; display:block; margin-bottom:4px; }
 input, select, textarea, button { font:inherit; }
 input:not([type=checkbox]):not([type=radio]), select, textarea { width:100%; padding:8px 10px; border:1px solid #6b7280; border-radius:4px; background:#fff; color:var(--fg); min-height:44px; }
 input:disabled, select:disabled, textarea:disabled { background:#eceef1; color:#3b3f45; }
 :focus-visible { outline:3px solid #ffbf47; outline-offset:2px; }
 button { cursor:pointer; border:2px solid var(--pri); background:var(--pri); color:#fff; padding:8px 16px; border-radius:4px; min-height:44px; font-weight:600; }
-button:hover { background:var(--pri-d); }
 button.sec { background:#fff; color:var(--pri); }
-button.sec:hover { background:#e8f0fa; }
+@media (hover:hover) and (pointer:fine) { button:hover { background:var(--pri-d); } button.sec:hover { background:var(--pri-bg); } }
 button:disabled { opacity:.6; cursor:not-allowed; }
 header button { border-color:#fff; }
 .row { margin-bottom:12px; }
 .login { max-width:420px; }
 #drop { display:block; border:2px dashed #6b7280; border-radius:8px; padding:28px 16px; text-align:center; cursor:pointer; font-weight:400; }
-#drop.over { border-color:var(--pri); background:#e8f0fa; }
+#drop.over { border-color:var(--pri); background:var(--pri-bg); }
 #drop strong { color:var(--pri); }
 .sr { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 .actions { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:12px; }
@@ -41,7 +41,7 @@ header button { border-color:#fff; }
 @media (prefers-reduced-motion:reduce) { .spin { animation:none; } }
 .trace { display:flex; flex-wrap:wrap; gap:8px 20px; align-items:center; }
 .trace ul { margin:4px 0 0; padding-left:20px; }
-.grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.3fr); gap:16px; align-items:start; }
+.grid { display:grid; grid-template-columns:minmax(0,1.3fr) minmax(0,1fr); gap:16px; align-items:start; }
 @media (max-width:900px) { .grid { grid-template-columns:minmax(0,1fr); } }
 pre { margin:0; max-height:75vh; overflow:auto; background:#0f1720; color:#e6edf3; padding:12px; border-radius:4px; font-size:13px; }
 /* kolorowanie JSON-a (paleta jak w edytorach kodu): klucze, teksty, liczby, true/false/null */
@@ -68,7 +68,7 @@ fieldset.grp > legend { font-weight:600; padding:0; margin-bottom:4px; }
 .chk input { width:20px; height:20px; flex:none; margin-top:2px; }
 .hint { color:var(--muted); font-size:.9rem; margin:2px 0 4px; }
 .hint p, .txt p { margin:0 0 6px; }
-.info { background:#e8f0fa; border-left:4px solid var(--pri); padding:8px 12px; }
+.info { background:var(--pri-bg); border-left:4px solid var(--pri); padding:8px 12px; }
 details.tip { display:inline; font-weight:400; }
 details.tip summary { display:inline-block; cursor:pointer; color:var(--pri); border:1px solid var(--pri); border-radius:50%; width:22px; height:22px; text-align:center; line-height:20px; font-size:.8rem; margin-left:6px; list-style:none; }
 details.tip summary::-webkit-details-marker { display:none; }
@@ -122,7 +122,7 @@ a { color:var(--pri); }
 </head>
 <body>
 <header>
-  <h1>COI — cyfryzacja formularzy</h1>
+  <h1>Form2Norm <span class="sub">cyfryzacja formularzy</span></h1>
   <button id="logout" class="sec" type="button" hidden>Wyloguj</button>
 </header>
 <main>
@@ -135,12 +135,6 @@ a { color:var(--pri); }
       <div id="login-msg" role="alert"></div>
     </form>
   </section>
-
-  <details id="sec" class="card" hidden>
-    <summary>Bezpieczeństwo i ochrona danych <span id="sec-sum"></span></summary>
-    <p class="hint">Stan z bieżącej konfiguracji serwera. Pozycje wyłączone można włączyć zmienną środowiskową (np. w <code>.env</code>) i restartem usługi.</p>
-    <ul id="sec-list"></ul>
-  </details>
 
   <section id="upload" class="card" hidden aria-labelledby="up-h">
     <h2 id="up-h">Dokument do konwersji</h2>
@@ -165,9 +159,24 @@ a { color:var(--pri); }
 
   <section id="result" hidden aria-label="Wynik konwersji">
     <div id="trace" class="card trace" aria-label="Przebieg konwersji"></div>
+    <div class="grid">
+      <section class="card" aria-labelledby="pv-h">
+        <h2 id="pv-h">Podgląd formularza</h2>
+        <div id="preview"></div>
+      </section>
+      <section class="card" aria-labelledby="json-h">
+        <h2 id="json-h">JSON formularza</h2>
+        <div class="actions" style="margin:0 0 12px">
+          <button id="dl" type="button">Pobierz JSON</button>
+          <button id="copy" type="button" class="sec">Kopiuj</button>
+          <span id="copy-st" role="status" aria-live="polite"></span>
+        </div>
+        <pre id="json" tabindex="0" aria-label="Kod JSON formularza"></pre>
+      </section>
+    </div>
     <section id="changes" class="card" hidden aria-labelledby="ch-h">
-      <h2 id="ch-h">Co zmieniliśmy względem papieru</h2>
-      <p class="hint">E-formularz to nie skan papieru: system usuwa to, co w sieci zbędne, i dokłada sekcje ze standardu COI.</p>
+      <h2 id="ch-h">Co zmieniliśmy względem oryginału</h2>
+      <p class="hint">E-formularz to nie kopia dokumentu: system usuwa to, co w sieci zbędne, i dokłada sekcje ze standardu COI.</p>
       <div id="ch-sum" class="tiles"></div>
       <div id="ch-lists"></div>
     </section>
@@ -189,22 +198,13 @@ a { color:var(--pri); }
       <div class="actions"><button id="appr-go" type="button" disabled>Zatwierdź formularz</button></div>
       <div id="appr-msg"></div>
     </section>
-    <div class="grid">
-      <section class="card" aria-labelledby="json-h">
-        <h2 id="json-h">JSON formularza</h2>
-        <div class="actions" style="margin:0 0 12px">
-          <button id="dl" type="button">Pobierz JSON</button>
-          <button id="copy" type="button" class="sec">Kopiuj</button>
-          <span id="copy-st" role="status" aria-live="polite"></span>
-        </div>
-        <pre id="json" tabindex="0" aria-label="Kod JSON formularza"></pre>
-      </section>
-      <section class="card" aria-labelledby="pv-h">
-        <h2 id="pv-h">Podgląd formularza</h2>
-        <div id="preview"></div>
-      </section>
-    </div>
   </section>
+
+  <details id="sec" class="card" hidden>
+    <summary>Bezpieczeństwo i ochrona danych <span id="sec-sum"></span></summary>
+    <p class="hint">Stan z bieżącej konfiguracji serwera. Pozycje wyłączone można włączyć zmienną środowiskową (np. w <code>.env</code>) i restartem usługi.</p>
+    <ul id="sec-list"></ul>
+  </details>
 </main>
 <script src="/web/vendor/jsonata.min.js"></script>
 <script>

@@ -16,7 +16,7 @@ from app.validation import check_content, check_name, read_limited
 # pliki tylko w pamięci: Starlette domyślnie zrzuca upload > 1 MB do pliku tymczasowego
 MultiPartParser.spool_max_size = 1 << 40
 
-app = FastAPI(title="COI — cyfryzacja formularzy", version="0.1.0")
+app = FastAPI(title="Form2Norm — cyfryzacja formularzy", version="0.1.0")
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 app.mount("/web", StaticFiles(directory=WEB_DIR), name="web")
 
