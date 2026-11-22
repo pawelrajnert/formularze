@@ -6,13 +6,14 @@ Usługa REST, która z pojedynczego pliku papierowego formularza urzędowego (PD
 
 ```
 plik ──► walidacja (nazwa, rozszerzenie, MIME z treści, rozmiar)          app/validation.py
-     ──► ekstrakcja tekstu                                                app/ingest.py
+     ──► ekstrakcja tekstu                                                hackcore/ingest/
            PDF: warstwa tekstowa (pypdfium2), skan → OCR (Tesseract, pol)
            DOCX/XLSX: python-docx / openpyxl · DOC/ODS: LibreOffice → DOCX/XLSX
-           JPG/PNG: OCR
-     ──► szkic LLM: few-shot (formularz 1) + structured output (JSON Schema Draft)   app/form_builder/llm_draft.py
-           │  brak konfiguracji LLM / 429 / timeout / zły JSON / szkic odrzucony przez walidator
-           └─► fallback heurystyczny (etykiety z „…”, „:”, nagłówków)    app/form_builder/fallback.py
+           JPG/PNG: OCR (kawałki długiego skanu równolegle)
+     ──► szkic LLM: few-shot (formularze 1 i 5) + structured output (JSON Schema Draft)   app/form_builder/draft_llm.py
+           │  klient: okno limitu, model zapasowy, pula kluczy, cache       hackcore/llm.py
+           │  brak konfiguracji LLM / timeout / zły JSON / szkic odrzucony przez walidator
+           └─► szkic heurystyczny (etykiety z „…”, „:”, nagłówków)       app/form_builder/draft_heuristic.py
      ──► builder: UUID, techName, siatka x/y/rows/cols, questionOrder,
            flow.links, strona FINISH, stany JSONata z show_if            app/form_builder/builder.py
      ──► wzbogacanie wg config/field_rules.yaml: słowniki, walidatory,
@@ -30,6 +31,8 @@ cp .env.example .env
 # uzupełnij: LLM_API_KEY, AUTH_PASSWORD, JWT_SECRET (np. openssl rand -hex 32)
 docker compose up --build
 ```
+
+Na Windowsie (Docker Desktop): **`start.bat`** — tworzy `.env` z wzoru (i otwiera go do uzupełnienia), buduje i uruchamia kontener, czeka na `/health` i otwiera przeglądarkę. `start.bat stop` zatrzymuje.
 
 - frontend: http://localhost:8000
 - OpenAPI (Swagger): http://localhost:8000/docs
@@ -72,7 +75,10 @@ Wszystkie zmienne pochodzą z `app/config.py`. Wzór jest w `.env.example`.
 | Zmienna | Opis | Domyślna |
 |---|---|---|
 | `LLM_BASE_URL` | Endpoint zgodny z OpenAI API (Mistral: `https://api.mistral.ai/v1`, Ollama: `http://ollama:11434/v1`) | puste (wtedy LLM wyłączony, działa tylko heurystyka) |
-| `LLM_API_KEY` | Klucz API (`ollama` dla lokalnej Ollamy) | puste |
+| `LLM_API_KEY` | Klucz API (`ollama` dla lokalnej Ollamy). Kilka kluczy po przecinku (`klucz1,klucz2`) = pula, każdy klucz ma własny limit zapytań | puste |
+| `LLM_FALLBACK_MODELS` | Modele zapasowe na tym samym endpoincie (po przecinku), używane od razu, gdy główny model ma pełny limit zapytań (Mistral free: 2/min **na model**) | puste (w `.env.example`: `ministral-8b-latest`) |
+| `DRAFT_CACHE_SIZE` | Pamięć podręczna szkiców w procesie: ten sam dokument + model + prompt → wynik bez LLM. `0` wyłącza | `32` |
+| `OCR_WORKERS` | Ile kawałków skanu OCR-ować równolegle | `min(4, liczba CPU)` |
 | `LLM_MODEL` | Nazwa modelu (`ministral-14b-latest` w API, `ministral-3:14b` w Ollamie) | puste |
 | `OCR_LANG` | Język Tesseracta | `pol` |
 | `MAX_FILE_SIZE_MB` | Maksymalny rozmiar pliku w MB | `20` |
@@ -110,7 +116,7 @@ Odpowiedź `200` z `/forms/convert`:
 Przy `debug=true` odpowiedź dodatkowo zawiera:
 
 - `draft`: szkic, z którego zbudowano formularz (LLM albo heurystyka),
-- `trace`: `{"source": "llm" | "heuristic", "reason": "<dlaczego fallback>", "text_chars": <długość tekstu>, "rules_errors": [<błędy walidatora szkicu LLM>]}`.
+- `trace`: `{"source": "llm" | "heuristic", "reason": "<dlaczego fallback>", "model": "<model>", "seconds": …, "text_chars": <długość tekstu>, "rules_errors": [<błędy walidatora szkicu LLM>], "warnings": […], "changes": {…}, "proposedDictionaries": […], "plain_language": {"summary": …, "suggestions": […]}}`. `warnings` mówi m.in., że szkic zrobił model zapasowy albo że wynik pochodzi z pamięci podręcznej.
 
 Kody błędów:
 
@@ -141,7 +147,28 @@ curl -s -X POST "http://localhost:8000/api/v1/forms/convert?debug=true" \
 
 ## LLM: API albo model lokalny
 
-Domyślnie korzystamy z API Mistral i modelu `ministral-14b-latest`, czyli **Ministral 3 14B** z otwartymi wagami na licencji Apache-2.0. Klient to biblioteka `openai`, więc działa z każdym endpointem zgodnym z OpenAI API. Jedno żądanie to jedno wywołanie modelu z `temperature=0` i `response_format=json_schema`. Przy odpowiedzi 429 klient czeka 31 s i próbuje ponownie, najwyżej 3 razy. Timeout to 90 s, a tekst jest ucinany do 30 000 znaków.
+Domyślnie korzystamy z API Mistral i modelu `ministral-14b-latest`, czyli **Ministral 3 14B** z otwartymi wagami na licencji Apache-2.0. Regulamin: *„Rozwiązanie może korzystać z modeli językowych postawionych »w chmurze« i komunikować się z nimi przez API pod warunkiem, że model będzie dostępny w wersji otwartej i możliwy do postawienia na własnej infrastrukturze.”* Ministral 3 14B spełnia oba warunki: wagi są na Hugging Face (Apache-2.0), a ten sam model działa w Ollamie (niżej). Klient to biblioteka `openai`, więc działa z każdym endpointem zgodnym z OpenAI API. Jedno żądanie to zwykle jedno wywołanie modelu z `temperature=0` i `response_format=json_schema`.
+
+**Limit darmowego API i jak go omijamy** (Mistral Experiment: zmierzone **2 zapytania/min na model i na klucz**, nagłówki `x-ratelimit-*`):
+
+- okno 60 s po stronie klienta: limit czytamy z nagłówków i wysyłamy zapytanie dokładnie wtedy, gdy wolno (bez nieudanych prób i podwójnego czekania),
+- **model zapasowy** (`LLM_FALLBACK_MODELS=ministral-8b-latest`): gdy 14B ma pełny limit, szkic od razu robi 8B (ma własny limit) — w `trace.warnings` jest o tym wpis,
+- **pula kluczy** (`LLM_API_KEY=klucz1,klucz2`),
+- **pamięć podręczna**: ten sam plik drugi raz → wynik w < 1 s,
+- odpowiedź ucięta (`finish_reason=length`) → od razu szkic heurystyczny, bez ponawiania (przy `temperature=0` dałoby to samo).
+
+Pomiar (5 różnych formularzy pod rząd, darmowy klucz): **0 s czekania na limit**, 2 z 5 zrobił model zapasowy, powtórka pliku 0,2 s. Wcześniej ta seria to ok. 2 minuty samego czekania.
+
+**Benchmark modeli** (`python -m scripts.bench_models --models … --forms 1,5,2,3,4,6,7,8,9`, wyniki w `benchmark/results.jsonl`; 9 formularzy COI, Mistral API):
+
+| Model | Poprawny wynik z LLM | Czas modelu (mediana / max) | Tokeny/s | Zależności `show_if` (suma) | Zgodność etykiet* |
+|---|---|---|---|---|---|
+| **Ministral 3 14B** (domyślny) | 9/9 | 7,4 s / 48 s | ~115 | 81 | 0,74 |
+| Ministral 3 8B (zapasowy) | 9/9 | 8,2 s / 34 s | ~135 | 39 | 0,56 |
+| Ministral 3 3B | 8/9 | 5,7 s / 34 s | ~240 | 24 | 0,28 |
+| Qwen3 4B lokalnie (Ollama, CPU, 12 rdzeni / 8 GB) | 1/1 (form. 1) | **1221 s** | ~2 | — | — |
+
+\* etykiety pól części merytorycznej vs wzorce COI (form. 1, 5) i wyniki 14B (pozostałe). Wniosek: o czasie decyduje długość generowanej odpowiedzi i limit API, a nie rozmiar modelu; mniejszy model przyspiesza o 20–50%, ale gubi połowę zależności, więc domyślny zostaje 14B. Polskie modele (PLLuM-12B, Bielik-11B) są w rejestrze `config/models.yaml` — przełączenie to `LLM_MODEL_ID`, a `scripts/bench_models.py` pozwala urzędowi porównać je na własnych formularzach.
 
 **Przełączenie na model lokalny (Ollama):**
 
@@ -165,7 +192,7 @@ Domyślnie korzystamy z API Mistral i modelu `ministral-14b-latest`, czyli **Min
 
 Ollama nie wystawia portu na hosta i jest dostępna tylko w sieci compose. Modele trzymamy w wolumenie `ollama-models`.
 
-Czas na CPU: **TODO: X s/formularz** (jeszcze niezmierzony). Przez API Ministral 14B potrzebuje ok. 45 s na formularz 1.
+Czas: przez API Ministral 14B potrzebuje 3–20 s na typowy formularz (formularz 8 z 84 polami: ok. 50 s, skan JPG formularza 9 z OCR: ok. 55 s). **Na CPU bez GPU wersja lokalna jest niepraktyczna**: zmierzyliśmy 20 min na najprostszy formularz już dla modelu 4B (Docker, 12 rdzeni, 8 GB). Wdrożenie lokalne w urzędzie = serwer z GPU (np. 1× karta 24 GB dla Ministral 3 14B w Q4) z Ollamą albo vLLM — wtedy czas jest zbliżony do API, bez limitów zapytań, a dane nie opuszczają urzędu.
 
 **Bez LLM:** gdy brakuje konfiguracji, LLM jest niedostępny albo jego szkic nie przechodzi walidatora, formularz powstaje ze szkicu heurystycznego. Ten wynik też przechodzi przez builder i walidator, więc zwykle dostajemy poprawny JSON. 422 pojawia się tylko wtedy, gdy nie da się odczytać tekstu albo nawet szkic heurystyczny nie przejdzie walidacji.
 
@@ -241,7 +268,9 @@ Zasada: sprawdzamy, co przychodzi (plik, tekst dokumentu) i co wychodzi (JSON fo
   - Prefill trafia tylko do danych wnioskodawcy. Pomijamy sekcje pełnomocnika, współwłaściciela itp., sekcje powtarzalne i kolejne wystąpienia tego samego klucza.
 - **Walidacje pól:** `PESEL`, `NIP`, `REGON`, `EMAIL`, `ZIP_CODE`, `EPUAP`, `ADE`, `SERIAL_NUMBER_ID_CARD`. Pochodzą z LLM albo z reguł po labelu. `REQUIRED` stawiamy tam, gdzie formularz oznacza pole jako obowiązkowe lub gwiazdką.
 - **Zależności i stany (JSONata):** `show_if` ze szkicu zamieniamy na `states: [{type: "SHOW", query: "('opcja' in tabs['Strona' in title].questions[...]....__userAnswer)"}]`. Gdy słownik zastąpił opcje typu „Polska / Inny kraj”, powstaje warunek `$not(...)`.
-- **Frontend z podglądem na żywo** (`GET /`): logowanie, upload, render formularza z JSON-a, działające stany JSONata (vendored `web/vendor/jsonata.min.js`), podgląd `trace` i pobranie JSON-a.
+- **Frontend z podglądem na żywo** (`GET /`): logowanie, upload z paskiem postępu etapów (wysyłanie → odczyt/OCR → AI tworzy szkic → walidacja), render formularza z JSON-a, działające stany JSONata (vendored `web/vendor/jsonata.min.js`), podgląd `trace` i pobranie JSON-a.
+- **Nowy słownik (propozycja, F-10):** system wykrywa w formularzach zamknięte listy wyboru, które warto przenieść do słownika wspólnego (pomija Tak/Nie, sekcje standardowe i istniejące słowniki; deterministycznie, bez LLM). Propozycja = co najmniej 3 pozycje i (powtarza się w kilku polach/formularzach albo ma co najmniej 6 pozycji). Struktura: `nazwa` (np. `SPOSOB_ZWROTU_OPLATY`), `etykieta`, `opis`, `zastosowanie`, `struktura` {`multiLevelTree`, `searchEnabled`}, `pozycje` [{`kod`, `nazwa`}], `wystapienia`, `uzasadnienie`, `pewnosc`. Po akceptacji pole dostaje `dictionaryName` zamiast własnych `options`. Dla jednego formularza: `trace.proposedDictionaries` i karta w UI; dla całego zbioru: `python -m scripts.propose_dictionaries` → `wyniki/slowniki/proponowane_slowniki.json` (4 propozycje, m.in. `SPOSOB_ZWROTU_OPLATY` wspólny dla formularzy 2 i 5, `DYSCYPLINY_SPORTOWE` — 20 pozycji z wyszukiwarką).
+- **Asystent prostego języka (N-C3):** 19 reguł z rozdziału 1 „Standardów i dobrych praktyk” COI (`config/plain_language.yaml`, każda z numerem strony standardu): zakazane słowa („dokonać”, „posiadać”, „informujemy”…), formy bezosobowe i strona bierna, imiesłowy na -ąc, formy zależne od płci, skróty, wersaliki, za długie etykiety i zdania. Sugestie w `trace.plain_language` i w karcie UI z przyciskiem „Zastosuj” (JSON nigdy nie zmienia się sam). Wzorce COI dają 0 sugestii (test). CLI: `python -m app.form_builder.plain_language wyniki/4.json`.
 
 ### Zgodność z regułami
 
@@ -334,13 +363,15 @@ app/
   config.py          zmienne środowiskowe
   validation.py      nazwa, rozszerzenie, MIME, rozmiar
   security.py        JWT
-  ingest.py          ekstrakcja tekstu / OCR / LibreOffice
-  pipeline.py        LLM → fallback → builder → walidator
+  pipeline.py        ingest → szkic (LLM / heurystyka) → builder → walidator
   rules_check.py     walidator reguł COI (także CLI)
-  form_builder/      draft.py (kontrakt szkicu), llm_draft.py, fallback.py, builder.py, enrich.py
-config/              form_schema.json, field_rules.yaml, fewshot/ (przykład few-shot)
+  form_builder/      draft.py (kontrakt szkicu), draft_llm.py, draft_heuristic.py, draft_postprocess.py,
+                     builder.py, cleanup.py, templates.py, enrich.py, dictionary_proposals.py, plain_language.py
+hackcore/            wspólny rdzeń: ingest/ (PDF, DOCX, XLSX, DOC/ODS, OCR), llm.py, models.py (rejestr), privacy.py
+config/              form_schema.json, field_rules.yaml, models.yaml, plain_language.yaml, section_templates/, fewshot/
 web/                 frontend (index.html + vendored JSONata)
-scripts/             generate_wyniki.py
+scripts/             generate_wyniki.py, bench_models.py, propose_dictionaries.py
+start.bat            uruchomienie na Windowsie (Docker Desktop)
 tests/               pytest
 wyniki/              JSON-y dla jury
 data/                materiały COI (formularze 1–9)
