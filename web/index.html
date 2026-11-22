@@ -473,7 +473,7 @@ function markIn(text, frag) {
 }
 function renderPlain(pl) {
   const list = (pl && pl.suggestions) || [];
-  $("plain").hidden = !pl; setMsg($("pl-msg"), "");
+  $("plain").hidden = !pl; setMsg($("pl-msg"), ""); plainAccepted = 0;
   if (!pl) return;
   const s = pl.summary || {};
   $("pl-sum").textContent = list.length ? "Sugestii: " + list.length + " (błędy: " + (s.bledy || 0) + ", ostrzeżenia: " + (s.ostrzezenia || 0) + "). Najedź na sugestię, aby zobaczyć źródło w standardzie."
@@ -501,12 +501,53 @@ function plainItem(group) {
   head.append(x.komunikat || "");
   const box = el("div", { className: "pl-item" + (err ? " lvl-err" : ""), title: x.zrodlo ? "Źródło: " + x.zrodlo : "" }, head,
     markIn(x.tekst || "", x.fragment), el("p", { className: "hint", textContent: "Propozycja: " + (x.propozycja || "") }));
+  // R-14: każda sugestia ma decyzję urzędnika — zastosuj gotową zamianę, popraw ręcznie albo świadomie zostaw tekst
+  const acts = el("div", { className: "actions", style: "margin:6px 0 0" });
   if (x.zamiana != null) {
     const b = el("button", { type: "button", className: "sec", textContent: "Zastosuj: „" + x.fragment + "” → „" + x.zamiana + "”" });
     b.onclick = () => applyPlain(group, b);
-    box.append(b);
+    acts.append(b);
   }
+  const edit = el("button", { type: "button", className: "sec", textContent: "Popraw" });
+  edit.onclick = () => editPlain(group, box, acts);
+  const keep = el("button", { type: "button", className: "sec", textContent: "Zostaw tak", title: "Tekst jest poprawny w tym kontekście — ukryj sugestię" });
+  keep.onclick = () => { box.hidden = true; plainAccepted += group.length; plainStatus(); };
+  acts.append(edit, keep);
+  box.append(acts);
   return box;
+}
+let plainAccepted = 0;
+function plainStatus() {
+  const left = [...$("pl-list").querySelectorAll(".pl-item")].filter((b) => !b.hidden).length;
+  setMsg($("pl-msg"), "Zaakceptowane bez zmian: " + plainAccepted + " · do przejrzenia: " + left + (left ? "" : " ✓"), left ? "" : "ok");
+}
+// R-14: ręczna poprawka — urzędnik wpisuje własną wersję tekstu; podmieniamy cały tekst w polu wskazanym przez ścieżkę
+function editPlain(group, box, acts) {
+  const x = group[0];
+  const inp = el("input", { type: "text", value: x.tekst || "", style: "width:100%;margin-top:6px", ariaLabel: "Nowy tekst" });
+  const save = el("button", { type: "button", textContent: "Zapisz" }), cancel = el("button", { type: "button", className: "sec", textContent: "Anuluj" });
+  const row = el("div", { className: "actions", style: "margin:6px 0 0" }, save, cancel);
+  acts.hidden = true; box.append(inp, row); inp.focus();
+  cancel.onclick = () => { inp.remove(); row.remove(); acts.hidden = false; };
+  save.onclick = async () => {
+    const nv = inp.value.trim();
+    if (!nv || nv === x.tekst) return cancel.onclick();
+    if (result.approval) {  // F-18: hash wyniku — w przeglądarce nie zmieniamy JSON-a, tylko kopiujemy
+      try { await navigator.clipboard.writeText(nv); setMsg($("pl-msg"), "Skopiowano poprawkę do schowka. Formularz podlega zatwierdzeniu, więc JSON nie jest zmieniany w przeglądarce.", "warn"); } catch { /* brak schowka */ }
+      return cancel.onclick();
+    }
+    let n = 0;
+    group.forEach((g) => {
+      const ref = resolvePath(result.form, g.sciezka);
+      if (!ref) return;
+      const [o, k] = ref, v = o[k];
+      if (typeof v === "string" && g.tekst && v.includes(g.tekst)) { o[k] = v.replace(g.tekst, () => nv); n++; }
+    });
+    if (!n) return setMsg($("pl-msg"), "Nie znaleziono tego tekstu w polu (mógł już zostać zmieniony).", "warn");
+    showJson(result.form); renderForm(result.form);
+    box.hidden = true; plainStatus();
+    setMsg($("pl-msg"), "Poprawiono " + n + "× — JSON i podgląd odświeżone.", "ok");
+  };
 }
 // ścieżka typu tabs[1].questions[0].field.title -> [obiekt-rodzic, klucz]
 function resolvePath(obj, path) {

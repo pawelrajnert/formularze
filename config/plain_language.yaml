@@ -190,8 +190,8 @@ reguly:
     sprawdzenie: dlugie_slowo
     # Standard: „unikać wyrazów o więcej niż czterech sylabach”. Słowa 5-sylabowe są jednak w samych sekcjach
     # wzorcowych (pełnomocnictwo, zameldowania, korespondencyjny, organizacyjnej), więc zgłaszamy dopiero od 7 sylab
-    # i pomijamy słowa występujące w tekstach wzorcowych Standardu.
-    min_sylab: 7
+    # i pomijamy słowa występujące w tekstach wzorcowych Standardu (od R-14: od 8 sylab).
+    min_sylab: 8  # R-14: 7 sylab łapało zwykłe słowa urzędowe („identyfikacyjny”) — szum dla urzędnika
     wyjatki: [pełnomocnictwa, pełnomocnictwo, pełnomocnictwem, korespondencyjny, korespondencyjnego, organizacyjnej,
               przeciwpożarowych, zagospodarowania, nieruchomości]
     poziom: ostrzeżenie
