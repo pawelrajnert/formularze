@@ -14,7 +14,7 @@
     {
       "formularz": "3",
       "plik": "wyniki/3.json",
-      "tytul": "Wniosek o wydanie zaświadczenia o użytkach rolnych i gospodarstwie rolnym"
+      "tytul": "Wniosek o wydanie zaświadczenia o użytkach rolnych"
     },
     {
       "formularz": "4",
@@ -95,55 +95,9 @@
       "pewnosc": "wysoka"
     },
     {
-      "nazwa": "SPOSOB_OZNAKOWANIA_PSA",
-      "etykieta": "Sposób oznakowania psa",
-      "opis": "Zamknięta lista 3 pozycji dla pola „Sposób oznakowania psa”.",
-      "zastosowanie": "Pola typu RADIO w formularzach: Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne. Podpięcie: field.dictionaryName = nazwa słownika zamiast listy options.",
-      "struktura": {
-        "multiLevelTree": false,
-        "searchEnabled": false,
-        "pozycja": [
-          "kod",
-          "nazwa"
-        ]
-      },
-      "pozycje": [
-        {
-          "kod": "MIKROPROCESOR",
-          "nazwa": "mikroprocesor"
-        },
-        {
-          "kod": "TATUAZ",
-          "nazwa": "tatuaż"
-        },
-        {
-          "kod": "BRAK",
-          "nazwa": "brak"
-        }
-      ],
-      "wystapienia": [
-        {
-          "formularz": "7",
-          "tytulFormularza": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
-          "techName": "sposob_oznakowania_psa",
-          "tytulPola": "Sposób oznakowania psa",
-          "typ": "RADIO"
-        },
-        {
-          "formularz": "7",
-          "tytulFormularza": "Wniosek o wydanie zezwolenia na hodowanie lub utrzymywanie psów ras uznawanych za agresywne",
-          "techName": "sposob_oznakowania_psa_2",
-          "tytulPola": "Sposób oznakowania psa",
-          "typ": "RADIO"
-        }
-      ],
-      "uzasadnienie": "lista powtarza się w 2 polach jednego formularza (sekcja powtarzalna)",
-      "pewnosc": "srednia"
-    },
-    {
-      "nazwa": "DYSCYPLINY_SPORTOWE",
-      "etykieta": "Dyscypliny sportowe (wybierz wszystkie, które dotyczą)",
-      "opis": "Zamknięta lista 20 pozycji dla pola „Dyscypliny sportowe (wybierz wszystkie, które dotyczą)”.",
+      "nazwa": "KONKRETNE_DYSCYPLINY_SPORTOWE",
+      "etykieta": "Konkretne dyscypliny sportowe",
+      "opis": "Zamknięta lista 20 pozycji dla pola „Konkretne dyscypliny sportowe”.",
       "zastosowanie": "Pola typu CHECKBOX w formularzach: Wniosek o przyznanie stypendium/nagrody/wyróżnienia sportowego Rady Miasta Zgierza. Podpięcie: field.dictionaryName = nazwa słownika zamiast listy options.",
       "struktura": {
         "multiLevelTree": false,
@@ -239,8 +193,8 @@
         {
           "formularz": "9",
           "tytulFormularza": "Wniosek o przyznanie stypendium/nagrody/wyróżnienia sportowego Rady Miasta Zgierza",
-          "techName": "dyscypliny_sportowe_wybierz_wszystkie_ktore_dotycza",
-          "tytulPola": "Dyscypliny sportowe (wybierz wszystkie, które dotyczą)",
+          "techName": "konkretne_dyscypliny_sportowe",
+          "tytulPola": "Konkretne dyscypliny sportowe",
           "typ": "CHECKBOX"
         }
       ],
@@ -248,9 +202,9 @@
       "pewnosc": "srednia"
     },
     {
-      "nazwa": "RODZAJ_PODMIOTU_SKLADAJACEGO_DEKLARACJE",
-      "etykieta": "Rodzaj podmiotu składającego deklarację",
-      "opis": "Zamknięta lista 6 pozycji dla pola „Rodzaj podmiotu składającego deklarację”.",
+      "nazwa": "RODZAJ_PODMIOTU",
+      "etykieta": "Rodzaj podmiotu",
+      "opis": "Zamknięta lista 6 pozycji dla pola „Rodzaj podmiotu”.",
       "zastosowanie": "Pola typu RADIO w formularzach: Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi. Podpięcie: field.dictionaryName = nazwa słownika zamiast listy options.",
       "struktura": {
         "multiLevelTree": false,
@@ -263,35 +217,35 @@
       "pozycje": [
         {
           "kod": "WLASCICIEL_WSPOLWLASCICIEL",
-          "nazwa": "Właściciel/współwłaściciel"
+          "nazwa": "właściciel/współwłaściciel"
         },
         {
           "kod": "WSPOLWLASCICIEL_WSPOLNOSC_MAJATKOWA",
-          "nazwa": "Współwłaściciel (wspólność majątkowa)"
+          "nazwa": "współwłaściciel (wspólność majątkowa)"
         },
         {
           "kod": "NAJEMCA_DZIERZAWCA",
-          "nazwa": "Najemca/dzierżawca"
+          "nazwa": "najemca/dzierżawca"
         },
         {
           "kod": "WSPOLNOTA_MIESZKANIOWA",
-          "nazwa": "Wspólnota mieszkaniowa"
+          "nazwa": "wspólnota mieszkaniowa"
         },
         {
           "kod": "SPOLDZIELNIA_MIESZKANIOWA",
-          "nazwa": "Spółdzielnia mieszkaniowa"
+          "nazwa": "spółdzielnia mieszkaniowa"
         },
         {
           "kod": "INNY_PODMIOT_POSIADAJACY_NIERUCHOMOSC_W",
-          "nazwa": "Inny podmiot posiadający nieruchomość w zarządzie lub użytkowaniu"
+          "nazwa": "inny podmiot posiadający nieruchomość w zarządzie lub użytkowaniu"
         }
       ],
       "wystapienia": [
         {
           "formularz": "8",
           "tytulFormularza": "Deklaracja o wysokości miesięcznej opłaty za gospodarowanie odpadami komunalnymi",
-          "techName": "rodzaj_podmiotu_skladajacego_deklaracje",
-          "tytulPola": "Rodzaj podmiotu składającego deklarację",
+          "techName": "rodzaj_podmiotu",
+          "tytulPola": "Rodzaj podmiotu",
           "typ": "RADIO"
         }
       ],
@@ -301,7 +255,23 @@
   ],
   "pozostaleListy": [
     {
-      "tytulPola": "Typ zajęcia",
+      "tytulPola": "Czego dotyczy wniosek?",
+      "formularze": [
+        "3"
+      ],
+      "liczbaPozycji": 5,
+      "powod": "pojedyncza krótka lista - do oceny przez urzędnika"
+    },
+    {
+      "tytulPola": "Rodzaj korzystania ze świetlicy",
+      "formularze": [
+        "4"
+      ],
+      "liczbaPozycji": 2,
+      "powod": "za mało pozycji"
+    },
+    {
+      "tytulPola": "Rodzaj zajęcia pasa drogowego",
       "formularze": [
         "6"
       ],
@@ -317,6 +287,14 @@
       "powod": "za mało pozycji"
     },
     {
+      "tytulPola": "Rodzaj psa",
+      "formularze": [
+        "7"
+      ],
+      "liczbaPozycji": 2,
+      "powod": "za mało pozycji"
+    },
+    {
       "tytulPola": "Płeć psa",
       "formularze": [
         "7"
@@ -325,15 +303,23 @@
       "powod": "za mało pozycji"
     },
     {
-      "tytulPola": "Powód złożenia deklaracji",
+      "tytulPola": "Sposób oznakowania psa",
       "formularze": [
-        "8"
+        "7"
       ],
       "liczbaPozycji": 3,
       "powod": "pojedyncza krótka lista - do oceny przez urzędnika"
     },
     {
-      "tytulPola": "Rodzaj nieruchomości",
+      "tytulPola": "Rodzaj deklaracji",
+      "formularze": [
+        "8"
+      ],
+      "liczbaPozycji": 4,
+      "powod": "pojedyncza krótka lista - do oceny przez urzędnika"
+    },
+    {
+      "tytulPola": "Typ nieruchomości",
       "formularze": [
         "8"
       ],
@@ -341,15 +327,7 @@
       "powod": "za mało pozycji"
     },
     {
-      "tytulPola": "Typ reprezentanta",
-      "formularze": [
-        "9"
-      ],
-      "liczbaPozycji": 2,
-      "powod": "za mało pozycji"
-    },
-    {
-      "tytulPola": "Preferowany sposób korespondencji",
+      "tytulPola": "Preferowany sposób korespondencji z urzędem",
       "formularze": [
         "9"
       ],
@@ -357,7 +335,7 @@
       "powod": "pojedyncza krótka lista - do oceny przez urzędnika"
     },
     {
-      "tytulPola": "Typ dyscypliny",
+      "tytulPola": "Rodzaj dyscypliny sportowej",
       "formularze": [
         "9"
       ],

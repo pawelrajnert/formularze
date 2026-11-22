@@ -125,8 +125,9 @@ RADIO_DEFAULT = ("RADIO z kluczem defaultValue: wzorce 1/5 ani „Reguły techni
                  "builder.py:125 dodaje [f.default] dla każdego CHOICE — do naprawy w builderze (P)")
 REPEATING_MIN_ROWS = ("question z REPEATING_SECTION bez minItemRows (wzorzec 1 ma minItemRows: 2) — F-19 część P (builder)")
 
-KNOWN_KEY_DIFFS = {"wyniki/9.json": RADIO_DEFAULT, "builder:DRAFT_ALL": RADIO_DEFAULT}
-KNOWN_MIN_ROWS = {"wyniki/7.json": REPEATING_MIN_ROWS, "builder:DRAFT_ALL": REPEATING_MIN_ROWS}
+# Obie rozbieżności naprawione przez P (builder + wyniki v5, 22.11) — xfail zdjęte; nowe wpisy tylko z powodem.
+KNOWN_KEY_DIFFS: dict[str, str] = {}
+KNOWN_MIN_ROWS: dict[str, str] = {}
 
 
 def _forms():
@@ -208,7 +209,7 @@ def test_original_schema_as_is(label, load):
     assert errs == [], "\n".join(errs)
 
 
-@pytest.mark.parametrize("label, load", _params({"wyniki/9.json": RADIO_DEFAULT, "builder:DRAFT_ALL": RADIO_DEFAULT}))
+@pytest.mark.parametrize("label, load", _params(KNOWN_KEY_DIFFS))
 def test_original_schema_every_level(label, load):
     errs = _schema_errors_every_level(load(), label, ALLOWED_SCHEMA_DEVIATIONS)
     assert errs == [], "\n".join(errs)

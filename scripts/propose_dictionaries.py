@@ -1,4 +1,4 @@
-"""F-10: propozycje nowych słowników z wyniki/*.json (+ wzorce data/1, data/5) -> wyniki/proponowane_slowniki.json.
+"""F-10: propozycje nowych słowników z wyniki/*.json (+ wzorce data/1, data/5) -> wyniki/slowniki/proponowane_slowniki.json.
 
 Użycie: python -m scripts.propose_dictionaries
 """
@@ -8,7 +8,7 @@ from pathlib import Path
 from app.form_builder.dictionary_proposals import analyze
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "wyniki" / "proponowane_slowniki.json"
+OUT = ROOT / "wyniki" / "slowniki" / "proponowane_slowniki.json"  # podkatalog: wyniki/*.json to tylko formularze
 
 
 def sources() -> list[tuple[str, Path]]:

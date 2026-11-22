@@ -121,7 +121,9 @@ class _Builder:
             "validation": [] if t == "TEXT_BLOCK" else (["REQUIRED"] if f.required else []) + [v for v in f.validators if v != "REQUIRED"],
             "readOnly": f.read_only and t != "TEXT_BLOCK", "repeatingSectionGrid": [],
         }
-        if f.default and not text_only and t != "NUMBER":  # reguły techniczne: NUMBER nie ma defaultValue
+        # reguły techniczne: NUMBER nie ma defaultValue; RADIO też nie (wzorce 1/5, komponent RADIO; oryginalny schemat
+        # chce stringa, a lista psuła import) — F-19, test tests/test_template_keys.py
+        if f.default and not text_only and t not in ("NUMBER", "RADIO"):
             out["defaultValue"] = [f.default] if t in CHOICE else f.default  # reguły: "defaultValue": [] dla list
         enrich(out, f)
         # readOnly bez wartości = pole nie do wypełnienia (blokuje wysyłkę); NUMBER tylko z danych inicjalnych
@@ -187,7 +189,10 @@ class _Builder:
                 }
                 if sec.show_if:
                     self.pending.append((section, sec.show_if, ""))
-                questions.append(_q(0, y, len(children) + 1, section))
+                question = _q(0, y, len(children) + 1, section)
+                if sec.repeating:  # F-19: wzorzec 1 ma minItemRows przy sekcji powtarzalnej; 1 = co najmniej jeden wpis
+                    question["minItemRows"] = 1
+                questions.append(question)
                 y += len(children) + 1
             if questions:
                 tabs.append({"id": _uid(), "title": page.title, "type": "MAIN", "questions": questions})
