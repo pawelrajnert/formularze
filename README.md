@@ -104,6 +104,7 @@ LLM jest używany tylko wtedy, gdy ustawione są wszystkie trzy zmienne `LLM_*`.
 | `POST /api/v1/auth/token` | Body JSON `{"username", "password"}`. Zwraca `{"access_token", "token_type": "bearer"}` |
 | `POST /api/v1/forms/convert` | `multipart/form-data`, pole `file`, nagłówek `Authorization: Bearer <token>`, query `debug=false` |
 | `POST /api/v1/forms/approve` | Przy `APPROVAL_REQUIRED=true`. Body: `form`, `token` (z bloku `approval` odpowiedzi `/convert`), `checks`, `statement`, `pages_visited`, `review_seconds`. Zwraca `{"record"}` i zapisuje go w `AUDIT_DIR` |
+| `GET /api/v1/security` | Nagłówek `Authorization: Bearer <token>`. Lista zabezpieczeń i ochrony danych ze stanem z bieżącej konfiguracji: `[{id, nazwa, stan: "włączone"\|"wyłączone", opis, jak_wlaczyc, dowod}]`. Bez sekretów i adresów endpointów |
 | `GET /health` | `{"status": "ok"}` (healthcheck w compose) |
 | `GET /` | frontend (`web/index.html`) |
 | `GET /docs` | OpenAPI / Swagger UI (FastAPI) |
@@ -237,6 +238,8 @@ Obie flagi są domyślnie wyłączone (`false`), żeby jury mogło od razu pobra
 - **JWT (PyJWT):** sekret, algorytm i czas ważności ustawiamy w env. Hasło porównujemy w stałym czasie (`hmac.compare_digest`). Gdy brakuje sekretu lub hasła, usługa zwraca 503 i nie wydaje tokenów z pustym sekretem.
 - **Zewnętrzne usługi:** poza endpointem LLM aplikacja nie łączy się z żadnym zewnętrznym API.
 - **Frontend** trzyma token w `sessionStorage`.
+
+**Widoczne na demie (R-08):** po zalogowaniu frontend pokazuje zwijaną kartę „Bezpieczeństwo i ochrona danych” z `GET /api/v1/security`. Każde zabezpieczenie ma stan z prawdziwej konfiguracji (env), krótki opis i wskazanie testu lub pliku. Wyłączone pozycje (domyślnie `COMPLIANCE_ENABLED` i `APPROVAL_REQUIRED`) są oznaczone na żółto z nazwą zmiennej, która je włącza. Odpowiedź zawiera tylko flagi i limity liczbowe, bez kluczy, haseł i adresów (`tests/test_safeguards.py`).
 
 ### Zagrożenia i zabezpieczenia (S-01)
 
