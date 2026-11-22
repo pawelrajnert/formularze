@@ -86,12 +86,42 @@ def test_selection_env_first_then_legacy():
 
 def test_public_has_no_secrets():
     reg = load_registry(REAL, env={"MISTRAL_API_KEY": "sekretny-klucz", "SHERLOCK_API_KEY": "inny-sekret"})
-    pub = reg.public()
+    pub = reg.public(probe=lambda url: False)
     text = repr(pub)
     assert "sekret" not in text and "api_key" not in text and "base_url" not in text
     by_id = {m["id"]: m for m in pub}
     assert by_id["ministral-14b-api"]["default"] and by_id["ministral-14b-api"]["configured"]
     assert by_id["pllum-12b-sherlock"]["license"] == "Apache-2.0"
+
+
+def test_public_ollama_configured_only_when_server_answers():
+    """R-05: Ollama nie potrzebuje klucza, więc „configured” = serwer odpowiada; sondujemy raz na adres."""
+    reg = load_registry(REAL, env={})
+    asked = []
+    pub = {m["id"]: m for m in reg.public(probe=lambda url: asked.append(url) or False)}
+    assert pub["ministral-14b-ollama"]["configured"] is False
+    assert len(asked) == len(set(asked)) == 1          # wszystkie wpisy Ollamy mają ten sam adres
+    pub = {m["id"]: m for m in reg.public(probe=lambda url: True)}
+    assert pub["qwen3-4b-ollama"]["configured"] is True
+    assert pub["ministral-14b-api"]["configured"] is False   # brak klucza w env
+
+
+def test_unexpected_draft_error_logs_without_document_text(caplog):
+    """R-05: nieoczekiwany błąd szkicu nie trafia do logu z treścią dokumentu (PII)."""
+    import logging
+    from app.form_builder import draft_llm
+    from hackcore import Document
+
+    class Boom:
+        model = "m"
+        def complete_model(self, *a, **k):
+            raise ValueError("input_value='Jan Kowalski PESEL 44051401359'")
+
+    with caplog.at_level(logging.DEBUG, logger=draft_llm.log.name):
+        res = draft_llm.make_draft(Document.from_pages(["Wniosek\nImię: ....."], "pdf"), Boom(), compliance=False)
+    assert res.source == "heuristic"
+    assert "Kowalski" not in caplog.text and "44051401359" not in caplog.text
+    assert "ValueError" in caplog.text
 
 
 # --- pipeline ---
