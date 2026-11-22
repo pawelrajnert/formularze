@@ -850,8 +850,18 @@ function markNotApplicable() {
 }
 
 function isRequired(f) { return [].concat(f.validation || []).some((v) => (v && v.type ? v.type : v) === "REQUIRED"); }
+// R-16 (#6): w podglądzie po ludzku — JSON zostaje jak we wzorcach COI (tytuł pola TERYT = nazwa słownika)
+const DICT_LABEL = { TERYT_4G_DOWODOWY: "Adres w Polsce", TERYT_DOWODOWY: "Adres w Polsce", Kraje: "Kraj", "Numery kierunkowe": "Numer kierunkowy" };
+const DICT_HINT = {
+  TERYT_4G_DOWODOWY: "Wybór z listy: województwo → powiat → gmina → miejscowość",
+  TERYT_DOWODOWY: "Wybór z listy: województwo → powiat → gmina → miejscowość",
+  Kraje: "Wybór z listy krajów", "Numery kierunkowe": "Wybór z listy numerów kierunkowych (np. +48 Polska)",
+};
+const fieldTitle = (f) => (f.dictionaryName && f.title === f.dictionaryName ? DICT_LABEL[f.dictionaryName] || "Wybierz z listy" : f.title || f.techName || "");
+// R-16 (#5): skąd system weźmie wartość — bez technicznych kluczy (PESEL.name, MLPZ.email)
+const prefillSource = (v) => /^PESEL/.test(v) ? "z rejestru PESEL" : /^MLPZ/.test(v) ? "z profilu zaufanego" : "z rejestru";
 function labelFor(f, id) {
-  const lab = el("label", { htmlFor: id, textContent: f.title || f.techName || "" });
+  const lab = el("label", { htmlFor: id, textContent: fieldTitle(f) });
   if (isRequired(f)) lab.append(" ", el("span", { className: "req", textContent: "*", title: "pole wymagane" }), el("span", { className: "sr", textContent: "(wymagane)" }));
   return lab;
 }
@@ -901,7 +911,7 @@ function renderField(f) {
         wrap.append(lab, tooltip(f), hint(f, id)); return wrap;
       }
       const fs = el("fieldset", { className: "grp" }), lg = el("legend");
-      lg.append(f.title || f.techName || "");
+      lg.append(fieldTitle(f));
       if (isRequired(f)) lg.append(" ", el("span", { className: "req", textContent: "*" }), el("span", { className: "sr", textContent: "(wymagane)" }));
       lg.append(tooltip(f)); fs.append(lg, hint(f, id));
       const cur = asArr(f.__userAnswer);
@@ -917,11 +927,11 @@ function renderField(f) {
       const cur = asArr(f.__userAnswer).map(String), list = [...opts];
       cur.forEach((v) => !list.some((o) => o.v === v) && list.push({ v, t: v }));
       // shortcut: słowniki COI (np. Kraje, TERYT) nie są ładowane — sztuczna opcja pozwala przełączyć stany
-      if (f.dictionaryName && !opts.length) list.push({ v: "(inna wartość ze słownika)", t: "(inna wartość ze słownika " + f.dictionaryName + ")" });
+      if (f.dictionaryName && !opts.length) list.push({ v: "(inna wartość ze słownika)", t: "(przykładowa pozycja z listy)" });
       const c = input("select", { onchange: () => answer(f, c.value || null) });
       c.append(el("option", { value: "", textContent: "— wybierz —" }), ...list.map((o) => el("option", { value: o.v, textContent: o.t, selected: cur.includes(o.v) })));
       wrap.append(labelFor(f, id), tooltip(f), hint(f, id), c);
-      if (f.dictionaryName) wrap.append(el("div", { className: "hint", textContent: "Słownik: " + f.dictionaryName }));
+      if (f.dictionaryName) wrap.append(el("div", { className: "hint", textContent: DICT_HINT[f.dictionaryName] || "Wybór z listy (słownik " + f.dictionaryName + ")" }));
       return wrap;
     }
     case "CONSENT_SECTION": {
@@ -944,7 +954,7 @@ function renderField(f) {
     case "TEXTAREA": case "TEXT_FIELD": case "NUMBER": case "DATEPICKER": {
       const c = f.type === "TEXTAREA" ? input("textarea", { rows: 4 }) : input("input", { type: { NUMBER: "number", DATEPICKER: "date" }[f.type] || "text" });
       if (f.__userAnswer != null) c.value = String(f.__userAnswer);
-      if (ext) c.placeholder = "🔒 uzupełni się z rejestru: " + f.defaultValue;
+      if (ext) c.placeholder = "🔒 Uzupełni się automatycznie " + prefillSource(String(f.defaultValue || ""));
       c.oninput = () => answer(f, c.value);
       wrap.append(labelFor(f, id), tooltip(f), hint(f, id), c);
       return wrap;
