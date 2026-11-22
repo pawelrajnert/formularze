@@ -12,7 +12,11 @@
 
 ![Wynik konwersji: baner, krokomierz z drzewem wariantów i JSON](docs/img/ui-wynik.png)
 
-**Film (2:18):** [`ultrademo/form2norm_demo.mp4`](ultrademo/form2norm_demo.mp4): nagranie prawdziwego działania aplikacji na finalnym interfejsie. Obie konwersje na filmie to prawdziwe wywołania modelu Ministral 3 14B; czekanie na AI jest przyspieszone ×6 i oznaczone na ekranie. Na końcu: zmierzone wyniki i lista użytych modeli i bibliotek. Wcześniejsza wersja: [`video1.mp4`](video1.mp4).
+### Film demo (2:13)
+
+[![Film demo Form2Norm: kliknij, aby odtworzyć](docs/img/film-podglad.jpg)](de%28mo%29COI.mp4)
+
+[**`de(mo)COI.mp4`**](de%28mo%29COI.mp4): nagranie prawdziwego działania aplikacji. Obie konwersje na filmie to prawdziwe wywołania modelu Ministral 3 14B; czekanie na AI jest przyspieszone ×6 i oznaczone na ekranie. Na końcu: zmierzone wyniki i lista użytych modeli i bibliotek.
 
 ---
 
