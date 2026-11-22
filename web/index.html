@@ -9,9 +9,14 @@
 :root { --fg:#0D0E0E; --muted:#515255; --bg:#F3F3F4; --card:#fff; --line:#CFD0D2; --pri:#0D0E0E; --pri-d:#363739; --pri-bg:#E7E7E8; --acc:#CA0049; --acc-h:#B30041; --acc-a:#860031; --acc-fg:#FCE6EE; --ok:#1b6b2f; --ok-bg:#e6f4ea; --err:#a4001d; --err-bg:#fdecee; --warn-bg:#fff6d6; }
 * { box-sizing:border-box; }
 body { margin:0; font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; color:var(--fg); background:var(--bg); }
-header { background:#fff; color:var(--fg); border-bottom:1px solid var(--line); padding:12px 24px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
-header h1 { font-size:1.375rem; font-weight:600; margin:0; letter-spacing:-.005em; }
-header h1 .sub { font-size:1rem; font-weight:400; color:var(--muted); margin-left:8px; }
+[hidden] { display:none !important; } /* klasy z display:flex/grid nie mogą nadpisać atrybutu hidden */
+header { background:#fff; color:var(--fg); border-bottom:1px solid var(--line); }
+.hd { max-width:1400px; margin:0 auto; padding:12px 16px; min-height:64px; display:flex; align-items:center; gap:16px; }
+.brand { display:flex; align-items:center; gap:10px; margin:0; font-size:1.25rem; font-weight:700; letter-spacing:-.015em; }
+.brand b { color:var(--acc); font-weight:700; }
+.tag { color:var(--muted); font-size:.95rem; padding-left:16px; border-left:1px solid var(--line); line-height:1.6; }
+#logout { margin-left:auto; min-height:40px; padding:6px 18px; }
+@media (max-width:560px) { .tag { display:none; } }
 main { max-width:1400px; margin:0 auto; padding:16px; }
 .card { background:var(--card); border:0; border-radius:.5rem; padding:24px; margin-bottom:16px; }
 h2 { font-size:1.5rem; font-weight:400; line-height:1.3; letter-spacing:.0025em; margin:0 0 16px; }
@@ -27,7 +32,19 @@ button.cta:active:not(:disabled) { background:var(--acc-a); border-color:var(--a
 @media (hover:hover) and (pointer:fine) { button:hover { background:var(--pri-d); } button.sec:hover { background:var(--pri-bg); } button.cta:hover:not(:disabled) { background:var(--acc-h); border-color:var(--acc-h); } }
 button:disabled { opacity:.6; cursor:not-allowed; }
 .row { margin-bottom:12px; }
-.login { max-width:420px; }
+.login { min-height:calc(100vh - 140px); display:grid; place-items:center; align-content:center; gap:16px; padding:32px 0; }
+.login-card { width:100%; max-width:440px; padding:40px; box-shadow:0 1px 2px rgba(13,14,14,.06), 0 8px 24px rgba(13,14,14,.06); }
+.login-card h2 { font-size:2rem; font-weight:600; letter-spacing:-.01em; line-height:1.2; margin:0 0 6px; }
+.login-card .lead { color:var(--muted); margin:0 0 28px; }
+.login-card input { min-height:48px !important; border-radius:.5rem !important; transition:border-color 150ms ease; }
+@media (hover:hover) and (pointer:fine) { .login-card input:hover { border-color:var(--fg); } }
+.pw { position:relative; }
+.pw input { padding-right:96px !important; }
+.pw-t { position:absolute; right:6px; top:6px; bottom:6px; min-height:0; padding:0 14px; border-width:1px; font-size:.9rem; }
+button.wide { width:100%; min-height:52px; margin-top:12px; font-size:1.0625rem; }
+.login-info { margin:28px 0 0; padding-top:20px; border-top:1px solid var(--line); color:var(--muted); font-size:.9rem; }
+.login-foot { color:var(--muted); font-size:.85rem; margin:0; }
+@media (max-width:480px) { .login-card { padding:28px 20px; } }
 #drop { display:block; border:2px dashed #6b7280; border-radius:8px; padding:28px 16px; text-align:center; cursor:pointer; font-weight:400; }
 #drop.over { border-color:var(--pri); background:var(--pri-bg); }
 #drop strong { color:var(--pri); }
@@ -151,16 +168,14 @@ a { color:var(--pri); }
 /* R-08: zabezpieczenia i ochrona danych */
 #sec > summary { cursor:pointer; font-weight:700; font-size:1.1rem; }
 #sec-sum { font-weight:400; font-size:.95rem; color:var(--muted); margin-left:8px; }
-#sec-list { list-style:none; margin:12px 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:8px; }
-#sec-list li { border:1px solid var(--line); border-left:4px solid var(--ok); border-radius:0 6px 6px 0; padding:8px 12px; }
+#sec-list { list-style:none; margin:12px 0 0; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr)); gap:12px; align-items:stretch; }
+#sec-list li { min-width:0; overflow-wrap:break-word; display:flex; flex-direction:column; gap:4px; background:#fff; border:1px solid var(--line); border-left:4px solid var(--ok); border-radius:0 .5rem .5rem 0; padding:12px 14px; }
 #sec-list li.off { border-left-color:#8a6d00; background:var(--warn-bg); }
 #sec-list li > b { display:block; }
 #sec-list .st { font-weight:700; color:var(--ok); margin-right:6px; }
 #sec-list li.off .st { color:#6b5500; }
 #sec-list p { margin:2px 0; font-size:.92rem; }
-#sec-list code { background:#fff; border:1px solid #8a6d00; border-radius:3px; padding:0 4px; }
-#sec-list .ev { color:var(--muted); font-size:.82rem; }
-@media (max-width:400px) { #sec-list { grid-template-columns:minmax(0,1fr); } }
+#sec-list code { background:#fff; border:1px solid #8a6d00; border-radius:3px; padding:0 4px; display:inline-block; max-width:100%; overflow-wrap:anywhere; hyphens:none; }
 /* R-15 P2 (#11) — na końcu arkusza, żeby nadpisać wcześniejsze style sugestii */
 .pl-item { border-left-color:#FFDD00; background:#fff; border-top:1px solid var(--line); border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
 .pl-item.lvl-err { border-left-color:var(--acc); background:var(--acc-fg); }
@@ -171,18 +186,28 @@ a { color:var(--pri); }
 </head>
 <body>
 <header>
-  <h1>Form2Norm <span class="sub">cyfryzacja formularzy</span></h1>
-  <button id="logout" class="sec" type="button" hidden>Wyloguj</button>
+  <div class="hd">
+    <h1 class="brand"><svg class="mark" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#CA0049"/><path d="M10.5 7.5h7.5l5 5v11.5a1 1 0 0 1-1 1H10.5a1 1 0 0 1-1-1v-15.5a1 1 0 0 1 1-1z" fill="#fff"/><path d="M12.5 17h7M12.5 20.5h4.5" stroke="#CA0049" stroke-width="1.8" stroke-linecap="round"/></svg><span>Form<b>2</b>Norm</span></h1>
+    <span class="tag">Cyfryzacja formularzy</span>
+    <button id="logout" class="sec" type="button" hidden>Wyloguj</button>
+  </div>
 </header>
 <main>
-  <section id="login" class="card login" hidden aria-labelledby="login-h">
-    <h2 id="login-h">Logowanie</h2>
-    <form id="login-form">
-      <div class="row"><label for="username">Login</label><input id="username" name="username" autocomplete="username" required></div>
-      <div class="row"><label for="password">Hasło</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
-      <button type="submit" class="cta">Zaloguj</button>
-      <div id="login-msg" role="alert"></div>
-    </form>
+  <section id="login" class="login" hidden aria-labelledby="login-h">
+    <div class="card login-card">
+      <h2 id="login-h">Zaloguj się</h2>
+      <p class="lead">do Form2Norm, narzędzia urzędnika do cyfryzacji formularzy</p>
+      <form id="login-form">
+        <div class="row"><label for="username">Login</label><input id="username" name="username" autocomplete="username" required></div>
+        <div class="row"><label for="password">Hasło</label>
+          <div class="pw"><input id="password" name="password" type="password" autocomplete="current-password" required><button id="pw-t" class="sec pw-t" type="button" aria-controls="password" aria-pressed="false">Pokaż</button></div>
+        </div>
+        <button id="login-go" type="submit" class="cta wide">Zaloguj się</button>
+        <div id="login-msg" role="alert"></div>
+      </form>
+      <p class="login-info">Dostęp mają tylko pracownicy urzędu. Login i hasło nadaje administrator systemu.</p>
+    </div>
+    <p class="login-foot">Form2Norm · Team JeZUS · HackNation 2026</p>
   </section>
 
   <section id="upload" class="card" hidden aria-labelledby="up-h">
@@ -310,7 +335,6 @@ async function loadSecurity() {
         mk("b", {}, mk("span", { className: "st", textContent: isOn ? "✓" : "○ wyłączone" }), x.nazwa),
         mk("p", { textContent: x.opis }));
       if (!isOn && x.jak_wlaczyc) li.append(mk("p", {}, "Wyłączone w tej konfiguracji — włącz: ", mk("code", { textContent: x.jak_wlaczyc })));
-      li.append(mk("p", { className: "ev", textContent: "Dowód: " + x.dowod }));
       return li;
     }));
     $("sec").hidden = false;
@@ -336,17 +360,25 @@ async function errorText(r) {
   } catch { show("upload"); setMsg($("up-msg"), "Brak połączenia z serwerem."); }
 })();
 
+$("pw-t").addEventListener("click", () => {
+  const show = $("password").type === "password";
+  $("password").type = show ? "text" : "password";
+  $("pw-t").textContent = show ? "Ukryj" : "Pokaż"; $("pw-t").setAttribute("aria-pressed", String(show));
+});
 $("login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   setMsg($("login-msg"), "");
+  const go = $("login-go"); go.disabled = true; go.textContent = "Logowanie…";
   try {
     const r = await fetch(API + "/auth/token", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: $("username").value, password: $("password").value }) });
     if (!r.ok) return setMsg($("login-msg"), await errorText(r));
     token = (await r.json()).access_token;
     sessionStorage.setItem("coi_token", token);
     $("password").value = "";
+    $("password").type = "password"; $("pw-t").textContent = "Pokaż"; $("pw-t").setAttribute("aria-pressed", "false");
     show("upload"); $("logout").hidden = false; $("drop").focus();
   } catch { setMsg($("login-msg"), "Brak połączenia z serwerem."); }
+  finally { go.disabled = false; go.textContent = "Zaloguj się"; }
 });
 $("logout").addEventListener("click", () => { token = ""; sessionStorage.removeItem("coi_token"); $("logout").hidden = true; $("result").hidden = true; show("login"); });
 

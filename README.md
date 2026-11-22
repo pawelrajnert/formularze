@@ -108,7 +108,7 @@ LLM jest używany tylko wtedy, gdy ustawione są wszystkie trzy zmienne `LLM_*`.
 | `POST /api/v1/auth/token` | Body JSON `{"username", "password"}`. Zwraca `{"access_token", "token_type": "bearer"}` |
 | `POST /api/v1/forms/convert` | `multipart/form-data`, pole `file`, nagłówek `Authorization: Bearer <token>`, query `debug=false` |
 | `POST /api/v1/forms/approve` | Przy `APPROVAL_REQUIRED=true`. Body: `form`, `token` (z bloku `approval` odpowiedzi `/convert`), `checks`, `statement`, `pages_visited`, `review_seconds`. Zwraca `{"record"}` i zapisuje go w `AUDIT_DIR` |
-| `GET /api/v1/security` | Nagłówek `Authorization: Bearer <token>`. Lista zabezpieczeń i ochrony danych ze stanem z bieżącej konfiguracji: `[{id, nazwa, stan: "włączone"\|"wyłączone", opis, jak_wlaczyc, dowod}]`. Bez sekretów i adresów endpointów |
+| `GET /api/v1/security` | Nagłówek `Authorization: Bearer <token>`. Lista zabezpieczeń i ochrony danych ze stanem z bieżącej konfiguracji: `[{id, nazwa, stan: "włączone"\|"wyłączone", opis, jak_wlaczyc}]`. Bez sekretów i adresów endpointów |
 | `GET /health` | `{"status": "ok"}` (healthcheck w compose) |
 | `GET /` | frontend (`web/index.html`) |
 | `GET /docs` | OpenAPI / Swagger UI (FastAPI) |

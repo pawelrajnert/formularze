@@ -41,8 +41,8 @@ def test_defaults_shape_and_states():
     assert set(items) >= {"auth", "rate_limit", "file_validation", "memory_only", "prompt_injection", "output_rules",
                           "no_content_logs", "compliance", "approval", "open_weights", "docker_non_root"}
     for x in items.values():
-        assert set(x) == {"id", "nazwa", "stan", "opis", "jak_wlaczyc", "dowod"}
-        assert x["stan"] in ("włączone", "wyłączone") and x["opis"] and x["dowod"]
+        assert set(x) == {"id", "nazwa", "stan", "opis", "jak_wlaczyc"}
+        assert x["stan"] in ("włączone", "wyłączone") and x["opis"]
         assert (x["jak_wlaczyc"] is None) == (x["stan"] == "włączone")
     assert items["auth"]["stan"] == items["rate_limit"]["stan"] == items["file_validation"]["stan"] == "włączone"
     assert items["compliance"] == {**items["compliance"], "stan": "wyłączone", "jak_wlaczyc": "COMPLIANCE_ENABLED=true"}
