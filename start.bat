@@ -15,7 +15,8 @@ if errorlevel 1 (
 )
 
 if /i "%~1"=="stop" (
-  docker compose down
+  rem stop zamiast down: kontener i logi zostaja (docker compose logs app)
+  docker compose stop
   exit /b %errorlevel%
 )
 

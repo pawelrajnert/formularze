@@ -135,3 +135,13 @@ def test_trace_extras_failure_does_not_break_convert(monkeypatch):
     assert check(out["form"]) == []
     assert out["trace"]["proposedDictionaries"] == []
     assert out["trace"]["plain_language"]["suggestions"] == [] and out["trace"]["plain_language"]["summary"]["razem"] == 0
+
+
+def test_trace_has_stage_timings(monkeypatch):
+    """R-07: trace.timings z czasami etapów (bez treści dokumentu)."""
+    monkeypatch.delenv("LLM_MODEL_ID", raising=False)  # LLM wyłącza fixture `env` (heurystyka)
+    from app.pipeline import convert_document
+    p = next(x for x in Path("data/4").rglob("*.docx") if "wizualizacja" not in x.name.lower())
+    t = convert_document(p.read_bytes(), "docx", True)["trace"]["timings"]
+    assert set(t) == {"odczyt_s", "szkic_s", "czekanie_na_limit_s", "budowa_walidacja_s", "razem_s"}
+    assert t["razem_s"] >= t["szkic_s"] >= 0

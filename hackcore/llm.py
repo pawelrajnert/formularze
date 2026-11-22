@@ -153,6 +153,10 @@ class LLMClient:
         self.rate_limit_wait = rate_limit_wait
         if fallback_models is None:
             fallback_models = split_keys(os.environ.get("LLM_FALLBACK_MODELS", ""))
+        try:  # R-07: ile najwyżej czekać na wolny główny model, zanim weźmiemy zapasowy (s)
+            self.fallback_max_wait = max(0.0, float(os.environ.get("LLM_FALLBACK_MAX_WAIT", "20")))
+        except ValueError:
+            self.fallback_max_wait = 20.0
         models = list(dict.fromkeys([model, *fallback_models]))
         # max_retries=0: retry/backoff robimy sami (SDK czeka za krótko na 429 Mistrala)
         clients = {k: openai.OpenAI(base_url=base_url, api_key=k, timeout=timeout, max_retries=0)
@@ -173,7 +177,14 @@ class LLMClient:
         czekaniem. Ustawia _client/window/last_model; zwraca ile czekać."""
         now = time.monotonic()
         waits = [w.wait_before(now) for _, w, _ in self._pool]
-        best = next((i for i, w in enumerate(waits) if w == 0), None)
+        main = [i for i, (_, _, m) in enumerate(self._pool) if m == self.model]
+        best = next((i for i in main if waits[i] == 0), None)
+        if best is None:  # R-07: krótkie czekanie na główny model zamiast słabszego zapasu (jakość dużych formularzy)
+            soonest = min(main, key=waits.__getitem__)
+            if waits[soonest] <= self.fallback_max_wait:
+                best = soonest
+        if best is None:
+            best = next((i for i, w in enumerate(waits) if w == 0), None)
         if best is None:
             best = min(range(len(self._pool)), key=waits.__getitem__)
         self._client, self.window, self.last_model = self._pool[best]

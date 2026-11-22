@@ -77,6 +77,7 @@ Wszystkie zmienne pochodzą z `app/config.py`. Wzór jest w `.env.example`.
 | `LLM_BASE_URL` | Endpoint zgodny z OpenAI API (Mistral: `https://api.mistral.ai/v1`, Ollama: `http://ollama:11434/v1`) | puste (wtedy LLM wyłączony, działa tylko heurystyka) |
 | `LLM_API_KEY` | Klucz API (`ollama` dla lokalnej Ollamy). Kilka kluczy po przecinku (`klucz1,klucz2`) = pula, każdy klucz ma własny limit zapytań | puste |
 | `LLM_FALLBACK_MODELS` | Modele zapasowe na tym samym endpoincie (po przecinku), używane od razu, gdy główny model ma pełny limit zapytań (Mistral free: 2/min **na model**) | puste (w `.env.example`: `ministral-8b-latest`) |
+| `LLM_FALLBACK_MAX_WAIT` | Ile sekund najwyżej czekać na wolny główny model, zanim szkic zrobi zapasowy (duże formularze wychodzą lepiej z 14B) | `20` |
 | `DRAFT_CACHE_SIZE` | Pamięć podręczna szkiców w procesie: ten sam dokument + model + prompt → wynik bez LLM. `0` wyłącza | `32` |
 | `OCR_WORKERS` | Ile kawałków skanu OCR-ować równolegle | `min(4, liczba CPU)` |
 | `LLM_MODEL` | Nazwa modelu (`ministral-14b-latest` w API, `ministral-3:14b` w Ollamie) | puste |
@@ -116,7 +117,7 @@ Odpowiedź `200` z `/forms/convert`:
 Przy `debug=true` odpowiedź dodatkowo zawiera:
 
 - `draft`: szkic, z którego zbudowano formularz (LLM albo heurystyka),
-- `trace`: `{"source": "llm" | "heuristic", "reason": "<dlaczego fallback>", "model": "<model>", "seconds": …, "text_chars": <długość tekstu>, "rules_errors": [<błędy walidatora szkicu LLM>], "warnings": […], "changes": {…}, "proposedDictionaries": […], "plain_language": {"summary": …, "suggestions": […]}}`. `warnings` mówi m.in., że szkic zrobił model zapasowy albo że wynik pochodzi z pamięci podręcznej.
+- `trace`: `{"source": "llm" | "heuristic", "reason": "<dlaczego fallback>", "model": "<model>", "seconds": …, "text_chars": <długość tekstu>, "timings": {"odczyt_s", "szkic_s", "czekanie_na_limit_s", "budowa_walidacja_s", "razem_s"}, "rules_errors": [<błędy walidatora szkicu LLM>], "warnings": […], "changes": {…}, "proposedDictionaries": […], "plain_language": {"summary": …, "suggestions": […]}}`. `warnings` mówi m.in., że szkic zrobił model zapasowy albo że wynik pochodzi z pamięci podręcznej.
 
 Kody błędów:
 
@@ -152,7 +153,7 @@ Domyślnie korzystamy z API Mistral i modelu `ministral-14b-latest`, czyli **Min
 **Limit darmowego API i jak go omijamy** (Mistral Experiment: zmierzone **2 zapytania/min na model i na klucz**, nagłówki `x-ratelimit-*`):
 
 - okno 60 s po stronie klienta: limit czytamy z nagłówków i wysyłamy zapytanie dokładnie wtedy, gdy wolno (bez nieudanych prób i podwójnego czekania),
-- **model zapasowy** (`LLM_FALLBACK_MODELS=ministral-8b-latest`): gdy 14B ma pełny limit, szkic od razu robi 8B (ma własny limit) — w `trace.warnings` jest o tym wpis,
+- **model zapasowy** (`LLM_FALLBACK_MODELS=ministral-8b-latest`): gdy 14B ma pełny limit i zwolni się później niż za `LLM_FALLBACK_MAX_WAIT` (20 s), szkic od razu robi 8B (ma własny limit); krótsze czekanie na 14B wygrywa (jakość) — w `trace.warnings` jest o tym wpis,
 - **pula kluczy** (`LLM_API_KEY=klucz1,klucz2`),
 - **pamięć podręczna**: ten sam plik drugi raz → wynik w < 1 s,
 - odpowiedź ucięta (`finish_reason=length`) → od razu szkic heurystyczny, bez ponawiania (przy `temperature=0` dałoby to samo).

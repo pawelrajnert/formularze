@@ -1,6 +1,7 @@
 """Dokument -> hackcore.Document -> Draft (F-06: LLM, a w razie problemu heurystyka) -> JSON formularza COI -> walidacja."""
 import logging
 import re
+import time
 from functools import lru_cache
 from pathlib import Path
 
@@ -150,17 +151,32 @@ def _plain_language(form: dict) -> dict:
 def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "", model_id: str | None = None) -> dict:
     """model_id: id z config/models.yaml (np. `?model=`); None -> LLM_MODEL_ID albo stare LLM_* z env."""
     llm, model_label, no_llm = _select_llm(model_id)  # przed ingestem: nieznane id = szybki błąd
+    t0 = time.perf_counter()
     try:
         doc = load_document(data, f"plik.{ext}")
     except MissingDependency as e:  # brak Tesseracta/LibreOffice -> 422 z komunikatem, co doinstalować
         raise IngestError(str(e)) from e
+    t1 = time.perf_counter()
+    waited0 = getattr(llm, "waited_s", 0.0)
     result = make_draft(doc, llm)
+    t2 = time.perf_counter()
+    cached = any("pamięci podręcznej" in w for w in result.warnings)  # cache trzyma tylko szkice głównego modelu
+    if result.source == "llm" and not cached and getattr(llm, "last_model", None):  # R-04: faktyczny model (zapas?)
+        model_label = llm.last_model if model_label in (None, getattr(llm, "model", None)) else model_label
     if title_hint and not doc.text.strip():  # pusty dokument: tytuł z nazwy pliku zamiast „Wniosek”
         result.draft.title = title_hint[:255]
     notes: list[str] = []
     form = build(result.draft, notes, doc.text)
     if errs := check(form):  # make_draft już to sprawdza — tu tylko bezpiecznik
         raise ConversionError(f"Formularz nie przeszedł walidacji: {'; '.join(errs[:5])}")
+    t3 = time.perf_counter()
+    # R-07: czasy etapów (bez treści dokumentu) — log na każdą konwersję + trace.timings
+    timings = {"odczyt_s": round(t1 - t0, 2), "szkic_s": round(t2 - t1, 2),
+               "czekanie_na_limit_s": round(getattr(llm, "waited_s", 0.0) - waited0, 1),
+               "budowa_walidacja_s": round(t3 - t2, 2), "razem_s": round(t3 - t0, 2)}
+    log.warning("konwersja: format=%s znaków=%d ocr=%s źródło=%s model=%s cache=%s %s", ext, len(doc.text),
+                doc.ocr_used, result.source, model_label, cached,
+                " ".join(f"{k}={v}" for k, v in timings.items()))
     # S-02: oznaczenie AI (art. 50) OBOK formularza — `form` zostaje czystym JSON-em zgodnym ze schematem
     extra = {"ai_disclosure": result.ai_disclosure} if result.ai_disclosure else {}
     if config.settings.approval_required:  # F-18: wynik jest DRAFT, dopóki urzędnik go nie zatwierdzi
@@ -170,7 +186,7 @@ def convert_document(data: bytes, ext: str, debug: bool, title_hint: str = "", m
     removed = list(dict.fromkeys(result.removed_paper_elements + _removed_from_notes(notes)))
     return {"form": form, **extra, "draft": result.draft.model_dump(), "trace": {
         "source": result.source, "model": model_label, "reason": _reason(result, no_llm), "seconds": draft_summary(result)["seconds"],
-        "text_chars": len(doc.text), "ocr_used": doc.ocr_used, "rules_errors": [],
+        "text_chars": len(doc.text), "ocr_used": doc.ocr_used, "rules_errors": [], "timings": timings,
         "cleanup": notes, "removed_paper_elements": removed, "warnings": result.warnings,
         "changes": changes(form, removed, notes),
         "proposedDictionaries": _safe(dictionary_proposals.propose_for_form, form, []),  # F-10

@@ -167,6 +167,7 @@ def test_429_switches_to_other_key_without_sleeping():
 
 def test_fallback_model_used_only_when_primary_full():
     c = LLMClient("http://fb/v1", "fk", "big", fallback_models=["small"])
+    c.fallback_max_wait = 0  # test zapasu bez czekania (R-07 osobno)
     (_, w_big, m_big), (_, w_small, m_small) = c._pool
     assert (m_big, m_small) == ("big", "small") and w_big is not w_small   # limit osobno per model
     assert c._pick() == 0 and c.last_model == "big"                        # wolny główny -> główny
@@ -191,3 +192,15 @@ def test_registry_collects_extra_keys():
     reg = load_registry(Path(__file__).resolve().parents[1] / "config" / "models.yaml",
                         env={"MISTRAL_API_KEY": "a", "MISTRAL_API_KEY_2": "b"})
     assert reg.connection("ministral-14b-api")[1] == "a,b"
+
+
+def test_short_wait_for_primary_beats_fallback(monkeypatch):
+    """R-07: na główny model czekamy, gdy to krótko (≤ LLM_FALLBACK_MAX_WAIT); dłużej -> zapas od razu."""
+    monkeypatch.setenv("LLM_FALLBACK_MAX_WAIT", "20")
+    c = LLMClient("http://fw/v1", "wk", "big", fallback_models=["small"])
+    (_, w_big, _), _ = c._pool
+    w_big.limit = 1
+    w_big.record(time.monotonic() - 50)          # zwolni się za ~10 s
+    assert 0 < c._pick() <= 11 and c.last_model == "big"
+    w_big.times.clear(); w_big.record(time.monotonic() - 10)   # zwolni się za ~50 s
+    assert c._pick() == 0 and c.last_model == "small"
