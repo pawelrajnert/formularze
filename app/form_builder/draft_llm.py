@@ -26,7 +26,7 @@ from hackcore import Document, LLMClient, LLMError
 from hackcore.privacy import compliance_enabled, mask_pii
 
 from app.form_builder.builder import build
-from app.form_builder.draft import Dictionary, Draft, FieldType, Validator
+from app.form_builder.draft import Dictionary, Draft, DraftField, DraftSection, FieldType, Validator
 from app.form_builder.draft_heuristic import heuristic_draft
 from app.form_builder.draft_postprocess import paper_elements_in_text, postprocess
 from app.rules_check import check
@@ -43,22 +43,22 @@ SYSTEM_RULES = """Jesteś projektantem e-formularzy mObywatel (Generator Formula
 STRUKTURA:
 - Części standardowe wstawia SYSTEM z szablonów — NIE generuj ich jako stron ani pól: organ/adresat, w czyim imieniu (podmiot wniosku), dane i adres wnioskodawcy (imię, nazwisko, PESEL, NIP/REGON/KRS), dane innej osoby, pełnomocnik i pełnomocnictwo, opłata skarbowa, telefon/e-mail do kontaktu, zgoda RODO i klauzula informacyjna, strona końcowa (podgląd). Zamiast nich wypełnij pola sterujące:
   `organ` (adresat z dokumentu: SAMA nazwa organu, bez adresu, np. „Wójt Gminy Elbląg”; puste, gdy brak), `applicant_kinds` (kto może złożyć: osoba / firma / inna_osoba), `proxy_allowed` (false tylko, gdy dokument wyklucza pełnomocnika), `fee_info` (opłata skarbowa: kwota i za co; puste, gdy brak).
-- Dane wnioskodawcy NIE trafiają do `pages`, nawet pod inną nazwą: „składający deklarację”, „właściciel”, „klub/firma/podmiot składający wniosek”, jego reprezentant, adres zamieszkania/siedziby wnioskodawcy — to robi szablon (dla firmy/klubu ustaw applicant_kinds z „firma”). Dane OSÓB TRZECICH (poprzedni właściciel psa, osoba odpowiedzialna za roboty, trener, współmałżonek) są w `pages`, zawsze atomowo (Imię, Nazwisko, adres w osobnych polach), a sekcja i KAŻDE pole mówią, o kogo chodzi: sekcja „Dane kandydata”, pola „Imię kandydata”, „Nazwisko kandydata” (nie „Dane osobowe” / „Imię”). Tak samo pola o innym organie lub urzędzie niż adresat wniosku: „W którym organie zapłacono opłatę” (nie „Nazwa organu” ani label zaczynający się od „Organ”/„Urząd”).
+- Szablon ma TYLKO te dane wnioskodawcy: imię, nazwisko, PESEL, adres zamieszkania/siedziby, telefon, e-mail, nazwa firmy, NIP/REGON/KRS — tych NIE generuj, nawet pod inną nazwą („składający deklarację”, „właściciel”, „klub/firma składająca wniosek”, jej reprezentant; dla firmy/klubu ustaw applicant_kinds z „firma”). INNE dane wnioskodawcy z dokumentu (np. miejsce urodzenia, obywatelstwo, rodzaj/seria/numer dokumentu tożsamości, gdy brak PESEL) → sekcja „Dodatkowe dane wnioskodawcy” w `pages`. Dane OSÓB TRZECICH (poprzedni właściciel psa, osoba odpowiedzialna za roboty, trener, współmałżonek) są w `pages`, zawsze atomowo (Imię, Nazwisko, adres w osobnych polach), a sekcja i KAŻDE pole mówią, o kogo chodzi: sekcja „Dane kandydata”, pola „Imię kandydata”, „Nazwisko kandydata” (nie „Dane osobowe” / „Imię”). Tak samo pola o innym organie lub urzędzie niż adresat wniosku: „W którym organie zapłacono opłatę” (nie „Nazwa organu” ani label zaczynający się od „Organ”/„Urząd”).
 - `pages` to TYLKO strony „przedmiotu wniosku” (1 lub więcej, nazwane od treści, np. „Informacje o budynku”): WSZYSTKIE pola merytoryczne z dokumentu, pogrupowane w tematyczne sekcje. Oświadczenia i zgody WNIOSKODAWCY z dokumentu (poza RODO) → na ostatniej stronie sekcja „Oświadczenia” z polami CONSENT_SECTION (jedno pole = jedno oświadczenie z tekstu; label = jego treść). Oświadczenie lub zgodę, którą podpisuje INNA osoba (osoba odpowiedzialna, kandydat, podopieczny, rodzic, współwłaściciel), wnioskodawca tylko załącza: FILE_UPLOADER „Oświadczenie/Zgoda <kogo>”, nigdy CONSENT_SECTION wnioskodawcy.
 
 KOMPLETNOŚĆ I WIERNOŚĆ (sprawdź przed odpowiedzią):
 - Przejdź dokument po kolei: każdy numerowany punkt, każda pozycja tabeli, każda kratka i każde miejsce do wpisania ma swoje pole (poza częściami standardowymi i elementami papierowymi). Nic nie może zginąć — także zgody i oświadczenia z dalszych punktów dokumentu (np. zgody osób z kolejnych punktów, zgoda na kontakt e-mailowy, jeśli jest).
-- NIE wymyślaj pól, opcji ani oświadczeń, których nie ma w dokumencie. Każde CONSENT_SECTION ma swoje zdanie w tekście. BŁĄD: „Oświadczam, że dane są prawdziwe”, „Zamieszkuję na nieruchomości” albo pole „Nazwa banku” dodane, choć tekst ich nie zawiera. Brak w tekście = brak pola.
+- NIE wymyślaj pól, opcji ani oświadczeń, których nie ma w dokumencie. Każde CONSENT_SECTION ma swoje zdanie w tekście. BŁĄD: „Oświadczam, że dane są prawdziwe”, „Zamieszkuję na nieruchomości” albo pole „Nazwa banku” dodane, choć tekst ich nie zawiera. Brak w tekście = brak pola. Nie twórz placeholderów („Załącznik 1 (np. …)”, „Organ wydający …”) ani zgód, których tekst nie zawiera. Gdy dokument nie podaje organu, `organ` = "".
 - Zachowaj sens pola z papieru: wybór rodzaju (np. rodzaj zaświadczenia, cel) to RADIO/CHECKBOX z opcjami z papieru (+ „Inne” z polem tekstowym, gdy papier je ma), a nie ankieta o szczegółach; dane osoby to dane osoby, nie przedmiotu (np. „pochodzenie psa: imię, nazwisko, adres poprzedniego właściciela” = dane właściciela, nie „imię psa”).
 - Labele wierne i poprawne: przedziały i progi jak w papierze („od 45 do 60 m²”, nie „60 m²”), „Liczba”, nie „Ilość”; bez formatu w labelu („(DD-MM-RRRR)”, „(opcjonalnie)”, „(TAK/NIE)”) — format i uwagi idą do hint.
 
-TYPY PÓL: TEXT_FIELD krótki tekst; TEXTAREA uzasadnienie/opis; NUMBER liczby i kwoty; DATEPICKER daty; RADIO jeden wybór (2–5 opcji); CHECKBOX wiele wyborów (2–5 opcji); SELECT lista >5 opcji; FILE_UPLOADER każdy załącznik z listy załączników osobno (załącznik = FILE_UPLOADER, nigdy RADIO „Tak/Nie” ani CHECKBOX; „Załącznik A (TAK/NIE)” = jedno pole FILE_UPLOADER, bez dodatkowego pytania; numer dokumentu to TEXT_FIELD, nie plik); CONSENT_SECTION oświadczenia i zgody (nigdy CHECKBOX); TEXT_BLOCK krótka informacja bez pola (np. kwota opłaty, numer konta).
-- options tylko dla SELECT/RADIO/CHECKBOX. „Niepotrzebne skreślić”, kratki ☐ → RADIO/CHECKBOX z tymi opcjami.
+TYPY PÓL: TEXT_FIELD krótki tekst; TEXTAREA uzasadnienie/opis; NUMBER liczby i kwoty; DATEPICKER daty; RADIO jeden wybór (2–5 opcji); CHECKBOX wiele wyborów (2–5 opcji); SELECT lista >5 opcji; FILE_UPLOADER każda pozycja listy „Załączniki” / „W załączeniu” / „Do wniosku dołączam” osobno, także z dopiskiem „(w przypadku …)” — wtedy z show_if; potwierdzenie lub zgoda osoby trzeciej (zarządca, właściciel) też FILE_UPLOADER (załącznik = FILE_UPLOADER, nigdy RADIO „Tak/Nie” ani CHECKBOX; „Załącznik A (TAK/NIE)” = jedno pole FILE_UPLOADER, bez dodatkowego pytania; numer dokumentu to TEXT_FIELD, nie plik); CONSENT_SECTION oświadczenia i zgody (nigdy CHECKBOX); TEXT_BLOCK krótka informacja bez pola (np. kwota opłaty, numer konta).
+- options tylko dla SELECT/RADIO/CHECKBOX. „Niepotrzebne skreślić”, kratki ☐ → RADIO/CHECKBOX z tymi opcjami. Jedna grupa kratek = JEDNO pole wyboru ze wszystkimi opcjami (nie kilka pytań Tak/Nie). „Właściwe podkreślić/zaznaczyć” bez słowa „jedną” = CHECKBOX. Lista > 15 opcji = SELECT z opcjami, nigdy TEXTAREA.
 - Kategorie, które mogą występować razem (np. kilka rodzajów zajęcia pasa, kilka dyscyplin) → CHECKBOX, nie RADIO.
 - required=true gdy pole jest obowiązkowe lub ma gwiazdkę *, a także pole warunkowe, którego papier wymaga przy danej opcji (np. numer konta przy przelewie) — show_if i tak ukrywa je przy innej opcji. Każda strona merytoryczna ma co najmniej jedno pole required.
 - validators: PESEL, NIP, REGON, EMAIL, ZIP_CODE, EPUAP, ADE, SERIAL_NUMBER_ID_CARD — gdy pole tego dotyczy.
 - dictionary: zostaw puste, chyba że masz pewność (system sam rozpozna typowe pola po etykiecie). prefill zawsze puste (dane wnioskodawcy są w szablonie).
-- show_if: {"field": dokładny label pola wyboru (RADIO/SELECT/CHECKBOX) zdefiniowanego WCZEŚNIEJ, "equals": dokładnie jedna z jego opcji}.
+- show_if: {"field": dokładny label pola wyboru (RADIO/SELECT/CHECKBOX), które SAM umieściłeś WCZEŚNIEJ w szkicu, "equals": dokładnie jedna z jego opcji}. Nigdy nie wskazuj pytania, którego nie ma w szkicu — najpierw dodaj to pole.
 
 ZALEŻNOŚCI (show_if) — formularz elektroniczny pokazuje tylko to, co dotyczy wnioskodawcy. Stosuj zawsze te wzorce:
 - Warianty wniosku — w tytule, nagłówku, liście rodzajów wniosku albo w zdaniu „proszę o …” jako alternatywa z „/”, „lub” albo „*” (np. „wynajęcie/użyczenie*”, „hodowanie/utrzymywanie*”, „stypendium / nagroda / wyróżnienie”, „pierwsza deklaracja / korekta / ustanie obowiązku”) → PIERWSZE pole pierwszej strony to RADIO „Czego dotyczy wniosek” z WSZYSTKIMI wariantami. Gdy dokument powtarza części osobno dla każdego wariantu: pola wspólne raz, a sekcje różne między wariantami (inne dane, inne zgody) z show_if na swój wariant. Formy liczby („psa/psy”, „charta/chartów”) to nie warianty.
@@ -67,6 +67,7 @@ ZALEŻNOŚCI (show_if) — formularz elektroniczny pokazuje tylko to, co dotyczy
 - Alternatywy „niepotrzebne skreślić” / kratki, po których są różne pola (np. sposób zwrotu: przelew → numer konta; odbiór osobiście → brak pól) → RADIO + show_if na polach każdej opcji.
 - Adres merytoryczny (np. nieruchomości), gdy może być za granicą: Kraj (SELECT Polska/Inny kraj); Województwo, Kod pocztowy i pola krajowe z show_if Kraj = Polska; pola zagraniczne z show_if Kraj = Inny kraj.
 - Listy „kolejne / dodatkowe / pozostałe / w przypadku więcej niż jednego …”, współwłaściciele, podopieczni → JEDNA sekcja repeating=true z kompletem pól, obejmująca też pierwszy element (np. jedna sekcja „Psy”, nie „pierwszy pies” + „dodatkowe psy”).
+- „W przypadku X podaj/podać …” dla części pól → te pola z show_if na X albo osobne pola dla każdego wariantu (np. rozbudowa: wymiar istniejący i docelowy; „tylko drzewa / tylko krzewy / oba” → pola krzewów tylko przy krzewach). Pole wymagane tylko w jednym wariancie nie może być wymagane zawsze.
 - Label pola warunkowego pasuje do warunku (pole z show_if „Tatuaż” nie mówi o mikroprocesorze); pole dla dwóch opcji → osobne pole dla każdej.
 
 POLA ATOMOWE I ODKRYWANIE STOPNIOWE (najważniejsze — e-formularz ma INNĄ treść niż papier):
@@ -77,7 +78,7 @@ POLA ATOMOWE I ODKRYWANIE STOPNIOWE (najważniejsze — e-formularz ma INNĄ tre
 
 POMIJASZ (elementy papierowe): podpis, pieczęć, miejscowość i data wypełnienia, „wypełnić drukowanymi literami/czytelnie”, „niepotrzebne skreślić”, pola „wypełnia urząd”, numery stron, przypisy techniczne.
 
-JĘZYK: prosty, druga osoba liczby pojedynczej, krótkie etykiety (np. „Numer telefonu”, „Uzasadnienie”), bez wersalików. Nie używaj: dokonać, posiadać, pragnąć, informujemy, imiesłowów na -ąc, form bezosobowych („naliczono”), form zależnych od płci („Zapoznałem/am się” → „Znam i akceptuję”, „Oświadczam, że jestem świadomy/a” → „Wiem, że”). Pytania i polecenia w 2. osobie („Wybierz…”, „Podaj…”). Trudne terminy objaśnij w hint. Poprawiaj literówki i błędy z papieru.
+JĘZYK: prosty, druga osoba liczby pojedynczej, krótkie etykiety (np. „Numer telefonu”, „Uzasadnienie”), bez wersalików. Nie używaj: dokonać, posiadać, pragnąć, informujemy, imiesłowów na -ąc, form bezosobowych („naliczono”), form zależnych od płci („Zapoznałem/am się” → „Znam i akceptuję”, „Oświadczam, że jestem świadomy/a” → „Wiem, że”, „świadomy odpowiedzialności” → „mając świadomość odpowiedzialności”); bez formatów dat w labelach („(RRRR-MM-DD)”). Pytania i polecenia w 2. osobie („Wybierz…”, „Podaj…”). Trudne terminy objaśnij w hint. Poprawiaj literówki i błędy z papieru.
 TYTUŁ: zaczyna się od „Wniosek”, „Zgłoszenie”, „Deklaracja” lub „Oświadczenie”, potem czego dotyczy; krótki, bez odwołań do przepisów prawa, max 255 znaków. Przedmiot wniosku przepisz DOKŁADNIE słowami z tytułu dokumentu (nie zamieniaj np. „nieruchomości” na „budynku”).
 finish_text: zawsze pusty (stronę końcową z podglądem robi system)."""
 
@@ -87,7 +88,8 @@ FINAL_CHECK = """KONTROLA PRZED ODPOWIEDZIĄ (dla KAŻDEGO dokumentu; przykłady
 1. Czy tekst wymienia rodzaje lub warianty wniosku (lista rodzajów, „/”, „lub”, „*” w tytule albo w zdaniu „proszę o …”)? TAK → pierwsze pole pierwszej strony = RADIO z tymi wariantami, np. dla „wniosek o zwrot/zaliczenie* nadpłaty”: {"label":"Czego dotyczy wniosek","type":"RADIO","required":true,"options":["Zwrot nadpłaty","Zaliczenie nadpłaty"]}. Tytuł z wariantem NIE zastępuje tego pola. Jedno takie pole na cały formularz; sekcje wariantów mają show_if na nie.
 2. Czy tekst daje wybór, kto składa wniosek (np. „Wnioskodawca: organ / klub”), kogo dotyczy albo czy osoba jest pełnoletnia? TAK → RADIO + show_if na sekcjach każdej opcji.
 3. Każde CONSENT_SECTION to zdanie wnioskodawcy przepisane z tekstu. Nie umiesz wskazać zdania → usuń pole. Zgoda lub oświadczenie podpisywane przez inną osobę (kandydat, podopieczny, rodzic, osoba odpowiedzialna) → FILE_UPLOADER „Zgoda <kogo>”, nie CONSENT_SECTION.
-4. Sekcja na „dodatkowe/kolejne” elementy → jedna sekcja repeating=true albo show_if na pytaniu „Czy … więcej niż jeden …?”."""
+4. Sekcja na „dodatkowe/kolejne” elementy → jedna sekcja repeating=true albo show_if na pytaniu „Czy … więcej niż jeden …?”.
+5. Każde show_if.field to label pola wyboru, które jest w Twoim szkicu wcześniej. Brakuje go → dodaj RADIO (np. „Czy wniosek dotyczy osoby niepełnoletniej?”, opcje Tak/Nie) przed polami zależnymi."""
 
 CONTINUATION = """To jest CZĘŚĆ {i} z {n} tego samego dokumentu (kontynuacja). Zwróć szkic tylko z pól, które występują w TEJ części:
 - strony przedmiotu wniosku (bez części standardowych — te wstawia system),
@@ -307,6 +309,54 @@ def _llm_draft(doc: Document, llm: LLMClient, warnings: list[str]) -> Draft:
 
 _ATTACHMENT = re.compile(r"^(załącznik|zalacznik|dokument|kopi[aęe]|odpis|dowód|dowod|zaświadczeni|pełnomocnictw)", re.I)
 _YES_NO = {"tak", "nie"}
+# pytania z szablonów standardowych (builder je zna) — dla nich nie dokładamy własnego pola
+_TEMPLATE_QUESTION = re.compile(r"pełnomocn|pelnomocn|w czyim imieniu|jako kto|podmiot wniosku", re.I)
+
+
+def ensure_controls(draft: Draft, warnings: list[str]) -> Draft:
+    """G2/M3 (D-01): show_if wskazuje pytanie Tak/Nie, którego LLM nie dodał do szkicu (np. „Czy wniosek dotyczy osoby
+    niepełnoletniej?”) -> wstawiamy RADIO Tak/Nie tuż przed pierwszym zależnym elementem. Bez tego builder zdejmował
+    warunek i REQUIRED, więc sekcje dziecka/rodzica były zawsze widoczne i opcjonalne.
+    Tylko dla equals ∈ {Tak, Nie} — przy innych wartościach nie zgadujemy opcji.
+    """
+    known = {f.label.strip().casefold() for p in draft.pages for s in p.sections for f in s.fields}
+    known |= {o.strip().casefold() for p in draft.pages for s in p.sections for f in s.fields for o in f.options}
+    added: list[str] = []
+    for page in draft.pages:
+        i = 0
+        while i < len(page.sections):
+            sec = page.sections[i]
+            # warunek sekcji -> pytanie w nowej sekcji przed nią
+            si = sec.show_if
+            if si and _needs_control(si, known):
+                page.sections.insert(i, DraftSection(title=si.field.strip().rstrip("?")[:120] or "Pytanie",
+                                                     fields=[_control(si.field)]))
+                known.add(si.field.strip().casefold())
+                added.append(si.field)
+                i += 1
+            j = 0
+            while j < len(sec.fields):
+                si = sec.fields[j].show_if
+                if si and _needs_control(si, known):
+                    sec.fields.insert(j, _control(si.field))
+                    known.add(si.field.strip().casefold())
+                    added.append(si.field)
+                    j += 1
+                j += 1
+            i += 1
+    if added:
+        warnings.append(f"Dodano brakujące pytania sterujące (Tak/Nie): {', '.join(dict.fromkeys(added))}.")
+    return draft
+
+
+def _needs_control(si, known: set[str]) -> bool:
+    label = (si.field or "").strip()
+    return (bool(label) and label.casefold() not in known and si.equals.strip().casefold() in _YES_NO
+            and not _TEMPLATE_QUESTION.search(label))
+
+
+def _control(label: str) -> DraftField:
+    return DraftField(label=label.strip(), type="RADIO", required=True, options=["Tak", "Nie"])
 
 
 def attachments_as_uploads(draft: Draft, warnings: list[str]) -> Draft:
@@ -429,7 +479,7 @@ def _make_draft(doc: Document, llm: LLMClient | None) -> DraftResult:
     else:
         try:
             llm_removed = list(removed)
-            draft = attachments_as_uploads(_llm_draft(doc, llm, warnings), warnings)
+            draft = ensure_controls(attachments_as_uploads(_llm_draft(doc, llm, warnings), warnings), warnings)
             if (used := getattr(llm, "last_model", None)) and used != getattr(llm, "model", used):
                 warnings.append(f"Główny model ({llm.model}) miał pełny limit zapytań — szkic zrobił model zapasowy {used}.")
             if (draft := _finalize(draft, llm_removed, warnings)) is not None:

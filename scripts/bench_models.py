@@ -149,7 +149,8 @@ def run_one(mid: str, nr: str, doc, timeout: float) -> dict:
         st.wait_s += s
         real_sleep(s)
 
-    hllm.time = SimpleNamespace(sleep=sleep)  # tylko LLMClient czeka na 429 przez time.sleep
+    # LLMClient czeka na 429 przez time.sleep (liczymy to osobno), okno limitu używa time.monotonic
+    hllm.time = SimpleNamespace(sleep=sleep, monotonic=time.monotonic, perf_counter=time.perf_counter)
     t0 = time.perf_counter()
     try:
         res = make_draft(doc, client, compliance=False)

@@ -291,3 +291,40 @@ def test_prompt_has_f16_rules():
                    # F-16+++ (v4): warianty w treści, osoba trzecia = upload, negatywny przykład, warunkowe „dodatkowe”
                    "Tytuł z wariantem NIE zastępuje", "nigdy CONSENT_SECTION wnioskodawcy", "BŁĄD:", "Czy … więcej niż jeden"):
         assert phrase in s
+
+
+# --- G2/M3 (D-01): brakujące pytanie sterujące --------------------------------------------------------------------
+def test_missing_yes_no_control_is_added_before_dependents():
+    from app.form_builder.draft_llm import ensure_controls
+    q = "Czy wniosek dotyczy osoby niepełnoletniej?"
+    d = Draft.model_validate({"title": "Wniosek o wydanie karty wędkarskiej", "pages": [{"title": "Dane karty", "sections": [
+        {"title": "Karta", "fields": [{"label": "Rodzaj karty", "type": "RADIO", "options": ["Zwykła", "Dla dziecka"]}]},
+        {"title": "Informacje o dziecku", "show_if": {"field": q, "equals": "Tak"},
+         "fields": [{"label": "Imię dziecka", "type": "TEXT_FIELD", "required": True}]},
+        {"title": "Zgoda rodzica", "fields": [
+            {"label": "Zgoda rodzica", "type": "FILE_UPLOADER", "required": True, "show_if": {"field": q, "equals": "Tak"}}]},
+    ]}]})
+    warnings: list[str] = []
+    secs = ensure_controls(d, warnings).pages[0].sections
+    assert [s.title for s in secs][:3] == ["Karta", "Czy wniosek dotyczy osoby niepełnoletniej", "Informacje o dziecku"]
+    ctrl = secs[1].fields[0]
+    assert (ctrl.label, ctrl.type, ctrl.options, ctrl.required) == (q, "RADIO", ["Tak", "Nie"], True)
+    assert len([f for s in secs for f in s.fields if f.label == q]) == 1      # drugi zależny nie dubluje pytania
+    assert warnings and q in warnings[0]
+    form = build(d)
+    assert check(form) == []
+    dziecko = next(qq["field"] for t in form["tabs"] for qq in t["questions"] if qq["field"]["title"] == "Informacje o dziecku")
+    assert dziecko["states"] and "REQUIRED" in dziecko["repeatingSectionGrid"][0]["field"]["validation"]
+
+
+def test_existing_or_non_yes_no_control_untouched():
+    from app.form_builder.draft_llm import ensure_controls
+    d = Draft.model_validate({"title": "Wniosek", "pages": [{"title": "Strona", "sections": [
+        {"title": "S", "fields": [
+            {"label": "Sposób zwrotu", "type": "RADIO", "options": ["Przelew", "Gotówka"]},
+            {"label": "Numer konta", "type": "TEXT_FIELD", "show_if": {"field": "Sposób zwrotu", "equals": "Przelew"}},
+            {"label": "Bank", "type": "TEXT_FIELD", "show_if": {"field": "Nieznane pytanie", "equals": "Wariant B"}},
+            {"label": "Pełnomocnictwo", "type": "FILE_UPLOADER", "show_if": {"field": "Czy działasz przez pełnomocnika?", "equals": "Tak"}},
+        ]}]}]})
+    warnings: list[str] = []
+    assert len(ensure_controls(d, warnings).pages[0].sections[0].fields) == 4 and warnings == []
