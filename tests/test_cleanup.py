@@ -187,3 +187,20 @@ def test_r03_runs_after_tidy():
     build(d, notes, "Wniosek. Cel wniosku: ...")
     flagged = [n for n in notes if "nie występuje w dokumencie" in n]
     assert len(flagged) == 1 and "dane są prawdziwe" in flagged[0]
+
+
+def test_unsupported_fields_flagged_generic_ones_not():
+    """R-08: pole ze słowami spoza dokumentu -> „do sprawdzenia”, bez REQUIRED; rozbicie adresu i pytania sterujące — nie."""
+    from app.form_builder.cleanup import unsupported_fields
+    from app.form_builder.draft import Draft
+    d = Draft.model_validate({"title": "Wniosek o zwrot opłaty", "pages": [{"title": "Zwrot", "sections": [{"title": "S", "fields": [
+        {"label": "Numer rachunku", "type": "TEXT_FIELD", "required": True},
+        {"label": "Ulica", "type": "TEXT_FIELD", "required": True},
+        {"label": "Czego dotyczy wniosek?", "type": "RADIO", "options": ["Zwrot", "Zaliczenie"], "required": True},
+        {"label": "Numer identyfikacyjny pojazdu VIN", "type": "TEXT_FIELD", "required": True},
+    ]}]}]})
+    notes: list[str] = []
+    unsupported_fields(d, "Wniosek o zwrot opłaty skarbowej. Nr rachunku. Adres. Przelewem na rachunek w banku.", notes)
+    f = d.pages[0].sections[0].fields
+    assert [x.required for x in f] == [True, True, True, False]
+    assert len(notes) == 1 and "VIN" in notes[0]

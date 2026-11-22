@@ -106,6 +106,9 @@ def changes(form: dict, removed: list[str], notes: list[str]) -> dict:
         elif m := re.match(r"oświadczenie '(.+)' nie występuje w dokumencie", n):
             out["check"].append(f"Oświadczenie „{m.group(1)}” nie występuje w dokumencie — mogło zostać dopisane przez AI. "
                                 "Jest nieobowiązkowe; usuń je albo potwierdź z oryginałem.")
+        elif m := re.match(r"pole '(.+)' nie występuje w dokumencie", n):  # R-08
+            out["check"].append(f"Pole „{m.group(1)}” nie występuje w dokumencie — mogło zostać dopisane przez AI. "
+                                "Jest nieobowiązkowe; usuń je albo potwierdź z oryginałem.")
         elif m := re.match(r"show_if: (nie znaleziono pola|pusta wartość warunku) '(.+)' dla '(.+)',", n):
             why = "takiego pola nie ma" if m.group(1) == "nie znaleziono pola" else "warunek nie ma wartości"
             out["check"].append(f"„{m.group(3)}” miało się pokazywać zależnie od „{m.group(2)}”, ale {why}. "

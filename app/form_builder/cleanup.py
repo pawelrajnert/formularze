@@ -122,3 +122,31 @@ def unsupported_statements(draft: Draft, source_text: str, notes: list) -> None:
                 if words and len(words & src) / len(words) < 0.6:
                     f.required = False
                     notes.append(f"oświadczenie {f.label!r} nie występuje w dokumencie, zdjęto REQUIRED")
+
+
+# R-08: słowa, które e-formularz dodaje z definicji (rozbicie adresu i imienia, pytania sterujące, ogólne etykiety)
+# — ich brak w dokumencie nie świadczy o zmyśleniu. Dobrane na 178 polach z wyniki/: 0 fałszywych alarmów.
+_GENERIC = _stems("numer nazwa data kraj ulica budynku lokalu miejscowość kod pocztowy poczta imię nazwisko rodzaj czego "
+                  "dotyczy wniosek opcji szczegóły tylko inne rrrr telefon e-mail adres województwo powiat gmina uzasadnienie "
+                  "opis liczba kwota wartość informacje dodatkowe uwagi załącznik plik dokument potwierdzenie wybierz podaj "
+                  "który która których jeden więcej osoba osoby inna innej czy zamieszkania korespondencji")
+_INPUTS = {"TEXT_FIELD", "TEXTAREA", "NUMBER", "DATEPICKER", "SELECT", "RADIO", "CHECKBOX", "FILE_UPLOADER"}
+
+
+def unsupported_fields(draft: Draft, source_text: str, notes: list) -> None:
+    """R-08 (D-01, przegląd v4): pole, którego istotnych słów (bez słownictwa ogólnego _GENERIC) w większości nie ma
+    w dokumencie, mogło zostać dopisane przez AI -> traci REQUIRED i trafia do „do sprawdzenia” (nie usuwamy).
+    Nie złapie pola złożonego ze słów, które w dokumencie są (np. „Nazwa banku” przy „rachunek w banku”) — to wymagałoby
+    drugiego zapytania do LLM."""
+    src = _stems(source_text)
+    if not src:  # pusty / nieczytelny dokument — nie ma z czym porównać
+        return
+    for page in draft.pages:
+        for sec in page.sections or []:
+            for f in sec.fields or []:
+                if f.type not in _INPUTS:
+                    continue
+                words = _stems(f.label) - _GENERIC
+                if words and len(words & src) / len(words) < 0.5:
+                    f.required = False
+                    notes.append(f"pole {f.label!r} nie występuje w dokumencie, zdjęto REQUIRED")
