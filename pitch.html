@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Form2Norm: pitch</title>
+<style>
+/* Działa offline: bez zewnętrznych fontów i skryptów. Film de(mo)COI.mp4 musi leżeć obok tego pliku. */
+:root { --navy:#0B1B2B; --orange:#F26A1B; --muted:#C3CDD6; --line:rgba(255,255,255,.12); }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #000; overflow: hidden; cursor: none; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #fff; }
+.display { font-weight: 800; letter-spacing: -.01em; }
+.two { color: var(--orange); }
+#stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+video { width: 100vw; height: 100vh; object-fit: contain; background: #000; }
+
+/* Karta na każdym przystanku: granatowy panel w rogu, nad częścią ekranu, która w tej scenie jest najmniej ważna. */
+#card { position: fixed; width: min(44vw, 880px); background: rgba(11,27,43,.95); border-top: .55vh solid var(--orange);
+  border-radius: 1.2vh; padding: 3vh 2.8vw 3.4vh; box-shadow: 0 3vh 7vh rgba(0,0,0,.5); opacity: 0; transform: translateY(2vh);
+  transition: opacity .35s ease, transform .35s ease; pointer-events: none; }
+#card.on { opacity: 1; transform: none; }
+#card.tr { top: 12vh; right: 3vw; }
+/* Dolne karty kończą się nad paskiem napisów filmu (ok. 84–94% wysokości), żeby go nie przecinać. */
+#card.br { bottom: 17vh; right: 3vw; }
+#card.bl { bottom: 17vh; left: 3vw; }
+#step { position: absolute; top: 2.4vh; right: 2.4vw; font-size: 1.8vh; color: rgba(255,255,255,.45); font-variant-numeric: tabular-nums; }
+#kicker { font-size: 2vh; letter-spacing: .14em; text-transform: uppercase; color: var(--orange); margin: 0 0 1.3vh; font-weight: 700; }
+#big { font-size: 5.6vh; line-height: 1.1; margin: 0; }
+#sub { font-size: 2.5vh; line-height: 1.45; color: var(--muted); margin: 1.8vh 0 0; }
+
+/* Ekrany: tytuł, liczby, zakończenie. */
+.screen { position: fixed; inset: 0; background: var(--navy); display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 0 6vw; transition: opacity .5s ease; }
+.screen.off { opacity: 0; pointer-events: none; }
+.screen h1 { font-size: 12vh; margin: 0; line-height: 1.05; }
+#outro h1 { font-size: 7.6vh; line-height: 1.15; }
+.screen h2 { font-size: 6vh; margin: 0 0 6vh; line-height: 1.1; }
+.screen p { font-size: 3.4vh; color: var(--muted); margin: 3vh 0 0; line-height: 1.4; }
+.screen .tag { font-size: 2vh; letter-spacing: .16em; text-transform: uppercase; color: var(--orange); margin: 0 0 3vh; font-weight: 700; }
+.screen .url { color: var(--orange); font-size: 4vh; margin-top: 6vh; }
+.screen .small { font-size: 2.2vh; margin-top: 2vh; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4vw; width: min(90vw, 1700px); text-align: left; }
+.stat { border-top: .5vh solid var(--orange); padding-top: 2.4vh; }
+.stat b { display: block; font-size: 9vh; line-height: 1; font-weight: 800; font-variant-numeric: tabular-nums; }
+.stat span { display: block; font-size: 2.6vh; line-height: 1.4; color: var(--muted); margin-top: 1.6vh; }
+.stat em { font-style: normal; color: #fff; font-weight: 600; }
+.foot { font-size: 2vh !important; margin-top: 7vh !important; color: rgba(255,255,255,.5) !important; }
+
+#progress { position: fixed; left: 0; bottom: 0; height: .5vh; background: var(--orange); width: 0; opacity: .85; }
+#help { position: fixed; right: 2vw; top: 2vh; font-size: 1.6vh; color: rgba(255,255,255,.55); transition: opacity 1s; z-index: 5; }
+#err { position: fixed; left: 50%; bottom: 10vh; transform: translateX(-50%); background: #7a1d1d; padding: 1.6vh 2vw; border-radius: 1vh;
+  font-size: 2vh; display: none; z-index: 6; }
+@media (prefers-reduced-motion: reduce) { #card, .screen { transition: none; } }
+</style>
+</head>
+<body>
+<div id="stage"><video id="v" src="de%28mo%29COI.mp4" muted playsinline preload="auto"></video></div>
+
+<div id="card" class="tr" role="status" aria-live="polite"><span id="step"></span><p id="kicker"></p><p id="big" class="display"></p><p id="sub"></p></div>
+
+<section id="intro" class="screen">
+  <p class="tag">HackNation 2026 · Cyfryzacja formularzy COI</p>
+  <h1 class="display">Form<span class="two">2</span>Norm</h1>
+  <p>Papierowy wniosek → e-formularz COI w kilkadziesiąt sekund.</p>
+</section>
+
+<section id="results" class="screen off">
+  <p class="tag">Zmierzone, nie obiecane</p>
+  <h2 class="display">Wyniki</h2>
+  <div class="stats">
+    <div class="stat"><b>69/69</b><span>plików z danych COI w <em>9 formatach</em> → poprawny JSON, sprawdzony oryginalnym schematem COI</span></div>
+    <div class="stat"><b>92%</b><span><em>kompletności pól</em> względem ręcznego ground truth, F1 85% na 9 formularzach</span></div>
+    <div class="stat"><b>28 s</b><span>mediana na dokument, na <em>zwykłym CPU</em>, bez GPU</span></div>
+    <div class="stat"><b>~360</b><span>testów automatycznych; <em>OWASP Top 10</em> i LLM Top 10 opisane z dowodami</span></div>
+  </div>
+  <p class="foot">Źródła: README, docs/TEST_JURY.md, eval/raport.md w repozytorium</p>
+</section>
+
+<section id="outro" class="screen off">
+  <h1 class="display">Formularz w pół minuty.<br>Decyzja zostaje u urzędnika.</h1>
+  <p>Otwarty model Ministral 3 14B (Apache-2.0): dziś po API, w urzędzie na własnym serwerze, bez wysyłania danych.</p>
+  <p class="url display">github.com/pawelrajnert/formularze</p>
+  <p class="small">Uruchomienie: docker compose up --build</p>
+</section>
+
+<div id="progress"></div>
+<div id="help">→ / spacja / pilot: dalej · ← wstecz · F pełny ekran</div>
+<div id="err">Nie mogę wczytać filmu: plik de(mo)COI.mp4 musi leżeć w tym samym folderze co pitch.html.</div>
+
+<script>
+// Film zaczynamy po jego planszy tytułowej i kończymy przed jego planszami końcowymi: te części zastępują ekrany tej strony.
+const START = 4.9, END = 115.3;
+// Przystanki: film gra do `t` (sekundy), zatrzymuje się i pokazuje kartę. `pos`: tr / br / bl (róg ekranu).
+const STOPS = [
+  { t: 18.4,  pos: 'tr', kicker: 'Bezpieczeństwo od pierwszego ekranu', big: 'OWASP Top 10 + LLM Top 10',
+    sub: 'JWT, plik sprawdzany po treści, a nie po rozszerzeniu, blokada makr i zip-bomb, pliki tylko w pamięci, ochrona przed prompt injection. Maskowanie danych przed AI i zatwierdzanie przez urzędnika włącza jedna zmienna.' },
+  { t: 34.5,  pos: 'tr', kicker: 'Word → JSON COI', big: '9 sekund',
+    sub: 'Otwarty model Ministral 3 14B pisze tylko szkic treści. JSON składa kod i sprawdza go walidatorem reguł COI. Czekanie na AI jest na filmie przyspieszone ×6.' },
+  { t: 40.8,  pos: 'tr', kicker: 'Strona „Dane” ze standardu COI', big: 'Dane z rejestrów, nie z klawiatury',
+    sub: 'Imię, nazwisko i PESEL z profilu zaufanego, adres ze słownikami Kraje i TERYT. Tę część zawsze składa kod z oficjalnych wzorców COI, AI jej nie zgaduje.' },
+  { t: 54.8,  pos: 'tr', kicker: 'Drzewo formularza', big: 'Widzisz tylko to, co Cię dotyczy',
+    sub: '„Inna osoba odpowiedzialna” odsłania jej dane i upload jej zgody. Warunki JSONata działają w podglądzie tak samo jak w generatorze COI.' },
+  { t: 65.0,  pos: 'br', kicker: 'E-formularz to nie kopia papieru', big: '46 pól: 14 z dokumentu, 32 ze standardu',
+    sub: 'System pokazuje, co usunął (podpis, data wypełnienia), co dodał ze standardu i dlaczego, oraz co urzędnik musi sprawdzić.' },
+  { t: 98.5,  pos: 'tr', kicker: 'Jeden dokument, trzy wnioski', big: 'Stypendium, nagroda, wyróżnienie',
+    sub: 'Pierwsze pole to wybór wariantu, a każdy wariant otwiera własne sekcje, zgody i załączniki. Warianty z papieru trafiają do formularza jako wybór w 92,9% przypadków.' },
+  { t: 104.4, pos: 'br', kicker: 'Propozycja nowego słownika', big: '20 dyscyplin → słownik COI',
+    sub: 'Długie zamknięte listy system proponuje utrzymywać centralnie. Do tego 80 pól z gotowymi słownikami COI (TERYT, Kraje, numery kierunkowe).' },
+  { t: 115.0, pos: 'br', kicker: 'Wynik', big: 'JSON gotowy do importu',
+    sub: 'Zgodny z oryginalnym schematem importu COI. AI proponuje, urzędnik przegląda i pobiera. Nic nie publikuje się samo.' },
+];
+
+const $ = (id) => document.getElementById(id);
+const v = $('v'), card = $('card'), progress = $('progress');
+const screens = { intro: $('intro'), results: $('results'), outro: $('outro') };
+let state = 'intro';   // intro | playing | paused | results | outro
+let next = 0;          // indeks następnego przystanku
+
+function showScreen(name) { for (const k in screens) screens[k].classList.toggle('off', k !== name); }
+function show(i) {
+  const s = STOPS[i];
+  $('step').textContent = (i + 1) + ' / ' + STOPS.length;
+  $('kicker').textContent = s.kicker;
+  $('big').textContent = s.big;
+  $('sub').textContent = s.sub;
+  card.className = (s.pos || 'tr') + ' on';
+}
+function hideCard() { card.classList.remove('on'); }
+function play() { hideCard(); state = 'playing'; v.play().catch(() => {}); }
+
+function tick() {
+  if (v.duration) progress.style.width = Math.max(0, Math.min(1, (v.currentTime - START) / (END - START))) * 100 + '%';
+  if (state === 'playing' && next < STOPS.length && v.currentTime >= STOPS[next].t) {
+    v.pause(); v.currentTime = STOPS[next].t; state = 'paused'; show(next); next++;
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+function forward() {
+  if (state === 'intro') { showScreen(null); next = 0; v.currentTime = START; play(); return; }
+  if (state === 'playing') return;                    // scena gra do końca; kolejne naciśnięcie idzie dalej
+  if (state === 'paused') {
+    if (next >= STOPS.length) { hideCard(); showScreen('results'); state = 'results'; return; }
+    play(); return;
+  }
+  if (state === 'results') { showScreen('outro'); state = 'outro'; return; }
+}
+function back() {
+  if (state === 'outro') { showScreen('results'); state = 'results'; return; }
+  if (state === 'results') { showScreen(null); state = 'paused'; show(STOPS.length - 1); return; }
+  if (state === 'intro') return;
+  // Wróć do poprzedniego przystanku (albo do tytułu) i zatrzymaj się tam z jego kartą.
+  const prev = state === 'paused' ? next - 2 : next - 1;
+  v.pause(); hideCard();
+  if (prev < 0) { v.currentTime = START; next = 0; showScreen('intro'); state = 'intro'; return; }
+  v.currentTime = STOPS[prev].t; next = prev + 1; state = 'paused'; show(prev);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (['ArrowRight', 'PageDown', ' ', 'Enter', 'ArrowDown'].includes(e.key)) { e.preventDefault(); forward(); }
+  else if (['ArrowLeft', 'PageUp', 'ArrowUp', 'Backspace'].includes(e.key)) { e.preventDefault(); back(); }
+  else if (e.key === 'f' || e.key === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); }
+});
+document.addEventListener('click', forward);
+v.addEventListener('error', () => { $('err').style.display = 'block'; });
+setTimeout(() => { $('help').style.opacity = 0; }, 6000);
+
+// Do prób: pitch.html#3 otwiera przystanek 3, #wyniki i #koniec otwierają ekrany końcowe.
+function jump() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (h === 'wyniki') { v.pause(); hideCard(); next = STOPS.length; showScreen('results'); state = 'results'; return; }
+  if (h === 'koniec') { v.pause(); hideCard(); next = STOPS.length; showScreen('outro'); state = 'outro'; return; }
+  const n = parseInt(h, 10);
+  if (n >= 1 && n <= STOPS.length) { v.pause(); showScreen(null); v.currentTime = STOPS[n - 1].t; next = n; state = 'paused'; show(n - 1); }
+}
+if (location.hash) { if (v.readyState >= 1 || !/^#\d/.test(location.hash)) jump(); else v.addEventListener('loadedmetadata', jump, { once: true }); }
+window.addEventListener('hashchange', jump);
+</script>
+</body>
+</html>
