@@ -87,7 +87,7 @@ a { color:var(--pri); }
 #prog li.fail { color:var(--err); font-weight:600; }
 #prog li.fail::before { content:"✗ "; }
 .bar { height:8px; background:#e3e7ed; border-radius:4px; overflow:hidden; }
-.bar > div { height:100%; width:0; background:var(--pri); transition:width .4s; }
+.bar > div { height:100%; width:0; background:var(--pri); transition:background-color .3s; } /* szerokość: requestAnimationFrame (R-13) */
 .bar.ok > div { background:var(--ok); }
 .bar.fail > div { background:var(--err); }
 @media (prefers-reduced-motion:reduce) { .bar > div { transition:none; } }
@@ -325,7 +325,7 @@ $("up-form").addEventListener("submit", async (e) => {
     if (!r.ok) { const m = await errorText(r); prog.fail(m); return setMsg($("up-msg"), m); }
     result = await r.json();
     result.stem = file.name.replace(/\.[^.]+$/, "");
-    prog.done(Math.round((Date.now() - t0) / 1000));
+    await prog.done(Math.round((Date.now() - t0) / 1000));  // R-13: wynik dopiero, gdy pasek dobiegnie do 100%
     showResult();
   } catch (err) {
     prog.fail("błąd połączenia lub odpowiedzi.");
@@ -335,34 +335,81 @@ $("up-form").addEventListener("submit", async (e) => {
   }
 });
 
-// Pasek postępu: backend nie streamuje etapów, więc przełączamy je czasowo (szacunek); koniec = odpowiedź serwera.
+// Pasek postępu (R-13): backend nie streamuje etapów, więc postęp szacujemy z czasu. Płynnie (requestAnimationFrame),
+// po krzywej asymptotycznej (szybko na początku, potem wolniej, nigdy nie staje i nie przekracza ~95%), skalibrowanej
+// czasem poprzednich konwersji tego formatu (localStorage). Po odpowiedzi serwera pasek DOBIEGA do 100% (etap „Budowa
+// i walidacja”), i dopiero wtedy „Gotowe ✓” i wynik.
 const STEPS = ["Wysyłanie pliku", "Odczyt dokumentu (OCR dla skanów)", "AI tworzy szkic formularza", "Budowa i walidacja"];
+const STEP_AT = [0, 6, 18, 97];  // od jakiego % zaczyna się etap
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function expectedMs(f) {
+  const ext = (f.name.match(/\.([^.]+)$/) || [, ""])[1].toLowerCase();
+  const base = { pdf: 20000, docx: 18000, doc: 30000, ods: 30000, xlsx: 30000, jpg: 35000, jpeg: 35000, jpe: 35000, png: 35000 }[ext] || 25000;
+  try {
+    const hist = JSON.parse(localStorage.getItem("coi_times") || "{}")[ext] || [];
+    if (hist.length) return Math.max(4000, hist.reduce((x, y) => x + y, 0) / hist.length);
+  } catch { /* brak localStorage — szacunek domyślny */ }
+  return base + f.size / 100;  // większy plik = trochę dłużej
+}
+function rememberMs(f, ms) {
+  try {
+    const ext = (f.name.match(/\.([^.]+)$/) || [, ""])[1].toLowerCase();
+    const all = JSON.parse(localStorage.getItem("coi_times") || "{}");
+    all[ext] = [...(all[ext] || []), ms].slice(-3);  // średnia z 3 ostatnich (cache 0,1 s też się liczy, ale nie zeruje)
+    localStorage.setItem("coi_times", JSON.stringify(all));
+  } catch { /* trudno — następnym razem szacunek domyślny */ }
+}
 function progress(f) {
-  const t0 = Date.now(), img = /\.(jpe?g|png)$/i.test(f.name);
-  const tUp = 500 + f.size / 2000, tRead = tUp + (img ? 12000 : 2000);  // wysyłanie ~2 MB/s; OCR skanu ~12 s
+  const t0 = performance.now(), expect = expectedMs(f);
   const lis = STEPS.map((t) => el("li", { textContent: t }));
   $("prog-steps").replaceChildren(...lis);
-  const bar = $("prog-bar"); bar.className = "bar"; bar.firstChild.style.width = "0";
+  const bar = $("prog-bar"), fill = bar.firstChild;
+  bar.className = "bar"; fill.style.width = "0%";
   $("prog").hidden = false;
-  let cur = -1;
-  const set = (i, pct, text) => {
+  let pct = 0, cur = -1, raf = 0, finished = false;
+  const stepOf = (p) => STEP_AT.reduce((i, at, j) => (p >= at ? j : i), 0);
+  const paint = (p, text) => {
+    pct = p;
+    fill.style.width = p.toFixed(1) + "%";
+    const i = stepOf(p);
     lis.forEach((li, j) => (li.className = j < i ? "done" : j === i ? "on" : ""));
-    bar.firstChild.style.width = pct + "%";
-    if (i !== cur) { cur = i; $("status").textContent = STEPS[i] + "…"; }
-    if (text) $("status").textContent = text;
+    if (i !== cur) cur = i;
+    $("status").textContent = text || STEPS[i] + "…";
   };
-  const tick = () => {
-    const ms = Date.now() - t0, s = Math.round(ms / 1000);
-    if (ms < tUp) set(0, 5 + 10 * ms / tUp);
-    else if (ms < tRead) set(1, 15 + 20 * (ms - tUp) / (tRead - tUp));
-    else set(2, Math.min(90, 35 + (ms - tRead) / 1000), "AI tworzy szkic formularza… " + s + " s (z LLM zwykle 10–60 s)");
+  const frame = (now) => {
+    if (finished) return;
+    const ms = now - t0;
+    // 95·(1−e^(−t/τ)): przy t = oczekiwany czas ≈ 86%, potem coraz wolniej; τ = 0,5·oczekiwany
+    const p = Math.max(pct, 95 * (1 - Math.exp(-ms / (0.5 * expect))));
+    const s = Math.round(ms / 1000);
+    paint(p, stepOf(p) === 2 ? "AI tworzy szkic formularza… " + s + " s (szacunek ok. " + Math.round(expect / 1000) + " s)" : "");
+    raf = requestAnimationFrame(frame);
   };
-  tick();
-  const timer = setInterval(tick, 500);
+  raf = requestAnimationFrame(frame);
+  const stop = () => { finished = true; cancelAnimationFrame(raf); };
   return {
-    stop: () => clearInterval(timer),
-    done: (sec) => { clearInterval(timer); lis.forEach((li) => (li.className = "done")); bar.className = "bar ok"; bar.firstChild.style.width = "100%"; $("status").textContent = "Gotowe ✓ (" + sec + " s)"; },
-    fail: (msg) => { clearInterval(timer); if (lis[cur]) lis[cur].className = "fail"; bar.className = "bar fail"; $("status").textContent = "Nie udało się — " + msg; },
+    stop,
+    // płynne dociągnięcie od bieżącego % do 100% (~0,6 s), potem „Gotowe”; zwraca Promise
+    done: (sec) => new Promise((resolve) => {
+      stop();
+      rememberMs(f, performance.now() - t0);
+      const from = pct, t1 = performance.now(), dur = reduceMotion ? 0 : 600;
+      const end = () => {
+        paint(100, "Gotowe ✓ (" + sec + " s)");
+        lis.forEach((li) => (li.className = "done"));
+        bar.className = "bar ok";
+        resolve();
+      };
+      if (!dur) return end();
+      const anim = (now) => {
+        const k = Math.min(1, (now - t1) / dur), e = 1 - (1 - k) ** 3;  // ease-out
+        const p = from + (100 - from) * e;
+        paint(p, p >= STEP_AT[3] ? "Budowa i walidacja…" : "");
+        if (k < 1) requestAnimationFrame(anim); else end();
+      };
+      requestAnimationFrame(anim);
+    }),
+    fail: (msg) => { stop(); if (lis[cur]) lis[cur].className = "fail"; bar.className = "bar fail"; $("status").textContent = "Nie udało się — " + msg; },
   };
 }
 
